@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">VSCodroid</string>
-    <string name="notification_channel_name">Serwer VSCodroid</string>
+    <string name="app_name">Diligent</string>
+    <string name="notification_channel_name">Serwer Diligent</string>
     <string name="notification_channel_description">Utrzymuje działanie lokalnego serwera programistycznego</string>
-    <string name="notification_title">VSCodroid działa</string>
+    <string name="notification_title">Diligent działa</string>
     <!-- The card the service puts up while first-run setup unpacks. Its own pair
          rather than the server's, because no server is running yet and the whole
          point of the hold is that the process survives a user who leaves. -->
-    <string name="notification_title_setup">Trwa konfiguracja VSCodroid</string>
+    <string name="notification_title_setup">Trwa konfiguracja Diligent</string>
     <string name="notification_text_setup">Rozpakowywanie edytora i jego narzędzi. Potrwa to kilka minut i zdarzy się tylko raz.</string>
     <string name="notification_text">Lokalny serwer programistyczny działa</string>
     <!-- There was a second line here, shown when the server was adopted rather
@@ -25,7 +25,7 @@
     <!-- Shown once the automatic restart budget is spent. Replaces the two
          strings above in the same notification, which then carries no Stop
          action because there is nothing left to stop. -->
-    <string name="notification_title_stopped">Serwer VSCodroid zatrzymany</string>
+    <string name="notification_title_stopped">Serwer Diligent zatrzymany</string>
     <string name="notification_text_stopped">Serwer wielokrotnie uległ awarii. Uruchom ponownie aplikację.</string>
     <string name="extracting_message">Wypakowywanie plików podstawowych\u2026</string>
 
@@ -150,11 +150,11 @@
     <string name="server_starting">Uruchamianie serwera…</string>
     <!-- Shown on the page, with the reload control, once the editor's renderer
          has died several times in a minute and the app stops reopening it. -->
-    <string name="error_renderer_crash_loop">Edytor kilka razy z rzędu zamknął się nieoczekiwanie, więc VSCodroid przestał go otwierać. Twoje pliki i serwer pozostały nienaruszone. Zamknięcie kilku innych aplikacji zmniejsza ryzyko powtórki.</string>
-    <string name="legal_disclaimer">VSCodroid jest zbudowany z kodu źródłowego Code - OSS na licencji MIT.\nNie jest powiązany z Microsoft Corporation ani przez nią wspierany.\n„Visual Studio Code” i „VS Code” są znakami towarowymi Microsoft.\nKorzysta z rejestru rozszerzeń Open VSX, a nie z Microsoft Marketplace.</string>
+    <string name="error_renderer_crash_loop">Edytor kilka razy z rzędu zamknął się nieoczekiwanie, więc Diligent przestał go otwierać. Twoje pliki i serwer pozostały nienaruszone. Zamknięcie kilku innych aplikacji zmniejsza ryzyko powtórki.</string>
+    <string name="legal_disclaimer">Diligent jest zbudowany z kodu źródłowego Code - OSS na licencji MIT.\nNie jest powiązany z Microsoft Corporation ani przez nią wspierany.\n„Visual Studio Code” i „VS Code” są znakami towarowymi Microsoft.\nKorzysta z rejestru rozszerzeń Open VSX, a nie z Microsoft Marketplace.</string>
 
     <!-- About dialog -->
-    <string name="about_title">O aplikacji VSCodroid</string>
+    <string name="about_title">O aplikacji Diligent</string>
     <string name="about_version_format">Wersja %s</string>
     <string name="about_licenses">Licencje</string>
     <string name="licenses_title">Licencje open source</string>
@@ -227,7 +227,7 @@
     <!-- Shown when a save could not be written out to the device folder. Names the
          consequence rather than the error: the user's next decision is whether to
          copy the file out before uninstalling, not which exception was thrown. -->
-    <string name="saf_write_back_failed">Plik %1$s nie trafił do folderu na urządzeniu. Jedyna kopia jest w VSCodroid.</string>
+    <string name="saf_write_back_failed">Plik %1$s nie trafił do folderu na urządzeniu. Jedyna kopia jest w Diligent.</string>
 
     <!-- Shown once after a folder opens when documents in it could not be copied into
          the editor: a provider error, or no room left. The opposite of
@@ -251,7 +251,7 @@
          because it holds documents that never reached the editor and deleting the
          directory would have taken them with it. Names the device as where the files
          are: the local copy is gone, so saf_write_back_failed's "the only copy is
-         inside VSCodroid" would be backwards here. -->
+         inside Diligent" would be backwards here. -->
     <string name="saf_directory_kept">Folder %1$s został zachowany w folderze na urządzeniu: zawiera pliki, które nigdy nie trafiły do edytora. Usuń go tam, jeśli nie są już potrzebne.</string>
 
     <!-- The same refusal one level down: a single document that never reached the
@@ -303,7 +303,7 @@
     <!-- The widest of the three. A write-back drain outlives the folder switch that
          stopped it and can still be streaming out of the copy, so a restart is what
          makes the copy safe to remove rather than closing the folder. -->
-    <string name="saf_mirror_folder_this_session">Ten folder był otwarty w tej sesji. Uruchom ponownie VSCodroid, a potem go usuń.</string>
+    <string name="saf_mirror_folder_this_session">Ten folder był otwarty w tej sesji. Uruchom ponownie Diligent, a potem go usuń.</string>
 
     <!-- Reasons a bridge call did not do what it was asked. These are returned to the
          page and rendered by the bundled extension's showErrorMessage, which is the
@@ -313,31 +313,31 @@
     <!-- The caller's session token did not match. Used by both the external-URL and
          the folder-removal calls; one string because it is one situation and one
          instruction. -->
-    <string name="bridge_stale_session">VSCodroid nie przyjął żądania. Załaduj ponownie okno i spróbuj jeszcze raz.</string>
+    <string name="bridge_stale_session">Diligent nie przyjął żądania. Załaduj ponownie okno i spróbuj jeszcze raz.</string>
     <!-- Too many storage commands already outstanding. The four that walk the disk share
          one thread with a bounded queue, so this is a wait and not a fault, and it needs
          its own sentence: bridge_stale_session above tells the reader to reload the
          window, which does not drain that thread and costs them their editor state on the
          way to waiting exactly as long. Named by AndroidBridge.STORAGE_BUSY. -->
-    <string name="bridge_storage_busy">VSCodroid jest zajęty innym żądaniem dotyczącym pamięci. Spróbuj ponownie za chwilę.</string>
+    <string name="bridge_storage_busy">Diligent jest zajęty innym żądaniem dotyczącym pamięci. Spróbuj ponownie za chwilę.</string>
     <!-- No Activity wired the removal callback, so nothing could have been removed.
          Distinct from a refusal with a reason: this is a mistake in the app rather
          than a state the user can act on, and saying "that folder is in use" would
          send them looking for a folder to close. -->
-    <string name="bridge_reclaim_unavailable">VSCodroid nie może teraz zarządzać pamięcią folderów na urządzeniu.</string>
+    <string name="bridge_reclaim_unavailable">Diligent nie może teraz zarządzać pamięcią folderów na urządzeniu.</string>
     <!-- Nothing on the device claimed the link. The one refusal the user can act on. -->
-    <string name="open_url_no_handler">VSCodroid nie otworzył linku. Żadna aplikacja na tym urządzeniu nie obsługuje takich linków.</string>
+    <string name="open_url_no_handler">Diligent nie otworzył linku. Żadna aplikacja na tym urządzeniu nie obsługuje takich linków.</string>
     <!-- Every other launch failure, with the class name of the exception substituted. The
          class name and never its message: ActivityNotFoundException quotes the whole
          Intent and FileUriExposedException quotes the file, so the message would hand
          the address back to the page that supplied it. -->
-    <string name="open_url_failed">VSCodroid nie mógł otworzyć tego linku: %1$s</string>
+    <string name="open_url_failed">Diligent nie mógł otworzyć tego linku: %1$s</string>
 
     <!-- A folder copied out to the device that did not arrive whole. Counts entries
          rather than naming them, because the failure is usually folder-wide and forty
          separate notices is another way of telling the user nothing. Deliberately not
          worded like saf_write_back_failed: most of the folder did arrive, so "the only
-         copy is inside VSCodroid" would overstate. -->
+         copy is inside Diligent" would overstate. -->
     <plurals name="saf_upload_incomplete">
         <item quantity="one">%2$s: jeden element nie trafił do folderu na urządzeniu.</item>
         <item quantity="few">%2$s: %1$d elementy nie trafiły do folderu na urządzeniu.</item>
@@ -347,7 +347,7 @@
     <!-- The same folder stopped by the enumeration cap rather than by a refusal. Named
          separately because the cause is a limit this app chose, not the device saying
          no, and the user's next move is to copy the rest out by hand. -->
-    <string name="saf_upload_capped">Folder %1$s jest zbyt duży, aby skopiować go w całości. Reszta została w VSCodroid.</string>
+    <string name="saf_upload_capped">Folder %1$s jest zbyt duży, aby skopiować go w całości. Reszta została w Diligent.</string>
 
     <!-- The Toolchains toolbar's only icon-only control, and the app's only visible
          way back out of that screen. Without it a screen reader announces an
@@ -374,7 +374,7 @@
          updated, rather than because it is being installed for the first time.
          Distinct from extracting_message so that a user who did not expect a
          wait learns why there is one. -->
-    <string name="status_updating_app">Aktualizowanie VSCodroid…</string>
+    <string name="status_updating_app">Aktualizowanie Diligent…</string>
 
     <!-- Opening a device folder. The sync can take a while on a large folder and
          the dialog is not cancellable, so it has to say what is happening.
@@ -450,7 +450,7 @@
     <!-- Shown once on the launch after a crash. The report is quoted into the
          message because the audience is developers, and truncated by the caller
          before it arrives. -->
-    <string name="crash_title">VSCodroid uległ awarii</string>
+    <string name="crash_title">Diligent uległ awarii</string>
     <string name="crash_message">Aplikacja uległa awarii w poprzedniej sesji.\n\n%1$s</string>
     <string name="crash_dismiss">Zamknij</string>
     <string name="crash_copy_report">Kopiuj raport</string>
@@ -460,7 +460,7 @@
          quoted exactly as the palette lists it because the reader's next action
          is to type it, and it is the one part of this sentence a translator must
          leave in English. -->
-    <string name="storage_low_warning">Mało miejsca (dostępne: %1$s). Uruchom polecenie „VSCodroid: Manage Device Folder Storage” z palety poleceń.</string>
+    <string name="storage_low_warning">Mało miejsca (dostępne: %1$s). Uruchom polecenie „Diligent: Manage Device Folder Storage” z palety poleceń.</string>
 
     <!-- An Android System WebView older than the one this app is tested against.
          Both versions are arguments: the installed one is read off the device and
@@ -472,7 +472,7 @@
          changes when it does, and passing it as a number invites a translator to
          treat "105 and newer" as something to inflect. -->
     <string name="webview_below_minimum_title">Android System WebView jest nieaktualny</string>
-    <string name="webview_below_minimum">Android System WebView na tym urządzeniu jest w wersji %1$s. VSCodroid wymaga wersji %2$s lub nowszej: w starszej podglądy Markdown i panele rozszerzeń, na przykład czat, pozostają puste. Zaktualizuj Android System WebView w Sklepie Play.</string>
+    <string name="webview_below_minimum">Android System WebView na tym urządzeniu jest w wersji %1$s. Diligent wymaga wersji %2$s lub nowszej: w starszej podglądy Markdown i panele rozszerzeń, na przykład czat, pozostają puste. Zaktualizuj Android System WebView w Sklepie Play.</string>
     <string name="webview_update">Aktualizuj</string>
 
     <!-- The extra key row, all of it spoken rather than drawn.

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">VSCodroid</string>
-    <string name="notification_channel_name">VSCodroid 서버</string>
+    <string name="app_name">Diligent</string>
+    <string name="notification_channel_name">Diligent 서버</string>
     <string name="notification_channel_description">로컬 개발 서버를 계속 실행합니다</string>
-    <string name="notification_title">VSCodroid 실행 중</string>
+    <string name="notification_title">Diligent 실행 중</string>
     <!-- The card the service puts up while first-run setup unpacks. Its own pair
          rather than the server's, because no server is running yet and the whole
          point of the hold is that the process survives a user who leaves. -->
-    <string name="notification_title_setup">VSCodroid 준비 중</string>
+    <string name="notification_title_setup">Diligent 준비 중</string>
     <string name="notification_text_setup">편집기와 도구의 압축을 푸는 중입니다. 몇 분 정도 걸리며 처음 한 번만 진행됩니다.</string>
     <string name="notification_text">로컬 개발 서버 실행 중</string>
     <!-- There was a second line here, shown when the server was adopted rather
@@ -25,7 +25,7 @@
     <!-- Shown once the automatic restart budget is spent. Replaces the two
          strings above in the same notification, which then carries no Stop
          action because there is nothing left to stop. -->
-    <string name="notification_title_stopped">VSCodroid 서버가 중지됨</string>
+    <string name="notification_title_stopped">Diligent 서버가 중지됨</string>
     <string name="notification_text_stopped">서버가 반복해서 충돌했습니다. 앱을 다시 시작하세요.</string>
     <string name="extracting_message">핵심 파일 추출 중\u2026</string>
 
@@ -150,11 +150,11 @@
     <string name="server_starting">서버 시작 중…</string>
     <!-- Shown on the page, with the reload control, once the editor's renderer
          has died several times in a minute and the app stops reopening it. -->
-    <string name="error_renderer_crash_loop">편집기가 연속해서 여러 번 예기치 않게 종료되어 VSCodroid가 다시 열지 않습니다. 파일과 서버는 그대로입니다. 다른 앱을 먼저 종료하면 이런 일이 줄어듭니다.</string>
-    <string name="legal_disclaimer">VSCodroid는 MIT 라이선스로 배포되는 Code - OSS 소스 코드로 빌드됩니다.\nMicrosoft Corporation과 제휴 관계가 없으며 승인을 받지도 않았습니다.\n\"Visual Studio Code\"와 \"VS Code\"는 Microsoft의 상표입니다.\nMicrosoft Marketplace가 아닌 Open VSX 확장 레지스트리를 사용합니다.</string>
+    <string name="error_renderer_crash_loop">편집기가 연속해서 여러 번 예기치 않게 종료되어 Diligent가 다시 열지 않습니다. 파일과 서버는 그대로입니다. 다른 앱을 먼저 종료하면 이런 일이 줄어듭니다.</string>
+    <string name="legal_disclaimer">Diligent는 MIT 라이선스로 배포되는 Code - OSS 소스 코드로 빌드됩니다.\nMicrosoft Corporation과 제휴 관계가 없으며 승인을 받지도 않았습니다.\n\"Visual Studio Code\"와 \"VS Code\"는 Microsoft의 상표입니다.\nMicrosoft Marketplace가 아닌 Open VSX 확장 레지스트리를 사용합니다.</string>
 
     <!-- About dialog -->
-    <string name="about_title">VSCodroid 정보</string>
+    <string name="about_title">Diligent 정보</string>
     <string name="about_version_format">버전 %s</string>
     <string name="about_licenses">라이선스</string>
     <string name="licenses_title">오픈 소스 라이선스</string>
@@ -227,7 +227,7 @@
     <!-- Shown when a save could not be written out to the device folder. Names the
          consequence rather than the error: the user's next decision is whether to
          copy the file out before uninstalling, not which exception was thrown. -->
-    <string name="saf_write_back_failed">%1$s이(가) 기기 폴더에 저장되지 않았습니다. 사본은 VSCodroid 안에만 있습니다.</string>
+    <string name="saf_write_back_failed">%1$s이(가) 기기 폴더에 저장되지 않았습니다. 사본은 Diligent 안에만 있습니다.</string>
 
     <!-- Shown once after a folder opens when documents in it could not be copied into
          the editor: a provider error, or no room left. The opposite of
@@ -245,7 +245,7 @@
          because it holds documents that never reached the editor and deleting the
          directory would have taken them with it. Names the device as where the files
          are: the local copy is gone, so saf_write_back_failed's "the only copy is
-         inside VSCodroid" would be backwards here. -->
+         inside Diligent" would be backwards here. -->
     <string name="saf_directory_kept">%1$s은(는) 기기 폴더에 남겨 두었습니다. 편집기로 복사되지 않은 파일이 들어 있기 때문입니다. 더 이상 필요하지 않으면 기기 폴더에서 삭제하세요.</string>
 
     <!-- The same refusal one level down: a single document that never reached the
@@ -297,7 +297,7 @@
     <!-- The widest of the three. A write-back drain outlives the folder switch that
          stopped it and can still be streaming out of the copy, so a restart is what
          makes the copy safe to remove rather than closing the folder. -->
-    <string name="saf_mirror_folder_this_session">해당 폴더는 이번 세션에서 열려 있었습니다. VSCodroid를 다시 시작한 다음 제거하세요.</string>
+    <string name="saf_mirror_folder_this_session">해당 폴더는 이번 세션에서 열려 있었습니다. Diligent를 다시 시작한 다음 제거하세요.</string>
 
     <!-- Reasons a bridge call did not do what it was asked. These are returned to the
          page and rendered by the bundled extension's showErrorMessage, which is the
@@ -307,38 +307,38 @@
     <!-- The caller's session token did not match. Used by both the external-URL and
          the folder-removal calls; one string because it is one situation and one
          instruction. -->
-    <string name="bridge_stale_session">VSCodroid가 요청을 수락하지 않았습니다. 창을 다시 로드한 후 다시 시도하세요.</string>
+    <string name="bridge_stale_session">Diligent가 요청을 수락하지 않았습니다. 창을 다시 로드한 후 다시 시도하세요.</string>
     <!-- Too many storage commands already outstanding. The four that walk the disk share
          one thread with a bounded queue, so this is a wait and not a fault, and it needs
          its own sentence: bridge_stale_session above tells the reader to reload the
          window, which does not drain that thread and costs them their editor state on the
          way to waiting exactly as long. Named by AndroidBridge.STORAGE_BUSY. -->
-    <string name="bridge_storage_busy">VSCodroid가 다른 저장소 요청을 처리하고 있습니다. 잠시 후에 다시 시도하세요.</string>
+    <string name="bridge_storage_busy">Diligent가 다른 저장소 요청을 처리하고 있습니다. 잠시 후에 다시 시도하세요.</string>
     <!-- No Activity wired the removal callback, so nothing could have been removed.
          Distinct from a refusal with a reason: this is a mistake in the app rather
          than a state the user can act on, and saying "that folder is in use" would
          send them looking for a folder to close. -->
-    <string name="bridge_reclaim_unavailable">지금은 VSCodroid에서 기기 폴더 저장 공간을 관리할 수 없습니다.</string>
+    <string name="bridge_reclaim_unavailable">지금은 Diligent에서 기기 폴더 저장 공간을 관리할 수 없습니다.</string>
     <!-- Nothing on the device claimed the link. The one refusal the user can act on. -->
-    <string name="open_url_no_handler">VSCodroid가 링크를 열지 않았습니다. 이 기기에는 해당 링크를 처리하는 앱이 없습니다.</string>
+    <string name="open_url_no_handler">Diligent가 링크를 열지 않았습니다. 이 기기에는 해당 링크를 처리하는 앱이 없습니다.</string>
     <!-- Every other launch failure, with the class name of the exception substituted. The
          class name and never its message: ActivityNotFoundException quotes the whole
          Intent and FileUriExposedException quotes the file, so the message would hand
          the address back to the page that supplied it. -->
-    <string name="open_url_failed">VSCodroid가 해당 링크를 열지 못했습니다: %1$s</string>
+    <string name="open_url_failed">Diligent가 해당 링크를 열지 못했습니다: %1$s</string>
 
     <!-- A folder copied out to the device that did not arrive whole. Counts entries
          rather than naming them, because the failure is usually folder-wide and forty
          separate notices is another way of telling the user nothing. Deliberately not
          worded like saf_write_back_failed: most of the folder did arrive, so "the only
-         copy is inside VSCodroid" would overstate. -->
+         copy is inside Diligent" would overstate. -->
     <plurals name="saf_upload_incomplete">
         <item quantity="other">%2$s: 항목 %1$d개가 기기 폴더에 저장되지 않았습니다.</item>
     </plurals>
     <!-- The same folder stopped by the enumeration cap rather than by a refusal. Named
          separately because the cause is a limit this app chose, not the device saying
          no, and the user's next move is to copy the rest out by hand. -->
-    <string name="saf_upload_capped">%1$s은(는) 너무 커서 전체를 복사할 수 없습니다. 나머지는 VSCodroid 안에 남아 있습니다.</string>
+    <string name="saf_upload_capped">%1$s은(는) 너무 커서 전체를 복사할 수 없습니다. 나머지는 Diligent 안에 남아 있습니다.</string>
 
     <!-- The Toolchains toolbar's only icon-only control, and the app's only visible
          way back out of that screen. Without it a screen reader announces an
@@ -365,7 +365,7 @@
          updated, rather than because it is being installed for the first time.
          Distinct from extracting_message so that a user who did not expect a
          wait learns why there is one. -->
-    <string name="status_updating_app">VSCodroid 업데이트 중…</string>
+    <string name="status_updating_app">Diligent 업데이트 중…</string>
 
     <!-- Opening a device folder. The sync can take a while on a large folder and
          the dialog is not cancellable, so it has to say what is happening.
@@ -438,7 +438,7 @@
     <!-- Shown once on the launch after a crash. The report is quoted into the
          message because the audience is developers, and truncated by the caller
          before it arrives. -->
-    <string name="crash_title">VSCodroid가 충돌했습니다</string>
+    <string name="crash_title">Diligent가 충돌했습니다</string>
     <string name="crash_message">이전 세션에서 앱이 충돌했습니다.\n\n%1$s</string>
     <string name="crash_dismiss">닫기</string>
     <string name="crash_copy_report">보고서 복사</string>
@@ -448,7 +448,7 @@
          quoted exactly as the palette lists it because the reader's next action
          is to type it, and it is the one part of this sentence a translator must
          leave in English. -->
-    <string name="storage_low_warning">저장 공간이 부족합니다(%1$s 남음). 명령 팔레트에서 \"VSCodroid: Manage Device Folder Storage\"를 실행하세요.</string>
+    <string name="storage_low_warning">저장 공간이 부족합니다(%1$s 남음). 명령 팔레트에서 \"Diligent: Manage Device Folder Storage\"를 실행하세요.</string>
 
     <!-- An Android System WebView older than the one this app is tested against.
          Both versions are arguments: the installed one is read off the device and
@@ -460,7 +460,7 @@
          changes when it does, and passing it as a number invites a translator to
          treat "105 and newer" as something to inflect. -->
     <string name="webview_below_minimum_title">Android System WebView가 오래되었습니다</string>
-    <string name="webview_below_minimum">이 기기의 Android System WebView 버전은 %1$s입니다. VSCodroid에는 %2$s 이상이 필요합니다. 그보다 낮으면 Markdown 미리 보기와 채팅 같은 확장 패널이 빈 화면으로 남습니다. Play Store에서 Android System WebView를 업데이트하세요.</string>
+    <string name="webview_below_minimum">이 기기의 Android System WebView 버전은 %1$s입니다. Diligent에는 %2$s 이상이 필요합니다. 그보다 낮으면 Markdown 미리 보기와 채팅 같은 확장 패널이 빈 화면으로 남습니다. Play Store에서 Android System WebView를 업데이트하세요.</string>
     <string name="webview_update">업데이트</string>
 
     <!-- The extra key row, all of it spoken rather than drawn.
