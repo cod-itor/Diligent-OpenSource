@@ -91,3 +91,4 @@ Do not reset or offset it without reading those migrations first;
 | `docs/05-API_SPEC.md` | The Diligent relay branch and methods |
 | `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js` |
 | `android/app/src/main/res/layout/activity_main.xml` | The WebView sits in an `editorFrame` FrameLayout, so Mobile view's native screens can cover it without resizing it |
+| `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app |

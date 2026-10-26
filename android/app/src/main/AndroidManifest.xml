@@ -184,6 +184,15 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.VSCodroid" />
 
+        <!-- Diligent: the running app's preview, a WebView on localhost (diligent/preview).
+             Rotation and theme changes do not recreate it, so the page does not reload. -->
+        <activity
+            android:name=".diligent.preview.PreviewActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
+            android:theme="@style/Theme.VSCodroid" />
+
         <!-- Node.js server service: runs the Code - OSS server locally -->
         <service
             android:name=".service.NodeService"

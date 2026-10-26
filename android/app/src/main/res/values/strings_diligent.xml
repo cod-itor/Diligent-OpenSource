@@ -42,6 +42,15 @@
     <string name="diligent_screen_more">More</string>
     <string name="diligent_screen_run">Run</string>
 
+    <!-- Run and Preview -->
+    <string name="diligent_preview_reload">Reload</string>
+    <string name="diligent_preview_open_browser">Open in browser</string>
+    <string name="diligent_preview_close">Close preview</string>
+    <string name="diligent_preview_not_up_title">Nothing is answering on %1$s yet</string>
+    <string name="diligent_preview_not_up_body">The app may still be starting. Diligent tries again by itself for a little while.</string>
+    <string name="diligent_preview_retry">Try again</string>
+    <string name="diligent_preview_no_browser">No browser is installed to open this link.</string>
+
     <!-- First launch: choose a view -->
     <string name="diligent_choose_view_title">How do you want to code?</string>
     <string name="diligent_view_mobile">Mobile view</string>
