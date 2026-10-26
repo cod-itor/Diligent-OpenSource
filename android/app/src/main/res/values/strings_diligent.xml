@@ -39,7 +39,6 @@
     <!-- Placeholder while a screen is being built -->
     <string name="diligent_screen_projects">Your projects</string>
     <string name="diligent_screen_files">Files</string>
-    <string name="diligent_screen_more">More</string>
 
     <!-- Run and Preview -->
     <string name="diligent_run_status_starting">Starting</string>

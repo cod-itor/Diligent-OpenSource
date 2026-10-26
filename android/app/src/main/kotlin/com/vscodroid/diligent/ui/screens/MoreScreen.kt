@@ -29,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -69,11 +70,21 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
  * Entries of later phases are shown greyed out with "Coming soon" and do not
  * respond to a tap: the tag already says why, and a tap that opens an empty
  * screen would teach a beginner that the app is broken.
+ *
+ * The action bar's Run, pressed before the project has a run profile, sends
+ * the user here with [MobileShell.runRequested] set: the tab opens on Run,
+ * which offers the detected profile, and clears the request.
  */
 @Composable
 fun MoreScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = Modifier) {
     var detail by rememberSaveable { mutableStateOf<MoreDetail?>(null) }
     BackHandler(enabled = detail != null) { detail = null }
+    LaunchedEffect(shell.runRequested) {
+        if (shell.runRequested) {
+            detail = MoreDetail.Run
+            shell.runRequested = false
+        }
+    }
     MoreContent(
         shell = shell,
         actions = actions,
