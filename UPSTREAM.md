@@ -71,6 +71,8 @@ resolve them by keeping both sides' intent:
 | `assets/extensions/vscodroid.*/package.nls*.json`, `extension.js` | Visible text says Diligent (`Diligent: ...` commands); IDs unchanged |
 | `android/app/src/test/.../setup/CommandReferenceTest.kt` | Checks the `Diligent: ` command prefix |
 | `branding/product.json` | Editor names and links |
+| `android/app/src/main/assets/server.js` | `nameShort` and `nameLong` in `productOverrides` |
+| `scripts/verify-server-tree.py`, `scripts/test-server-bootstrap.js` | Expect the name Diligent |
 | `LICENSE` | Diligent's copyright line under VSCodroid's |
 
 Add a row whenever a phase edits another VSCodroid file.

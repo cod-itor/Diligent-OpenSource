@@ -255,8 +255,10 @@ const CHILD_KILL_AFTER_SIGTERM_MS = 700;
 // is built from the port, and why it has to be is written beside it; nothing else
 // here depends on it, and the comment used to say that of the whole object.
 const productOverrides = {
-    nameShort: 'VSCodroid',
-    nameLong: 'VSCodroid',
+    // The names the editor shows. Only these two say Diligent: the folder and
+    // application names below stay VSCodroid's so existing data is found.
+    nameShort: 'Diligent',
+    nameLong: 'Diligent',
     applicationName: 'vscodroid',
     dataFolderName: '.vscodroid',
     quality: 'stable',

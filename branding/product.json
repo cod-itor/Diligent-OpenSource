@@ -58,8 +58,8 @@
     "nodejsArtifactFeed"
   ],
   "set": {
-    "nameShort": "VSCodroid",
-    "nameLong": "VSCodroid",
+    "nameShort": "Diligent",
+    "nameLong": "Diligent",
     "applicationName": "vscodroid",
     "dataFolderName": ".vscodroid",
     "serverApplicationName": "vscodroid-server",
@@ -73,8 +73,8 @@
     ],
     "telemetryOptIn": false,
     "enableTelemetry": false,
-    "reportIssueUrl": "https://github.com/rmyndharis/VSCodroid/issues/new",
-    "licenseUrl": "https://github.com/rmyndharis/VSCodroid/blob/main/LICENSE",
-    "serverLicenseUrl": "https://github.com/rmyndharis/VSCodroid/blob/main/LICENSE"
+    "reportIssueUrl": "https://github.com/cod-itor/Diligent-OpenSource/issues/new",
+    "licenseUrl": "https://github.com/cod-itor/Diligent-OpenSource/blob/main/LICENSE",
+    "serverLicenseUrl": "https://github.com/cod-itor/Diligent-OpenSource/blob/main/LICENSE"
   }
 }
