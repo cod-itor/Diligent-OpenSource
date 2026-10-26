@@ -3,6 +3,7 @@ package com.vscodroid.diligent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.ui.components.TopBarStatus
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.navigation.TabHistory
@@ -70,6 +71,12 @@ class MobileShell(view: AppView?) {
     /** The port of the running task's preview, or null when there is none to show. */
     var previewPort by mutableStateOf<Int?>(null)
 
+    /**
+     * Set by the action bar's Run when the project has no run profile yet:
+     * the More tab opens its Run screen directly and clears this.
+     */
+    var runRequested by mutableStateOf(false)
+
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
 
@@ -117,4 +124,7 @@ interface MobileActions {
 
     /** The folder new projects and clones go in. */
     val projectsDir: String
+
+    /** Run profiles of the open project: start, stop, watch, preview. */
+    val run: RunControl
 }

@@ -26,6 +26,10 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
 import com.vscodroid.diligent.projects.RecentProjects
+import com.vscodroid.diligent.preview.PreviewActivity
+import com.vscodroid.diligent.run.ProjectRunner
+import com.vscodroid.diligent.run.RunControl
+import com.vscodroid.diligent.run.RunNotes
 import com.vscodroid.diligent.ui.BottomChrome
 import com.vscodroid.diligent.ui.NativeScreens
 import com.vscodroid.diligent.ui.TopChrome
@@ -80,6 +84,20 @@ class DiligentController(
     val shell by lazy {
         MobileShell(views.view.value).apply { suggestDesktop = views.suggestDesktopOnBigScreens }
     }
+
+    // -- Run (diligent/run) --
+    /** Runs the open project's profiles in tmux and keeps the shell's run state current. */
+    val runner by lazy {
+        ProjectRunner(
+            context = activity,
+            scope = activity.lifecycleScope,
+            shell = shell,
+            notes = RunNotes(activity.getSharedPreferences(ViewSettings.PREFS_NAME, Context.MODE_PRIVATE)),
+            openFile = { actions.openFile(it) },
+            openPreviewOn = { port, title -> activity.startActivity(PreviewActivity.intent(activity, port, title)) },
+        )
+    }
+    // -- end Run --
 
     private var topBar: View? = null
     private var nativeScreens: View? = null
@@ -266,6 +284,7 @@ class DiligentController(
     fun onWorkspaceFolder(folder: String?) {
         shell.folder = folder
         recentProjects.opened(folder)
+        runner.setProject(folder) // Run: load the new project's profiles
     }
 
     /**
@@ -313,6 +332,7 @@ class DiligentController(
         }
         override fun editorCommand(command: String, vararg args: Any?) = editor.run(command, *args)
         override val projectsDir: String get() = host.projectsDir
+        override val run: RunControl get() = runner
     }
 
     /** What the `diligent*` bridge methods call. On the JavaBridge thread, so each hops. */

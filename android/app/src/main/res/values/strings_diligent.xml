@@ -39,7 +39,65 @@
     <!-- Placeholder while a screen is being built -->
     <string name="diligent_screen_projects">Your projects</string>
     <string name="diligent_screen_files">Files</string>
-    <string name="diligent_screen_run">Run</string>
+    <string name="diligent_screen_more">More</string>
+
+    <!-- Run and Preview -->
+    <string name="diligent_run_status_starting">Starting</string>
+    <string name="diligent_run_status_stopping">Stopping</string>
+    <string name="diligent_run_status_running">Running</string>
+    <string name="diligent_run_status_running_port">Running on :%1$d</string>
+    <string name="diligent_run_status_failed">Failed (exit %1$d)</string>
+    <string name="diligent_run_status_finished">Finished</string>
+    <string name="diligent_run_status_stopped">Stopped</string>
+    <string name="diligent_run_status_idle">Not running</string>
+    <string name="diligent_run_status_no_tmux">tmux is missing</string>
+    <string name="diligent_run_no_tmux_body">The bundled tools did not start. Restart Diligent; if it stays like this, reinstall it.</string>
+    <string name="diligent_run_start">Start</string>
+    <string name="diligent_run_stop">Stop</string>
+    <string name="diligent_run_start_failed">It did not start:</string>
+    <string name="diligent_run_loading">Reading run profiles</string>
+    <string name="diligent_run_no_project_title">No project open</string>
+    <string name="diligent_run_no_project_body">Open a project, then run it from here.</string>
+    <string name="diligent_run_open_projects">Open a project</string>
+    <string name="diligent_run_proposal_title">Run this project?</string>
+    <string name="diligent_run_proposal_port">We found %1$s on port %2$d. Use it?</string>
+    <string name="diligent_run_proposal_no_port">We found %1$s. Use it?</string>
+    <string name="diligent_run_proposal_saved_in">It will be saved in .diligent/run.json.</string>
+    <string name="diligent_run_accept">Use it</string>
+    <string name="diligent_run_edit">Edit</string>
+    <string name="diligent_run_webpack_note">Next.js normally builds with Turbopack, which does not run on Android, so Diligent runs it with webpack instead. The first start is slower; the app works the same.</string>
+    <string name="diligent_run_note_ok">Got it</string>
+    <string name="diligent_run_form_title">How do you run this project?</string>
+    <string name="diligent_run_form_none_found">We could not tell how to run it. Type the command you would use in the terminal.</string>
+    <string name="diligent_run_form_name">Name</string>
+    <string name="diligent_run_form_command">Command</string>
+    <string name="diligent_run_form_port">Port (optional)</string>
+    <string name="diligent_run_form_required">Required</string>
+    <string name="diligent_run_form_bad_port">A port is a number from 1 to 65535.</string>
+    <string name="diligent_run_form_save">Save</string>
+    <string name="diligent_run_form_cancel">Cancel</string>
+    <string name="diligent_run_save_failed">Could not write .diligent/run.json.</string>
+    <string name="diligent_run_invalid_title">run.json has a problem</string>
+    <string name="diligent_run_invalid_not_json">It is not valid JSON.</string>
+    <string name="diligent_run_invalid_no_profiles">It has no \"profiles\" list.</string>
+    <string name="diligent_run_invalid_profile_not_object">Profile %1$d: not an object.</string>
+    <string name="diligent_run_invalid_missing_name">Profile %1$d: the name is missing.</string>
+    <string name="diligent_run_invalid_missing_command">Profile %1$d: the command is missing.</string>
+    <string name="diligent_run_invalid_bad_port">Profile %1$d: the port must be a number from 1 to 65535.</string>
+    <string name="diligent_run_invalid_bad_where">Profile %1$d: \"where\" must be text.</string>
+    <string name="diligent_run_invalid_bad_env">Profile %1$d: a shell cannot use the env entry %2$s</string>
+    <string name="diligent_run_invalid_env_shape">Profile %1$d: \"env\" must be an object.</string>
+    <string name="diligent_run_invalid_duplicate">Two profiles are named %1$s.</string>
+    <string name="diligent_run_open_config">Open run.json</string>
+    <string name="diligent_run_log_empty">Nothing printed yet.</string>
+    <string name="diligent_run_jump_to_end">Jump to the end</string>
+    <string name="diligent_preview_reload">Reload</string>
+    <string name="diligent_preview_open_browser">Open in browser</string>
+    <string name="diligent_preview_close">Close preview</string>
+    <string name="diligent_preview_not_up_title">Nothing is answering on %1$s yet</string>
+    <string name="diligent_preview_not_up_body">The app may still be starting. Diligent tries again by itself for a little while.</string>
+    <string name="diligent_preview_retry">Try again</string>
+    <string name="diligent_preview_no_browser">No browser is installed to open this link.</string>
 
     <!-- Big screen suggestion -->
     <string name="diligent_suggest_desktop_title">Switch to Desktop view?</string>
