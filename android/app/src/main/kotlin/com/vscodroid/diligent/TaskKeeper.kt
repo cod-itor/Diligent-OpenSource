@@ -20,6 +20,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.vscodroid.MainActivity
 import com.vscodroid.R
+import com.vscodroid.diligent.devices.DeviceLinks
 
 /**
  * Keeps what the user started running while the phone is in a pocket.
@@ -76,6 +77,12 @@ object TaskKeeper {
         refreshNotification = refresh
     }
 
+    /** Re-posts the foreground notification, when the service is up (diligent-link's reachability line). */
+    @MainThread
+    fun refresh() {
+        refreshNotification?.invoke()
+    }
+
     /**
      * The foreground service is gone, and the editor server with it: no
      * report will come to say the tasks ended, so forget them and let the
@@ -107,6 +114,8 @@ object TaskKeeper {
      * one keeps [baseText] above the list, and each task gets a Stop.
      */
     fun decorate(context: Context, builder: NotificationCompat.Builder, baseText: String) {
+        // diligent-link: "Stay reachable in the background" listens through this same notification.
+        if (DeviceLinks.reachableInBackground) builder.setSubText(context.getString(R.string.diligent_link_reachable_background))
         val active = latest?.active.orEmpty()
         if (active.isEmpty()) return
         val res = context.resources

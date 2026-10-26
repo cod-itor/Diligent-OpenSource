@@ -515,6 +515,26 @@
     <string name="diligent_laptop_save_failed">Could not write ~/.diligent/machines.json.</string>
     <string name="diligent_laptop_how_to_run">To run a project there, set \"where\": \"laptop:NAME\" in its .diligent/run.json, or tap Run on NAME instead on the Run screen when Diligent offers it.</string>
 
+    <!-- diligent-link (devices/DeviceLinkService.kt): why a pairing or sync could not go ahead. %1$s is the other device's name. -->
+    <string name="diligent_link_not_on_network">This phone is not on Wi-Fi or a hotspot. Join the same network as %1$s, or turn on Tailscale on both.</string>
+    <string name="diligent_link_not_found">%1$s was not found on this network. Check that both are on the same Wi-Fi and Diligent is open on it. Public Wi-Fi often stops devices from seeing each other: try a phone hotspot instead.</string>
+    <string name="diligent_link_unreachable">%1$s did not answer. Open Diligent on it and try again.</string>
+    <string name="diligent_link_no_tailscale_here">Tailscale is off on this phone. Turn it on, or choose Automatic or Wi-Fi in Connections.</string>
+    <string name="diligent_link_no_tailscale_address">Diligent does not know the Tailscale address of %1$s yet. Add it once by its Tailscale IP address.</string>
+    <string name="diligent_link_phone_to_phone_unavailable">Phone to phone is not available yet. Choose Automatic or Wi-Fi in Connections.</string>
+    <string name="diligent_link_identity_changed">This device\'s identity changed. Pair again only if you reinstalled it.</string>
+    <string name="diligent_link_not_accepting">%1$s is not accepting new devices. Open Devices on it, or set Visible to nearby devices to On.</string>
+    <string name="diligent_link_refused">%1$s did not accept the request.</string>
+    <string name="diligent_link_wrong_device">The device that answered is not %1$s.</string>
+    <string name="diligent_link_connection_lost">The connection to %1$s was lost.</string>
+    <string name="diligent_link_declined">%1$s declined the sync.</string>
+    <string name="diligent_link_busy">Another sync is running. Try again when it finishes.</string>
+    <string name="diligent_link_snapshot_failed">A snapshot could not be taken first, so nothing was changed.</string>
+    <string name="diligent_link_sync_failed">The sync with %1$s stopped. Files already received stay, and the snapshot before the sync can undo them.</string>
+    <string name="diligent_link_not_paired">%1$s is not paired with this device.</string>
+    <string name="diligent_link_not_a_project">That folder could not be opened as a project.</string>
+    <!-- Subtext on the editor's foreground notification while "Stay reachable in the background" keeps diligent-link listening -->
+    <string name="diligent_link_reachable_background">Reachable by your devices</string>
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>
