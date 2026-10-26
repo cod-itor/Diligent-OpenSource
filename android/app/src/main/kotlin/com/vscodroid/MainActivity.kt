@@ -62,6 +62,7 @@ import com.vscodroid.util.EditorLocale
 import com.vscodroid.util.Environment
 import com.vscodroid.bridge.AUTH_TAB_WINDOW_MILLIS
 import com.vscodroid.bridge.AndroidBridge
+import com.vscodroid.diligent.DiligentController
 import com.vscodroid.bridge.AuthTabWindow
 import com.vscodroid.bridge.ClipboardBridge
 import com.vscodroid.bridge.SecurityManager
@@ -415,6 +416,13 @@ class MainActivity : AppCompatActivity() {
      * into this process by then.
      */
     private val workspacePrefs by lazy { getSharedPreferences(WORKSPACE_PREFS, MODE_PRIVATE) }
+
+    /**
+     * Diligent's layer: Mobile view, the view switch, and the channel to the
+     * editor. Kept in its own files so this activity changes as little as
+     * possible; see [DiligentController].
+     */
+    private val diligent by lazy { DiligentController(this) { webView } }
 
     private lateinit var securityManager: SecurityManager
     private lateinit var safManager: SafStorageManager
@@ -3206,6 +3214,7 @@ class MainActivity : AppCompatActivity() {
             onAsyncAnswer = { id, ok, payload ->
                 runOnUiThread { answerBridgeCommand(id, ok, payload) }
             },
+            diligent = diligent.bridgeHost,
         )
         wv.addJavascriptInterface(bridge, "AndroidBridge")
 
@@ -6503,6 +6512,16 @@ class MainActivity : AppCompatActivity() {
                             result = AndroidBridge.reclaimSafMirror(
                                 token, d.hash, d.force === true, d.id);
                             if (result !== '') ch.postMessage({id: d.id, ok: false, error: result});
+                        } else if (/^diligent[A-Z]\w*${'$'}/.test(d.cmd)
+                                && typeof AndroidBridge[d.cmd] === 'function') {
+                            // Diligent's methods, all through this one branch, so this
+                            // relay changes once rather than once per method. Each takes
+                            // the token and then d.args in order, and answers here; see
+                            // the Diligent section of docs/05-API_SPEC.md. The pattern
+                            // matches no VSCodroid command, so nothing above is shadowed.
+                            result = AndroidBridge[d.cmd].apply(
+                                AndroidBridge, [token].concat(Array.isArray(d.args) ? d.args : []));
+                            ch.postMessage({id: d.id, ok: true, data: result});
                         } else {
                             // A command this chain does not know is answered rather
                             // than dropped. Without this the caller's promise died

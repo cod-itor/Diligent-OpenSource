@@ -14,6 +14,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import com.google.android.play.core.assetpacks.model.AssetPackStatus
 import com.vscodroid.R
 import com.vscodroid.authCallbackIsExpected
+import com.vscodroid.diligent.DiligentBridgeHost
 import com.vscodroid.isExtensionCallback
 import com.vscodroid.setup.ToolchainManager
 import com.vscodroid.setup.ToolchainRegistry
@@ -541,6 +542,12 @@ class AndroidBridge(
     private val diskWork: Executor = Executors.newSingleThreadExecutor { r ->
         Thread(r, "bridge-disk").apply { isDaemon = true }
     },
+    /**
+     * Diligent's side of the bridge: the `diligent*` methods below call it, on
+     * the JavaBridge thread, so it hops to the UI thread itself. Null in tests
+     * that build a bridge for VSCodroid's methods alone.
+     */
+    private val diligent: DiligentBridgeHost? = null,
 ) {
     private val tag = "AndroidBridge"
 
@@ -1517,6 +1524,23 @@ class AndroidBridge(
             }
         }
         return keys.toString()
+    }
+
+    // -- Diligent --
+    //
+    // Reached through the relay's one Diligent branch, which forwards any
+    // `diligent*` command to the method of that name with the token first. Each
+    // is documented in docs/05-API_SPEC.md like every other method here.
+
+    /**
+     * The diligent-bridge extension is listening on `diligent-events` in this
+     * page, so messages Kotlin held for it can be sent. It says so once per
+     * page load.
+     */
+    @JavascriptInterface
+    fun diligentEditorReady(authToken: String) {
+        if (!security.validateToken(authToken)) return
+        diligent?.editorReady()
     }
 
     private fun getVersionName(): String {

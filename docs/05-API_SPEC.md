@@ -191,8 +191,8 @@ The OAuth pair described a flow this app does not implement; see §2.5.
 Exposed via `@JavascriptInterface`:
 
 Every method takes the session token and validates it before doing anything; a call
-with a token that does not match is refused before the method acts. Twenty-nine of
-the thirty-five then return an empty value: `false`, `null`, `""`, `"{}"`, `"[]"`,
+with a token that does not match is refused before the method acts. Thirty of
+the thirty-six then return an empty value: `false`, `null`, `""`, `"{}"`, `"[]"`,
 `0`, or nothing. **Six do not, and each is truthy on refusal.**
 `generateSshKey` returns `{"success":false,"error":"unauthorized"}`, so a caller
 testing `if (!result)` reads a refusal as success; test its `success` field.
@@ -208,7 +208,7 @@ with `"[]"`, and both are non-empty strings, so truthy until parsed. Read the to
 added without the check, so this holds for the class rather than for the list below.
 
 **Registered is not the same as reachable, and the difference decides what an extension
-can do.** All 35 methods below live on the `AndroidBridge` object injected into the
+can do.** All 36 methods below live on the `AndroidBridge` object injected into the
 workbench page, so anything running in that page's own realm can call them directly. An
 extension cannot: it runs in the web extension host, which does not see objects added by
 `addJavascriptInterface`. Extensions reach the bridge over the BroadcastChannel relay
@@ -220,6 +220,14 @@ list of **17** command names. Grep `d.cmd ===` in `MainActivity.kt` for the curr
 > `listSshKeys`, `openExternalUrl`, `openFolderPicker`, `openRecentFolder`,
 > `openToolchainSettings`, `reclaimSafMirror`, `setUiScale`, `showAboutDialog`,
 > `toggleExtraKeyRow`
+
+Diligent's methods are the one exception to the hand-written list. A single branch
+forwards every command named `diligent` followed by a capital letter (for example
+`diligentEditorReady`) to the `AndroidBridge` method of that name, when one exists, as
+`AndroidBridge[cmd](token, ...d.args)`, and answers `{id, ok: true, data}` with what it
+returns. A `diligent*` name with no method falls through to the unknown-command answer.
+The pattern matches no VSCodroid command, so it shadows nothing above it. See
+[Diligent](#diligent) below.
 
 Two of them reach no bridge method. `getUiScale` and `setUiScale` are answered by the
 page itself, since the UI scale is the page's own viewport kept in its localStorage:
@@ -797,6 +805,24 @@ fun toggleExtraKeyRow(authToken: String): Boolean
 // token is refused, which reads as "shown". Reachable over the relay as
 // `toggleExtraKeyRow`; the bundled saf-bridge extension sends it from
 // VSCodroid: Toggle Extra Key Row.
+```
+
+#### Diligent
+
+Diligent's own methods, all named `diligentXxx` and all reached through the one relay
+branch described above, with the token first and then the call's `args` in order. Each
+is answered on the JavaBridge thread and hands its work to the UI thread through
+`DiligentBridgeHost`, so none of them blocks the page. The bundled extension
+`diligent.diligent-bridge` is their caller; it also runs editor commands for Kotlin, on
+`BroadcastChannel('diligent-events')`, for the commands on its allowlist only.
+
+```kotlin
+@JavascriptInterface
+fun diligentEditorReady(authToken: String)
+// The diligent-bridge extension in the page on screen is listening. Kotlin then
+// marks that page and sends the editor commands it held during the cold start
+// (EditorChannel.editorReady). Sent once per page load, retried until the relay
+// exists. Returns nothing; a refused token does nothing.
 ```
 
 ---
