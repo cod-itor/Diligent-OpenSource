@@ -78,3 +78,29 @@ class DevicesLogicTest {
         assertEquals(listOf(online, tail), syncTargets(DevicesState(myDevices = listOf(online, offline, changed, tail))))
     }
 }
+
+class PairingLogicTest {
+
+    @Test
+    fun `the code field keeps 6 digits`() {
+        assertEquals("482913", cleanCode("482 913"))
+        assertEquals("123456", cleanCode("12-34-56-78"))
+        assertEquals("", cleanCode("abc"))
+    }
+
+    @Test
+    fun `the shown code is grouped in threes`() {
+        assertEquals("482 913", groupCode("482913"))
+    }
+
+    @Test
+    fun `the countdown rounds up and stops at zero`() {
+        assertEquals(120, secondsLeft(120_000L, 0L))
+        assertEquals(1, secondsLeft(1_000L, 1L))
+        assertEquals(0, secondsLeft(1_000L, 1_000L))
+        assertEquals(0, secondsLeft(1_000L, 5_000L))
+        assertEquals("2:00", countdownText(120))
+        assertEquals("1:05", countdownText(65))
+        assertEquals("0:09", countdownText(9))
+    }
+}

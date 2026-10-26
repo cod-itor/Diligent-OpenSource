@@ -107,3 +107,21 @@ fun canSync(device: PairedDevice): Boolean = device.route != null && !device.ide
 
 /** The paired devices Sync can pick, in the list's order. */
 fun syncTargets(state: DevicesState): List<PairedDevice> = state.myDevices.filter(::canSync)
+
+/** Pairing codes are 6 digits (Appendix A.6). */
+const val PAIRING_CODE_LENGTH = 6
+
+/** What the code field keeps of what was typed or pasted: digits only, at most 6 ("482 913" becomes "482913"). */
+fun cleanCode(typed: String): String = typed.filter(Char::isDigit).take(PAIRING_CODE_LENGTH)
+
+/** "482 913": the code in two groups of 3, easier to read across a room. */
+fun groupCode(code: String): String = code.chunked(PAIRING_CODE_LENGTH / 2).joinToString(" ")
+
+/** Whole seconds until [expiresAtMs], rounded up, never below 0. */
+fun secondsLeft(expiresAtMs: Long, now: Long): Int {
+    val ms = expiresAtMs - now
+    return if (ms <= 0) 0 else ((ms + 999) / 1000).toInt()
+}
+
+/** "1:05" for 65 seconds. */
+fun countdownText(seconds: Int): String = "${seconds / 60}:${(seconds % 60).toString().padStart(2, '0')}"

@@ -590,6 +590,33 @@
     <string name="diligent_devices_add_port_bad">The port is a number from 1 to 65535.</string>
     <string name="diligent_devices_add_id_bad">A device ID has 32 letters and digits, shown in groups of 4. Leave it empty if you do not have it.</string>
 
+    <!-- Pairing, both sides -->
+    <string name="diligent_pair_requesting_title">Connecting to %1$s</string>
+    <string name="diligent_pair_requesting_body">Waiting for %1$s to show a 6-digit code. Keep both devices open.</string>
+    <string name="diligent_pair_enter_title">Type the code from %1$s</string>
+    <string name="diligent_pair_enter_body">%1$s now shows a 6-digit code. Type it here to pair.</string>
+    <string name="diligent_pair_code_label">6-digit code</string>
+    <string name="diligent_pair_wrong">That code is not right. Check the code on %1$s.</string>
+    <plurals name="diligent_pair_tries_left">
+        <item quantity="one">%d try left</item>
+        <item quantity="other">%d tries left</item>
+    </plurals>
+    <string name="diligent_pair_pair">Pair</string>
+    <string name="diligent_pair_show_title">%1$s wants to connect</string>
+    <string name="diligent_pair_show_body">Type this code on %1$s. If you did not start this, tap Decline.</string>
+    <string name="diligent_pair_code_spoken">Code: %1$s</string>
+    <string name="diligent_pair_expires">The code works for %1$s more</string>
+    <string name="diligent_pair_decline">Decline</string>
+    <string name="diligent_pair_paired_title">Paired with %1$s</string>
+    <string name="diligent_pair_paired_body">You can now sync projects with %1$s. It shows under My devices.</string>
+    <string name="diligent_pair_expired_title">The code expired</string>
+    <string name="diligent_pair_expired_body">A code works for 2 minutes. Tap Connect on %1$s again for a new one.</string>
+    <string name="diligent_pair_locked_title">Pairing is paused</string>
+    <string name="diligent_pair_locked_body">Too many wrong codes for %1$s. Wait 5 minutes, then try again.</string>
+    <string name="diligent_pair_identity_title">%1$s looks like a different device</string>
+    <string name="diligent_pair_failed_title">Could not pair with %1$s</string>
+    <string name="diligent_pair_done">Done</string>
+
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>

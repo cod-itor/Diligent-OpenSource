@@ -6,13 +6,16 @@ import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vscodroid.R
 import com.vscodroid.diligent.AppView
 import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.MobileShell
+import com.vscodroid.diligent.devices.DeviceLink
 import com.vscodroid.diligent.run.WatchRun
 import com.vscodroid.diligent.ui.components.DiligentTabBar
 import com.vscodroid.diligent.ui.components.DiligentTopBar
@@ -23,6 +26,7 @@ import com.vscodroid.diligent.ui.components.suggestionActions
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.screens.FilesScreen
 import com.vscodroid.diligent.ui.screens.MoreScreen
+import com.vscodroid.diligent.ui.screens.PairingSheet
 import com.vscodroid.diligent.ui.screens.PreviewActions
 import com.vscodroid.diligent.ui.screens.ProjectsScreen
 import com.vscodroid.diligent.ui.theme.DiligentTheme
@@ -55,9 +59,14 @@ fun TopChrome(shell: MobileShell, actions: MobileActions) {
     )
 }
 
-/** Over the editor, on the tabs that are not the editor. */
+/**
+ * Over the editor, on the tabs that are not the editor. Also diligent-link's
+ * prompts, which come on any tab: they are sheets and dialogs in their own
+ * windows, so they show even while this layer is hidden over the Editor tab.
+ */
 @Composable
 fun NativeScreens(shell: MobileShell, actions: MobileActions) {
+    if (shell.view == AppView.Mobile) DevicePrompts(actions.devices)
     if (!shell.chrome.nativeScreen) return
     when (shell.tab) {
         MobileTab.Projects -> ProjectsScreen(shell, actions)
@@ -65,6 +74,13 @@ fun NativeScreens(shell: MobileShell, actions: MobileActions) {
         MobileTab.More -> MoreScreen(shell, actions)
         MobileTab.Editor, MobileTab.Terminal -> Unit
     }
+}
+
+/** What diligent-link asks of the user wherever they are in Mobile view. */
+@Composable
+private fun DevicePrompts(link: DeviceLink) {
+    val state by link.state.collectAsStateWithLifecycle()
+    state.pairing?.let { PairingSheet(it, link) }
 }
 
 /** Under the editor: the action bar on the Editor tab, then the tab bar. */
