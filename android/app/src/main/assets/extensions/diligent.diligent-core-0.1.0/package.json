@@ -1,0 +1,39 @@
+{
+  "name": "diligent-core",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.1.0",
+  "publisher": "diligent",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "diligent.core.stopTask",
+        "title": "%command.stopTask%",
+        "category": "Diligent"
+      },
+      {
+        "command": "diligent.snapshot.take",
+        "title": "%command.takeSnapshot%",
+        "category": "Diligent"
+      },
+      {
+        "command": "diligent.snapshot.showList",
+        "title": "%command.showSnapshots%",
+        "category": "Diligent"
+      }
+    ]
+  }
+}

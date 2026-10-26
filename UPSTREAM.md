@@ -89,6 +89,6 @@ Do not reset or offset it without reading those migrations first;
 | `android/app/src/main/kotlin/com/vscodroid/bridge/AndroidBridge.kt` | `diligent` constructor parameter and the `diligentEditorReady` and `diligentSetView` methods |
 | `android/app/src/test/.../bridge/BridgeTokenUniformityTest.kt` | Watches the `diligent` collaborator |
 | `docs/05-API_SPEC.md` | The Diligent relay branch and methods |
-| `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js` |
+| `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js` and `scripts/test-diligent-core.js` |
 | `android/app/src/main/res/layout/activity_main.xml` | The WebView sits in an `editorFrame` FrameLayout, so Mobile view's native screens can cover it without resizing it |
 | `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app |

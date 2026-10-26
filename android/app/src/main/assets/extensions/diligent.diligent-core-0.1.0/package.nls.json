@@ -1,0 +1,7 @@
+{
+  "displayName": "Diligent Core",
+  "description": "Keeps Diligent's runs alive and takes snapshots of your work",
+  "command.stopTask": "Stop a running task",
+  "command.takeSnapshot": "Take a snapshot of the project",
+  "command.showSnapshots": "Restore a snapshot"
+}
