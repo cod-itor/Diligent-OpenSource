@@ -93,7 +93,12 @@ TC_SHA256=92a87ca75d51e0566abc198e7306276ab8293fddb3d778c526f7bbed77dc759e
 TC_DIR="termux-core-package-$TC_COMMIT"
 # The licence termux-core's UnixSafeStrerror.c refers to rather than quotes,
 # at the commit its header names. See the notices below.
-CHROMIUM_LICENSE_URL="https://raw.githubusercontent.com/chromium/chromium/e4622aaeccea84652488d1822c28c78b7115684f/LICENSE"
+# Taken from Chromium's own Git server: raw.githubusercontent.com answers the
+# chromium/chromium mirror with 429 for long stretches, from runners and home
+# connections alike, so retries there do not get through. Gitiles serves the
+# file base64-encoded with ?format=TEXT; it is decoded before the pin below
+# checks it, so the bytes used are the same as before.
+CHROMIUM_LICENSE_URL="https://chromium.googlesource.com/chromium/src/+/e4622aaeccea84652488d1822c28c78b7115684f/LICENSE?format=TEXT"
 CHROMIUM_LICENSE_SHA256=845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308
 
 TARGET=aarch64-linux-android
@@ -160,6 +165,11 @@ fetch() {
 }
 fetch "$TE_URL" "$WORK_DIR/$TE_DIR.tar.gz" "$TE_SHA256"
 fetch "$TC_URL" "$WORK_DIR/$TC_DIR.tar.gz" "$TC_SHA256"
+if [ ! -f "$WORK_DIR/LICENSE.chromium" ]; then
+    curl -L --fail --show-error --retry 6 -o "$WORK_DIR/LICENSE.chromium.b64" "$CHROMIUM_LICENSE_URL"
+    base64 -d < "$WORK_DIR/LICENSE.chromium.b64" > "$WORK_DIR/LICENSE.chromium"
+    rm -f "$WORK_DIR/LICENSE.chromium.b64"
+fi
 fetch "$CHROMIUM_LICENSE_URL" "$WORK_DIR/LICENSE.chromium" "$CHROMIUM_LICENSE_SHA256"
 
 # Unpacked fresh every run, so the patch always meets a pristine tree and a

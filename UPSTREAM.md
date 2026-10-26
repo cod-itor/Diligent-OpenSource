@@ -96,3 +96,4 @@ Do not reset or offset it without reading those migrations first;
 | `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app, the `WAKE_LOCK` permission `diligent/TaskKeeper.kt` holds while a task runs, and `ACCESS_NETWORK_STATE` for `diligent/ai/NetworkType.kt` |
 | `android/app/src/main/kotlin/com/vscodroid/service/NodeService.kt` | Three one-line calls into `diligent/TaskKeeper.kt`: `attach` in `onCreate`, `detach` in `onDestroy`, and `decorate` in `createNotification`, which lists the running tasks with a Stop each on the running card |
 | `NOTICE.md` | A ZXing row under Core Components, for the QR code on the Share screen |
+| `scripts/build-termux-exec.sh` | Fetches Chromium's LICENSE from chromium.googlesource.com (base64, decoded, same pin): raw.githubusercontent.com keeps answering 429 for that mirror |
