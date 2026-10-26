@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Diligent's own strings, kept apart from VSCodroid's strings.xml so updates
+    from VSCodroid merge cleanly.
+
+    English only for now, on purpose: Mobile view will be redesigned many times
+    before release, and translating every draft would be wasted work. Other
+    languages fall back to these English strings until the design settles; the
+    translations then come in one pass, into values-xx/strings_diligent.xml.
+    MissingTranslation is ignored for this file alone, so lint still catches a
+    string missing from VSCodroid's translated strings.xml.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <!-- Mobile view tabs -->
+    <string name="diligent_tab_projects">Projects</string>
+    <string name="diligent_tab_files">Files</string>
+    <string name="diligent_tab_editor">Editor</string>
+    <string name="diligent_tab_terminal">Terminal</string>
+    <string name="diligent_tab_more">More</string>
+
+    <!-- Top bar -->
+    <string name="diligent_menu">Menu</string>
+    <string name="diligent_no_project">No project open</string>
+
+    <!-- Shared -->
+    <string name="diligent_coming_soon">Coming soon</string>
+</resources>
