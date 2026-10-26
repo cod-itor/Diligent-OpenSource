@@ -90,7 +90,7 @@ Do not reset or offset it without reading those migrations first;
 | `android/app/src/main/kotlin/com/vscodroid/bridge/AndroidBridge.kt` | `diligent` constructor parameter and the `diligentEditorReady`, `diligentSetView` and `diligentUpdateTasks` methods |
 | `android/app/src/test/.../bridge/BridgeTokenUniformityTest.kt` | Watches the `diligent` collaborator |
 | `docs/05-API_SPEC.md` | The Diligent relay branch and methods |
-| `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js` and `scripts/test-diligent-core.js` |
+| `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js`, `scripts/test-diligent-core.js` and `scripts/test-diligent-kit.js` |
 | `android/app/src/main/res/layout/activity_main.xml` | The WebView sits in an `editorFrame` FrameLayout, so Mobile view's native screens can cover it without resizing it |
 | `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app, and the `WAKE_LOCK` permission `diligent/TaskKeeper.kt` holds while a task runs |
 | `android/app/src/main/kotlin/com/vscodroid/service/NodeService.kt` | Three one-line calls into `diligent/TaskKeeper.kt`: `attach` in `onCreate`, `detach` in `onDestroy`, and `decorate` in `createNotification`, which lists the running tasks with a Stop each on the running card |

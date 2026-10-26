@@ -1,0 +1,48 @@
+{
+  "id": "ruby",
+  "title": "Ruby program",
+  "summary": "Hello World in Ruby",
+  "sizeMB": 45,
+  "needs": {
+    "toolchains": [
+      "toolchain_ruby"
+    ],
+    "minFreeMB": 5,
+    "internet": "pack"
+  },
+  "tested": {
+    "ruby": "4.0"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the Ruby pack",
+      "pack": "toolchain_ruby"
+    },
+    {
+      "type": "write",
+      "title": "Write main.rb",
+      "template": "ruby/main.rb",
+      "path": "main.rb"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "ruby main.rb"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}
