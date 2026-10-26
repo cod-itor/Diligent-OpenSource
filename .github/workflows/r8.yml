@@ -112,6 +112,8 @@ jobs:
           # workspace for the length of the job, readable by everything it runs.
           # The rest of the workflows in this directory already say this.
           persist-credentials: false
+          # Diligent: android/diligent-sync-core (diligent-link's shared library) is a submodule the Gradle build includes.
+          submodules: true
 
       - name: Set up JDK 17
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0

@@ -520,6 +520,11 @@ dependencies {
     implementation(libs.androidx.window)
     // Diligent: QR code encoder for the Share screen
     implementation(libs.zxing.core)
+    // Diligent: diligent-link (devices, pairing, sync). sync-core is the shared
+    // protocol library (composite build); Bouncy Castle runs SRP-6a and
+    // encodes the device certificate.
+    implementation(libs.diligent.sync.core)
+    implementation(libs.bouncycastle.bcprov)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Unit Testing (JUnit 5, JVM only)

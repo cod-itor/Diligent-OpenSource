@@ -111,6 +111,8 @@ jobs:
           # stores it is deliberately not named here: it has moved between major
           # versions, and this setting is right whatever the location is.
           persist-credentials: false
+          # Diligent: android/diligent-sync-core (diligent-link's shared library) is a submodule the Gradle build includes.
+          submodules: true
 
       # A tag that does not name the version it builds makes every later question
       # about what a device is running unanswerable: the tag is the only durable
