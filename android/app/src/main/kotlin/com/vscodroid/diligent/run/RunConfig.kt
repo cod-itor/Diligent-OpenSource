@@ -10,8 +10,8 @@ import java.io.File
  *
  * [command] is shell text, run as the user typed it (pipes, `&&` and all);
  * it is the one value that is never quoted. [env] values, by contrast, are
- * data and always quoted. [where] is `phone` today; later phases add other
- * machines, and a value this version does not know is kept as it is.
+ * data and always quoted. [where] is `phone` or `laptop:<name>` (see
+ * [RunWhere]); a value this version does not know is kept as it is.
  */
 data class RunProfile(
     val name: String,
@@ -19,6 +19,12 @@ data class RunProfile(
     val port: Int? = null,
     val where: String = WHERE_PHONE,
     val env: Map<String, String> = emptyMap(),
+    /**
+     * Shell text run before [command] when the project's lock file changed,
+     * on a laptop only (`npm ci`, `pip install -r requirements.txt`). Like
+     * [command], never quoted.
+     */
+    val prepare: String? = null,
 ) {
     companion object {
         const val WHERE_PHONE = "phone"
@@ -81,6 +87,7 @@ data class RunConfig(val profiles: List<RunProfile>) {
             append("      \"command\": ").append(jsonString(p.command)).append(",\n")
             if (p.port != null) append("      \"port\": ").append(p.port).append(",\n")
             append("      \"where\": ").append(jsonString(p.where)).append(",\n")
+            if (p.prepare != null) append("      \"prepare\": ").append(jsonString(p.prepare)).append(",\n")
             append("      \"env\": {")
             p.env.entries.forEachIndexed { j, (k, v) ->
                 append(if (j == 0) " " else ", ").append(jsonString(k)).append(": ").append(jsonString(v))
@@ -182,7 +189,9 @@ data class RunConfig(val profiles: List<RunProfile>) {
                 }
                 else -> refuse(RunConfigProblem.BadEnv(i, null))
             }
-            return RunProfile(name, command, port, where, env)
+            // Optional, and only text: anything else is left out rather than refused.
+            val prepare = (obj.opt("prepare") as? String)?.trim()?.ifEmpty { null }
+            return RunProfile(name, command, port, where, env, prepare)
         }
 
         /**

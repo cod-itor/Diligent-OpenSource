@@ -67,6 +67,7 @@ import com.vscodroid.diligent.run.RunPending
 import com.vscodroid.diligent.run.RunProfile
 import com.vscodroid.diligent.run.RunStatus
 import com.vscodroid.diligent.run.RunUiState
+import com.vscodroid.diligent.run.RunWhere
 import com.vscodroid.diligent.run.WatchRun
 import com.vscodroid.diligent.ui.components.StatusDot
 import com.vscodroid.diligent.ui.components.StatusLabel
@@ -167,6 +168,13 @@ private fun Details(state: RunUiState, run: RunControl) {
                 overflow = TextOverflow.Ellipsis,
             )
         }
+        (state.where as? RunWhere.Laptop)?.let { laptop ->
+            Text(
+                stringResource(R.string.diligent_run_on_laptop, laptop.name),
+                style = DiligentTheme.type.material.bodyMedium,
+                color = DiligentTheme.colors.onSurfaceVariant,
+            )
+        }
         if (state.status == RunStatus.NoTmux) {
             Text(
                 stringResource(R.string.diligent_run_no_tmux_body),
@@ -193,7 +201,7 @@ private fun Details(state: RunUiState, run: RunControl) {
 /** What the screen says about the run: more than the top bar, which stays quiet when nothing runs. */
 @Composable
 private fun screenStatus(state: RunUiState): Pair<String, StatusTone> {
-    val port = state.activeProfile?.port
+    val port = state.shownPort
     return when {
         state.pending == RunPending.Starting -> stringResource(R.string.diligent_run_status_starting) to StatusTone.Warning
         state.pending == RunPending.Stopping -> stringResource(R.string.diligent_run_status_stopping) to StatusTone.Warning

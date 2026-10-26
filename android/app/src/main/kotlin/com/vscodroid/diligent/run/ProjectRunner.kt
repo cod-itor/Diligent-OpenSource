@@ -7,6 +7,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.vscodroid.R
 import com.vscodroid.diligent.MobileShell
+import com.vscodroid.diligent.laptop.LaptopMessages
+import com.vscodroid.diligent.laptop.LaptopRun
+import com.vscodroid.diligent.laptop.Machine
+import com.vscodroid.diligent.laptop.Machines
 import com.vscodroid.diligent.process.BundledShell
 import com.vscodroid.diligent.process.ShellResult
 import com.vscodroid.diligent.ui.components.StatusTone
@@ -20,8 +24,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.net.InetSocketAddress
+import java.net.ServerSocket
 
 /**
  * Starts, stops and watches the open project's run profiles, and keeps the
@@ -141,10 +149,11 @@ class ProjectRunner(
             status = result.status,
             log = if (withLog) result.log else state.log,
         )
+        if (result.status == RunStatus.Running) recoverLocalPort(active)
         publish()
         // A running session of another profile was found: show that one instead.
         if (next != state.active) {
-            state = state.copy(active = next, status = RunStatus.Idle, log = emptyList())
+            state = state.copy(active = next, status = RunStatus.Idle, log = emptyList(), localPort = null)
             refreshNote()
             poll(withLog)
         }
@@ -153,7 +162,7 @@ class ProjectRunner(
     override fun select(profile: String) {
         if (profile == state.active || state.profiles.none { it.name == profile }) return
         chosen = profile
-        state = state.copy(active = profile, status = RunStatus.Idle, log = emptyList(), startOutput = emptyList())
+        state = state.copy(active = profile, status = RunStatus.Idle, log = emptyList(), startOutput = emptyList(), localPort = null)
         refreshNote()
         publish()
         scope.launch { poll(withLog = logWatchers > 0) }
@@ -167,7 +176,11 @@ class ProjectRunner(
         publish()
         scope.launch {
             val result = try {
-                bundled.run(scripts.start(sessionOf(profile), dir, profile), home)
+                when (val where = RunWhere.parse(profile.where)) {
+                    RunWhere.Phone -> bundled.run(scripts.start(sessionOf(profile), dir, profile), home)
+                    is RunWhere.Laptop -> startOnLaptop(where.name, dir, profile)
+                    is RunWhere.Unknown -> ShellResult(-1, listOf(context.getString(R.string.diligent_run_where_unknown, where.raw)))
+                }
             } catch (e: IOException) {
                 ShellResult(-1, listOfNotNull(e.message))
             } catch (e: IllegalArgumentException) {
@@ -178,6 +191,54 @@ class ProjectRunner(
             publish()
             poll(withLog = logWatchers > 0)
         }
+    }
+
+    /**
+     * Syncs the project to the laptop called [name] ([LaptopRun.sync]), then
+     * starts the ssh that runs it there in the profile's tmux session, so the
+     * supervisor keeps it alive like a run on the phone. The profile's port
+     * is forwarded to the same port on the phone when that is free, or to
+     * any free one.
+     */
+    private suspend fun startOnLaptop(name: String, dir: String, profile: RunProfile): ShellResult {
+        val machine = withContext(Dispatchers.IO) { Machines.load(home) }.firstOrNull { it.name == name }
+            ?: return ShellResult(-1, listOf(context.getString(R.string.diligent_run_no_laptop, name)))
+        val laptop = LaptopRun(machine, state.projectName ?: File(dir).name, messagesFor(machine))
+        val sync = bundled.run(laptop.sync(dir, profile), File(dir))
+        if (!sync.succeeded) return sync
+        val localPort = profile.port?.let { withContext(Dispatchers.IO) { freeLocalPort(it) } }
+        val local = profile.copy(command = laptop.command(profile, localPort), env = emptyMap(), port = localPort)
+        val result = bundled.run(scripts.start(sessionOf(profile), dir, local), home)
+        if (result.succeeded && state.active == profile.name) state = state.copy(localPort = localPort)
+        return result
+    }
+
+    private fun messagesFor(machine: Machine) = LaptopMessages(
+        unreachable = context.getString(R.string.diligent_laptop_unreachable, machine.name),
+        keyRefused = context.getString(R.string.diligent_laptop_key_refused, machine.name),
+        hostKeyChanged = context.getString(R.string.diligent_laptop_host_key_changed, machine.name),
+        noGit = context.getString(R.string.diligent_laptop_needs_git),
+    )
+
+    /**
+     * The forwarded port of a laptop run started before this runner existed
+     * (another visit, yesterday): the `port` its saved launch script names.
+     */
+    private suspend fun recoverLocalPort(profile: RunProfile) {
+        if (state.localPort != null || RunWhere.parse(profile.where) !is RunWhere.Laptop) return
+        val port = withContext(Dispatchers.IO) {
+            try {
+                File(scripts.runScriptPath(sessionOf(profile))).useLines { it.firstOrNull() }
+                    ?.takeIf { it.startsWith(RunScripts.RUN_META) }
+                    ?.let { JSONObject(it.removePrefix(RunScripts.RUN_META)).optInt("port", 0) }
+                    ?.takeIf { it > 0 }
+            } catch (_: IOException) {
+                null
+            } catch (_: JSONException) {
+                null
+            }
+        }
+        if (port != null && state.active == profile.name) state = state.copy(localPort = port)
     }
 
     override fun stop() {
@@ -251,10 +312,10 @@ class ProjectRunner(
         shell.runStatus = when {
             s.pending == RunPending.Starting -> TopBarStatus(context.getString(R.string.diligent_run_status_starting), StatusTone.Warning)
             s.pending == RunPending.Stopping -> TopBarStatus(context.getString(R.string.diligent_run_status_stopping), StatusTone.Warning)
-            else -> statusLabel(s.status, s.activeProfile?.port)?.let { (res, tone) ->
+            else -> statusLabel(s.status, s.shownPort)?.let { (res, tone) ->
                 val text = when (val st = s.status) {
                     is RunStatus.Exited -> context.getString(res, st.code)
-                    RunStatus.Running -> s.activeProfile?.port?.let { context.getString(res, it) } ?: context.getString(res)
+                    RunStatus.Running -> s.shownPort?.let { context.getString(res, it) } ?: context.getString(res)
                     else -> context.getString(res)
                 }
                 TopBarStatus(text, tone)
@@ -264,6 +325,14 @@ class ProjectRunner(
 
     companion object {
         private const val TAG = "DiligentRun"
+
+        /** [preferred] when nothing on the phone listens there, otherwise any free port. Blocking. */
+        internal fun freeLocalPort(preferred: Int): Int = try {
+            ServerSocket().use { it.bind(InetSocketAddress("127.0.0.1", preferred)) }
+            preferred
+        } catch (_: IOException) {
+            ServerSocket(0, 1, java.net.InetAddress.getByName("127.0.0.1")).use { it.localPort }
+        }
         const val POLL_INTERVAL_MS = 1000L
 
         /** Room for the poll's own lines on top of the log tail. */

@@ -37,6 +37,12 @@ data class RunUiState(
     val saveFailed: Boolean = false,
     val log: List<String> = emptyList(),
     val webpackNote: Boolean = false,
+    /**
+     * For a profile running on a laptop: the phone's end of the forwarded
+     * port, which Preview opens. Null on the phone, where the profile's own
+     * port is the one.
+     */
+    val localPort: Int? = null,
 ) {
     val profiles: List<RunProfile>
         get() = (config as? RunConfigState.Loaded)?.config?.profiles.orEmpty()
@@ -47,7 +53,13 @@ data class RunUiState(
     val isRunning: Boolean get() = status == RunStatus.Running
 
     /** The port to preview, while the active profile runs and has one. */
-    val previewPort: Int? get() = if (isRunning) activeProfile?.port else null
+    val previewPort: Int? get() = if (isRunning) shownPort else null
+
+    /** The port the phone reaches the active profile on: the forwarded one for a laptop. */
+    val shownPort: Int? get() = activeProfile?.port?.let { localPort ?: it }
+
+    /** Where the active profile runs. */
+    val where: RunWhere get() = activeProfile?.let { RunWhere.parse(it.where) } ?: RunWhere.Phone
 }
 
 /** What the Run screen and the action bar can ask of the runner. */
