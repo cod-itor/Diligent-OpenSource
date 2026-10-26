@@ -36,7 +36,19 @@ const DOLLAR_ESCAPE = "${'$'}";
 
 const executed = [];
 const registered = new Map();
+// User-level settings as the workbench keeps them: a key absent here is unset.
+const userSettings = new Map();
 const vscodeStub = {
+    ConfigurationTarget: { Global: 1, Workspace: 2 },
+    workspace: {
+        getConfiguration: () => ({
+            inspect: (key) => ({ key, globalValue: userSettings.get(key) }),
+            update: async (key, value, target) => {
+                assert.strictEqual(target, 1, `${key} was written somewhere other than user settings`);
+                if (value === undefined) userSettings.delete(key); else userSettings.set(key, value);
+            },
+        }),
+    },
     commands: {
         executeCommand: (cmd, ...args) => { executed.push({ cmd, args }); return Promise.resolve(); },
         registerCommand: (id, fn) => { registered.set(id, fn); return { dispose() {} }; },
@@ -138,6 +150,51 @@ async function main() {
         `the extension does not listen on '${channelName[1]}', the channel EditorChannel posts on`,
     );
 
+    // ---- the editor layout of each view ------------------------------------
+    //
+    // Mobile view saves the user's own values once, sets its own, and clears
+    // the side areas; Desktop view puts the user's values back exactly,
+    // including "never set". A second Mobile apply (every page load) must not
+    // save Mobile view's values over the user's.
+
+    const state = new Map();
+    const globalState = { get: (k) => state.get(k), update: async (k, v) => { state.set(k, v); } };
+    userSettings.set('editor.fontSize', 18);
+    userSettings.set('workbench.statusBar.visible', true);
+    executed.length = 0;
+
+    assert.strictEqual(await bridge.applyView('mobile', globalState, vscodeStub), true);
+    for (const [key, value] of Object.entries(bridge.MOBILE_SETTINGS)) {
+        assert.deepStrictEqual(userSettings.get(key), value, `Mobile view did not set ${key}`);
+    }
+    assert.deepStrictEqual(
+        executed.map((e) => e.cmd),
+        ['workbench.action.closeSidebar', 'workbench.action.closePanel', 'workbench.action.closeAuxiliaryBar'],
+    );
+
+    await bridge.applyView('mobile', globalState, vscodeStub);
+    await bridge.applyView('desktop', globalState, vscodeStub);
+    assert.strictEqual(userSettings.get('editor.fontSize'), 18, 'the user\'s font size was not restored');
+    assert.strictEqual(userSettings.get('workbench.statusBar.visible'), true);
+    for (const key of Object.keys(bridge.MOBILE_SETTINGS)) {
+        if (key === 'editor.fontSize' || key === 'workbench.statusBar.visible') continue;
+        assert.ok(!userSettings.has(key), `${key} was never set by the user and is left set after Desktop view`);
+    }
+    // Desktop again, from Desktop: nothing to restore, nothing touched.
+    userSettings.set('editor.fontSize', 20);
+    await bridge.applyView('desktop', globalState, vscodeStub);
+    assert.strictEqual(userSettings.get('editor.fontSize'), 20, 'Desktop view rewrote a setting it never changed');
+    assert.strictEqual(await bridge.applyView('tablet', globalState, vscodeStub), false);
+
+    // The Terminal tab: close the panel, then open the terminal (maximized by the setting).
+    executed.length = 0;
+    await bridge.showTerminal(vscodeStub);
+    assert.deepStrictEqual(executed.map((e) => e.cmd), ['workbench.action.closePanel', 'workbench.action.terminal.focus']);
+    executed.length = 0;
+    await bridge.showEditor(vscodeStub);
+    assert.deepStrictEqual(executed.map((e) => e.cmd), ['workbench.action.closePanel', 'workbench.action.focusActiveEditorGroup']);
+    assert.strictEqual(bridge.MOBILE_SETTINGS['workbench.panel.opensMaximized'], 'always');
+
     // ---- names ------------------------------------------------------------
 
     assert.strictEqual(bridge.bridgeMethodName('getView'), 'diligentGetView');
@@ -177,7 +234,7 @@ async function main() {
     calls.length = 0;
     executed.length = 0;
     const subscriptions = [];
-    bridge.activate({ subscriptions, extensionUri: BASE });
+    bridge.activate({ subscriptions, extensionUri: BASE, globalState });
     await settle();
     const poster = new BroadcastChannel('diligent-events');
     poster.postMessage({ cmd: 'workbench.action.quit', args: [] });
@@ -186,6 +243,25 @@ async function main() {
     poster.close();
     assert.deepStrictEqual(executed.map((e) => e.cmd), ['vscode.open'], 'activate ran a refused command');
     assert.strictEqual(executed[0].args[0].path, '/p/x.py');
+    for (const id of ['diligent.view.apply', 'diligent.mobile.showEditor', 'diligent.mobile.showTerminal']) {
+        assert.ok(registered.has(id), `${id} is allowed but was not registered`);
+        assert.ok(bridge.ALLOWED_COMMANDS.has(id), `${id} is registered but Kotlin may not send it`);
+    }
+    // Every command Kotlin sends is allowed. Read from the Kotlin side, so a
+    // new command there without its allowlist entry fails here, not silently
+    // on the phone.
+    const kotlinSent = new Set();
+    const diligentDir = path.join(ROOT, 'android/app/src/main/kotlin/com/vscodroid/diligent');
+    for (const file of fs.readdirSync(diligentDir, { recursive: true })) {
+        if (!String(file).endsWith('.kt')) continue;
+        const text = fs.readFileSync(path.join(diligentDir, String(file)), 'utf8');
+        for (const m of text.matchAll(/(?:editorCommand|editor\.run)\("([\w.]+)"/g)) kotlinSent.add(m[1]);
+        for (const m of text.matchAll(/const val COMMAND_\w+ = "([\w.]+)"/g)) kotlinSent.add(m[1]);
+    }
+    assert.ok(kotlinSent.size > 0, 'no editor commands were read from the Kotlin side');
+    const unallowed = [...kotlinSent].filter((c) => !bridge.ALLOWED_COMMANDS.has(c));
+    assert.deepStrictEqual(unallowed, [], `Kotlin sends commands the extension refuses: ${unallowed.join(', ')}`);
+
     for (const name of bridge.BRIDGE_METHODS) {
         assert.ok(registered.has('diligent.bridge.' + name), `diligent.bridge.${name} was not registered`);
     }
@@ -193,7 +269,7 @@ async function main() {
     assert.ok(calls.some((c) => c[0] === 'diligentEditorReady'), 'activate did not announce itself');
     subscriptions.forEach((s) => s.dispose());
 
-    console.log('diligent bridge: allowlist, paths, relay branch and ready handshake OK');
+    console.log(`diligent bridge: allowlist (${kotlinSent.size} Kotlin commands), paths, view layouts, relay branch and ready handshake OK`);
     // The relay's channel stays open, as it does in the page.
     process.exit(0);
 }

@@ -21,6 +21,11 @@
  *
  * On activation it tells Kotlin it is listening (`diligentEditorReady`), which
  * is when Kotlin sends what it held during the cold start.
+ *
+ * It also owns the editor's side of the view switch (`diligent.view.apply`):
+ * Mobile view hides the editor's own bars and menus with settings and
+ * commands, after saving the user's values, and Desktop view puts those
+ * values back. Switching never reloads the page.
  */
 
 const vscode = require('vscode');
@@ -35,7 +40,45 @@ const RELAY_CHANNEL = 'vscodroid-bridge';
 const ALLOWED_COMMANDS = new Set([
     // Files tab: open the tapped file.
     'vscode.open',
+    // The view switch and the Editor and Terminal tabs, registered below.
+    'diligent.view.apply',
+    'diligent.mobile.showEditor',
+    'diligent.mobile.showTerminal',
+    // Mobile view's action bar.
+    'workbench.action.files.save',
+    'workbench.action.findInFiles',
+    'workbench.action.showCommands',
+    'undo',
 ]);
+
+/**
+ * Mobile view's editor layout. The user's own values for these keys are
+ * saved before the first one is changed and restored on the way back to
+ * Desktop view.
+ *
+ * `workbench.panel.opensMaximized` is what makes the Terminal tab a full
+ * screen terminal: the panel opens maximized whenever it opens, so the tab
+ * never has to toggle a state it cannot read.
+ */
+const MOBILE_SETTINGS = Object.freeze({
+    'workbench.activityBar.location': 'hidden',
+    'workbench.statusBar.visible': false,
+    'workbench.editor.showTabs': 'single',
+    'breadcrumbs.enabled': false,
+    'editor.fontSize': 15,
+    'workbench.panel.opensMaximized': 'always',
+});
+
+/** Commands that clear the editor's side areas when Mobile view comes in. */
+const MOBILE_CLOSE_COMMANDS = [
+    'workbench.action.closeSidebar',
+    'workbench.action.closePanel',
+    'workbench.action.closeAuxiliaryBar',
+];
+
+/** globalState keys: which layout is applied, and the user's values it replaced. */
+const APPLIED_VIEW_KEY = 'diligent.appliedView';
+const SAVED_SETTINGS_KEY = 'diligent.savedDesktopSettings';
 
 /**
  * Bridge methods exposed to the Node extension host as `diligent.bridge.<name>`,
@@ -114,6 +157,78 @@ function callBridge(method, args, timeoutMs = BRIDGE_TIMEOUT_MS) {
     });
 }
 
+/**
+ * Applies the editor layout of `view` ('mobile' or 'desktop').
+ *
+ * Entering Mobile view saves the user's own (user level) values of the keys
+ * it changes, once: applying it again on the next page load must not save
+ * Mobile view's values over the user's. Entering Desktop view restores them,
+ * removing a key the user had never set rather than writing its default.
+ * Anything else is ignored.
+ *
+ * @param {string} view
+ * @param {{ get(key: string): any, update(key: string, value: any): Thenable<void> }} state globalState
+ * @param {typeof import('vscode')} api
+ */
+async function applyView(view, state, api) {
+    const config = api.workspace.getConfiguration();
+    const target = api.ConfigurationTarget.Global;
+    const applied = state.get(APPLIED_VIEW_KEY);
+    if (view === 'mobile') {
+        if (applied !== 'mobile') {
+            /** @type {Record<string, unknown>} */
+            const saved = {};
+            for (const key of Object.keys(MOBILE_SETTINGS)) {
+                const inspected = config.inspect(key);
+                // null for "not set", which JSON keeps and undefined would not.
+                saved[key] = inspected && inspected.globalValue !== undefined ? inspected.globalValue : null;
+            }
+            await state.update(SAVED_SETTINGS_KEY, saved);
+            await state.update(APPLIED_VIEW_KEY, 'mobile');
+        }
+        for (const [key, value] of Object.entries(MOBILE_SETTINGS)) {
+            await config.update(key, value, target);
+        }
+        for (const command of MOBILE_CLOSE_COMMANDS) {
+            await api.commands.executeCommand(command);
+        }
+        return true;
+    }
+    if (view === 'desktop') {
+        if (applied === 'mobile') {
+            const saved = state.get(SAVED_SETTINGS_KEY) || {};
+            for (const key of Object.keys(MOBILE_SETTINGS)) {
+                const value = saved[key];
+                await config.update(key, value === null || value === undefined ? undefined : value, target);
+            }
+            await state.update(SAVED_SETTINGS_KEY, undefined);
+        }
+        await state.update(APPLIED_VIEW_KEY, 'desktop');
+        return true;
+    }
+    return false;
+}
+
+/**
+ * The Editor tab: the editor, with no panel over it.
+ * @param {typeof import('vscode')} api
+ */
+async function showEditor(api) {
+    await api.commands.executeCommand('workbench.action.closePanel');
+    await api.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+}
+
+/**
+ * The Terminal tab: the integrated terminal, full screen. Closing the panel
+ * first makes the focus open it again, which Mobile view's
+ * `workbench.panel.opensMaximized` makes maximized.
+ * @param {typeof import('vscode')} api
+ */
+async function showTerminal(api) {
+    await api.commands.executeCommand('workbench.action.closePanel');
+    await api.commands.executeCommand('workbench.action.terminal.focus');
+}
+
 /** `getView` -> `diligentGetView`. */
 function bridgeMethodName(/** @type {string} */ name) {
     return 'diligent' + name.charAt(0).toUpperCase() + name.slice(1);
@@ -147,6 +262,17 @@ function activate(context) {
     };
     context.subscriptions.push({ dispose: () => events.close() });
 
+    /** @param {(...a: any[]) => Promise<unknown>} fn */
+    const logged = (fn) => (/** @type {any[]} */ ...a) => fn(...a).catch((/** @type {unknown} */ err) => {
+        console.warn('[Diligent] ' + String(err));
+    });
+    context.subscriptions.push(
+        vscode.commands.registerCommand('diligent.view.apply',
+            logged((/** @type {string} */ view) => applyView(view, context.globalState, vscode))),
+        vscode.commands.registerCommand('diligent.mobile.showEditor', logged(() => showEditor(vscode))),
+        vscode.commands.registerCommand('diligent.mobile.showTerminal', logged(() => showTerminal(vscode))),
+    );
+
     for (const name of BRIDGE_METHODS) {
         context.subscriptions.push(vscode.commands.registerCommand(
             'diligent.bridge.' + name,
@@ -165,6 +291,10 @@ module.exports = {
     // For scripts/test-diligent-bridge.js.
     ALLOWED_COMMANDS,
     BRIDGE_METHODS,
+    MOBILE_SETTINGS,
+    applyView,
+    showEditor,
+    showTerminal,
     reviveArgs,
     handleEvent,
     callBridge,
