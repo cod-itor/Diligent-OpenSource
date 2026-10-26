@@ -127,6 +127,7 @@ async function main() {
             { refused: 'not a message' },
         );
     }
+    await settle();
     assert.strictEqual(executed.length, 0, 'a refused message reached the workbench');
 
     // ---- an allowed command, with a path ----------------------------------
@@ -136,6 +137,7 @@ async function main() {
         BASE, vscodeStub.commands.executeCommand,
     );
     assert.deepStrictEqual(outcome, { ran: 'vscode.open' });
+    await settle();
     const [{ cmd, args }] = executed;
     assert.strictEqual(cmd, 'vscode.open');
     assert.strictEqual(args[0].scheme, 'vscode-remote');
@@ -149,6 +151,7 @@ async function main() {
     // A message without args runs with none, rather than throwing.
     executed.length = 0;
     bridge.handleEvent({ cmd: 'vscode.open' }, BASE, vscodeStub.commands.executeCommand);
+    await settle();
     assert.deepStrictEqual(executed, [{ cmd: 'vscode.open', args: [] }]);
 
     // ---- the channel name is the one Kotlin posts on ----------------------
@@ -182,14 +185,38 @@ async function main() {
         ['workbench.action.closeSidebar', 'workbench.action.closePanel', 'workbench.action.closeAuxiliaryBar'],
     );
 
+    // A change made while in Mobile view survives the next page load's apply.
+    userSettings.set('editor.fontSize', 17);
     await bridge.applyView('mobile', globalState, vscodeStub);
+    assert.strictEqual(userSettings.get('editor.fontSize'), 17, 'a page load undid the user\'s change in Mobile view');
+    // A key added by a newer version is saved and set on the next apply.
+    const { 'window.autoDetectColorScheme': _dropped, ...older } = state.get('diligent.savedDesktopSettings');
+    state.set('diligent.savedDesktopSettings', older);
+    userSettings.set('window.autoDetectColorScheme', false);
+    await bridge.applyView('mobile', globalState, vscodeStub);
+    assert.strictEqual(userSettings.get('window.autoDetectColorScheme'), true, 'a newly listed key was not applied');
     await bridge.applyView('desktop', globalState, vscodeStub);
+    assert.strictEqual(userSettings.get('window.autoDetectColorScheme'), false, 'the newly listed key was not restored');
     assert.strictEqual(userSettings.get('editor.fontSize'), 18, 'the user\'s font size was not restored');
     assert.strictEqual(userSettings.get('workbench.statusBar.visible'), true);
     for (const key of Object.keys(bridge.MOBILE_SETTINGS)) {
-        if (key === 'editor.fontSize' || key === 'workbench.statusBar.visible') continue;
+        // Set by the user above: these are restored, not removed.
+        if (['editor.fontSize', 'workbench.statusBar.visible', 'window.autoDetectColorScheme'].includes(key)) continue;
         assert.ok(!userSettings.has(key), `${key} was never set by the user and is left set after Desktop view`);
     }
+    // A page that died before it recorded the switch leaves Mobile view's own
+    // values behind; they are not taken for the user's.
+    userSettings.set('workbench.statusBar.visible', false);
+    await bridge.applyView('mobile', globalState, vscodeStub);
+    await bridge.applyView('desktop', globalState, vscodeStub);
+    assert.ok(!userSettings.has('workbench.statusBar.visible'), 'Mobile view\'s own value was restored as the user\'s');
+
+    // Kotlin's messages run one at a time, in order, however long each takes.
+    const log = [];
+    const slow = (name, ms) => () => new Promise((r) => setTimeout(() => { log.push(name); r(name); }, ms));
+    await Promise.all([bridge.inOrder(slow('apply', 30)), bridge.inOrder(slow('terminal', 1)), bridge.inOrder(() => { throw new Error('x'); }).catch(() => log.push('failed')), bridge.inOrder(slow('after', 1))]);
+    assert.deepStrictEqual(log, ['apply', 'terminal', 'failed', 'after'], 'queued commands overlapped or a failure stopped the queue');
+
     // Desktop again, from Desktop: nothing to restore, nothing touched.
     userSettings.set('editor.fontSize', 20);
     await bridge.applyView('desktop', globalState, vscodeStub);
@@ -202,7 +229,7 @@ async function main() {
     assert.deepStrictEqual(executed.map((e) => e.cmd), ['workbench.action.closePanel', 'workbench.action.terminal.focus']);
     executed.length = 0;
     await bridge.showEditor(vscodeStub);
-    assert.deepStrictEqual(executed.map((e) => e.cmd), ['workbench.action.closePanel', 'workbench.action.focusActiveEditorGroup']);
+    assert.deepStrictEqual(executed.map((e) => e.cmd), ['workbench.action.closePanel', 'workbench.action.closeSidebar', 'workbench.action.focusActiveEditorGroup']);
     assert.strictEqual(bridge.MOBILE_SETTINGS['workbench.panel.opensMaximized'], 'always');
 
     // ---- switching back from Desktop view ------------------------------------

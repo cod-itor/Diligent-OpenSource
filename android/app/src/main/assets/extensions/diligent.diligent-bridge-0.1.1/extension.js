@@ -47,6 +47,7 @@ const ALLOWED_COMMANDS = new Set([
     // Mobile view's action bar.
     'workbench.action.files.save',
     'workbench.action.findInFiles',
+    'actions.find',
     'workbench.action.showCommands',
     'undo',
 ]);
@@ -67,6 +68,11 @@ const MOBILE_SETTINGS = Object.freeze({
     'breadcrumbs.enabled': false,
     'editor.fontSize': 15,
     'workbench.panel.opensMaximized': 'always',
+    // The editor follows the phone's light or dark mode, so it matches
+    // Diligent's own screens around it instead of staying dark in a light UI.
+    'window.autoDetectColorScheme': true,
+    'workbench.preferredLightColorTheme': 'Default Light Modern',
+    'workbench.preferredDarkColorTheme': 'Default Dark Modern',
 });
 
 /** Commands that clear the editor's side areas when Mobile view comes in. */
@@ -124,10 +130,32 @@ function handleEvent(data, base, execute) {
     if (!message || typeof message.cmd !== 'string') return { refused: 'not a message' };
     if (!ALLOWED_COMMANDS.has(message.cmd)) return { refused: message.cmd };
     const args = Array.isArray(message.args) ? reviveArgs(message.args, base) : [];
-    Promise.resolve(execute(message.cmd, ...args)).then(undefined, (/** @type {unknown} */ err) => {
+    inOrder(() => execute(message.cmd, ...args)).then(undefined, (/** @type {unknown} */ err) => {
         console.warn('[Diligent] ' + message.cmd + ' failed: ' + String(err));
     });
     return { ran: message.cmd };
+}
+
+/** @type {Promise<unknown>} */
+let queue = Promise.resolve();
+
+/**
+ * Runs `task` after every task queued before it has finished, and resolves
+ * with its result.
+ *
+ * Kotlin's messages are steps of one sequence ("apply Mobile view, then show
+ * the terminal"), and several of them take many awaited steps. Started side
+ * by side they interleave: a Desktop apply arriving while a Mobile apply is
+ * still writing settings would restore the user's values and then have the
+ * rest of Mobile view's written over them, with nothing saved to restore.
+ * @template T
+ * @param {() => T | Thenable<T>} task
+ * @returns {Promise<T>}
+ */
+function inOrder(task) {
+    const run = queue.then(task, task);
+    queue = run.then(() => undefined, () => undefined);
+    return /** @type {Promise<T>} */ (run);
 }
 
 /**
@@ -175,19 +203,25 @@ async function applyView(view, state, api) {
     const target = api.ConfigurationTarget.Global;
     const applied = state.get(APPLIED_VIEW_KEY);
     if (view === 'mobile') {
-        if (applied !== 'mobile') {
-            /** @type {Record<string, unknown>} */
-            const saved = {};
-            for (const key of Object.keys(MOBILE_SETTINGS)) {
-                const inspected = config.inspect(key);
-                // null for "not set", which JSON keeps and undefined would not.
-                saved[key] = inspected && inspected.globalValue !== undefined ? inspected.globalValue : null;
-            }
-            await state.update(SAVED_SETTINGS_KEY, saved);
-            await state.update(APPLIED_VIEW_KEY, 'mobile');
+        // Already in Mobile view (a page load re-applies it): only keys not
+        // yet saved are new, from a newer version of this list. The others
+        // keep whatever the user changed them to while in Mobile view.
+        /** @type {Record<string, unknown>} */
+        const saved = applied === 'mobile' ? { ...(state.get(SAVED_SETTINGS_KEY) || {}) } : {};
+        const toSet = Object.keys(MOBILE_SETTINGS).filter((key) => !(key in saved));
+        for (const key of toSet) {
+            const inspected = config.inspect(key);
+            const current = inspected ? inspected.globalValue : undefined;
+            // null for "not set", which JSON keeps and undefined would not. A
+            // value already equal to Mobile view's is most likely Mobile view's
+            // own, left by a page that died before it recorded the switch, so
+            // it is not saved as the user's.
+            saved[key] = current === undefined || sameValue(current, MOBILE_SETTINGS[key]) ? null : current;
         }
-        for (const [key, value] of Object.entries(MOBILE_SETTINGS)) {
-            await config.update(key, value, target);
+        await state.update(SAVED_SETTINGS_KEY, saved);
+        await state.update(APPLIED_VIEW_KEY, 'mobile');
+        for (const key of toSet) {
+            await config.update(key, MOBILE_SETTINGS[key], target);
         }
         for (const command of MOBILE_CLOSE_COMMANDS) {
             await api.commands.executeCommand(command);
@@ -209,12 +243,20 @@ async function applyView(view, state, api) {
     return false;
 }
 
+/** @param {unknown} a @param {unknown} b */
+function sameValue(a, b) {
+    return JSON.stringify(a) === JSON.stringify(b);
+}
+
 /**
- * The Editor tab: the editor, with no panel over it.
+ * The Editor tab: the editor, with no panel or side bar over it. Mobile view
+ * hides the activity bar, so a side bar opened by a command would otherwise
+ * have no visible way to close.
  * @param {typeof import('vscode')} api
  */
 async function showEditor(api) {
     await api.commands.executeCommand('workbench.action.closePanel');
+    await api.commands.executeCommand('workbench.action.closeSidebar');
     await api.commands.executeCommand('workbench.action.focusActiveEditorGroup');
 }
 
@@ -330,6 +372,7 @@ module.exports = {
     BRIDGE_METHODS,
     MOBILE_SETTINGS,
     applyView,
+    inOrder,
     switchToMobileView,
     updateViewItem,
     showEditor,
