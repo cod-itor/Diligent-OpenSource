@@ -1,5 +1,6 @@
 package com.vscodroid.diligent.run
 
+import com.vscodroid.diligent.process.BundledShell
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -79,14 +80,38 @@ class RunScriptsTest {
                     "mkdir -p '$home/.diligent/logs' || exit 1",
                     "if tmux has-session -t '=diligent-my-app-dev' 2>/dev/null; then exit 0; fi",
                     "rm -f '$home/.diligent/logs/diligent-my-app-dev.status'",
-                    "printf '%s\\n' '[diligent] \$ npm run dev -- --webpack' > $log",
                 ),
-                start.lines().take(6),
+                start.lines().take(5),
             )
             assertTrue(
-                start.lines()[6].startsWith("exec tmux new-session -d -s 'diligent-my-app-dev' -c $dirQ '$bash' -lc '"),
-                start.lines()[6],
+                start.lines()[5].startsWith("mkdir -p '$home/.diligent/runs' && printf '%s' '# diligent-run: "),
+                start.lines()[5],
             )
+            val rest = start.substringAfter("> '$home/.diligent/runs/diligent-my-app-dev.sh'\n").lines()
+            assertEquals("printf '%s\\n' '[diligent] \$ npm run dev -- --webpack' > $log", rest[0])
+            assertTrue(
+                rest[1].startsWith("exec tmux new-session -d -s 'diligent-my-app-dev' -c $dirQ '$bash' -lc '"),
+                rest[1],
+            )
+        }
+
+        @Test
+        fun `the launch script is the start script without the save step, under its metadata`() {
+            val launch = scripts.launch(session, dir, profile)
+            val first = launch.lines().first()
+            assertEquals(
+                "# diligent-run: {\"dir\":\"/home/projects/My 'App' \\\"x\\\"\",\"name\":\"dev\",\"port\":3000}",
+                first,
+            )
+            assertFalse(launch.contains(".diligent/runs"))
+            assertTrue(launch.trimEnd().endsWith(scripts.inner(session, dir, profile).let(BundledShell::quote)))
+        }
+
+        @Test
+        fun `a profile name with a line break cannot leave the metadata comment`() {
+            val launch = scripts.launch(session, dir, profile.copy(name = "dev\nrm -rf /"))
+            assertEquals(1, launch.lines().count { it.startsWith("# diligent-run: ") })
+            assertFalse(launch.lines().any { it.startsWith("rm -rf") })
         }
 
         @Test
@@ -100,7 +125,9 @@ class RunScriptsTest {
                 export NODE_ENV='it'\''s ${'$'}HOME'
                 { npm run dev -- --webpack
                 } 2>&1 | tee -ia '$home/.diligent/logs/diligent-my-app-dev.log'
-                printf 'exit %s\n' "${'$'}{PIPESTATUS[0]}" > '$home/.diligent/logs/diligent-my-app-dev.status'
+                diligent_code=${'$'}{PIPESTATUS[0]}
+                printf 'exit %s\n' "${'$'}diligent_code" > '$home/.diligent/logs/diligent-my-app-dev.status'
+                printf 'DILIGENT_EXIT:%s\n' "${'$'}diligent_code" >> '$home/.diligent/logs/diligent-my-app-dev.log'
                 """.trimIndent(),
                 inner,
             )
@@ -167,6 +194,12 @@ class RunScriptsTest {
             assertEquals(RunStatus.Idle, RunScripts.statusOf("exit "))
             assertEquals(RunStatus.Idle, RunScripts.statusOf("garbage"))
             assertEquals(RunStatus.Idle, RunScripts.statusOf(null))
+        }
+
+        @Test
+        fun `the exit marker is not shown in the log`() {
+            val poll = RunScripts.parsePoll(listOf("status exit 3", "@@diligent-log", "boom", "DILIGENT_EXIT:3"))
+            assertEquals(listOf("boom"), poll.log)
         }
 
         @Test
@@ -266,10 +299,17 @@ class RunScriptsTest {
 
             val log = File(scripts.logPath(session)).readLines()
             assertEquals(
-                listOf("[diligent] \$ ${profile.command}", "hello 'world' \$(id) `id` \"q\" \\", "here", "py=1"),
+                listOf("[diligent] \$ ${profile.command}", "hello 'world' \$(id) `id` \"q\" \\", "here", "py=1", "DILIGENT_EXIT:3"),
                 log,
             )
             assertEquals("exit 3", File(scripts.statusPath(session)).readText().trim())
+
+            // The saved launch script starts the same run again, as the supervisor does.
+            val saved = File(scripts.runScriptPath(session))
+            assertEquals(scripts.launch(session, project.path, profile), saved.readText())
+            File(scripts.logPath(session)).delete()
+            assertEquals(0, run("exec bash ${BundledShell.quote(saved.path)}", home, bin))
+            assertEquals(log, File(scripts.logPath(session)).readLines())
 
             val out = ProcessBuilder(hostBash.path, "-c", scripts.poll(session, withLog = true))
                 .apply {
@@ -280,7 +320,7 @@ class RunScriptsTest {
             val poll = RunScripts.parsePoll(out.inputStream.bufferedReader().readLines())
             out.waitFor(30, TimeUnit.SECONDS)
             assertEquals(RunStatus.Exited(3), poll.status)
-            assertEquals(log, poll.log)
+            assertEquals(log.dropLast(1), poll.log)
 
             assertEquals(0, run(scripts.stop(session), home, bin))
             assertEquals("stopped", File(scripts.statusPath(session)).readText().trim())
