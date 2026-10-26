@@ -439,7 +439,7 @@ work:
 
 That covers the app's own storage, and nothing else. An install from before
 1.2.0 whose projects folder is still on shared storage, under
-`Android/data/com.vscodroid/files/projects` (see [Storage](#storage)), keeps
+`Android/data/com.ditarector.diligent/files/projects` (see [Storage](#storage)), keeps
 that folder, and a program or a Git hook stored there still cannot run. A
 folder under `~` that is not `~/projects` is under the app's own storage on
 such an install, and this works there.
@@ -1478,7 +1478,7 @@ If the app shows a blank screen after opening:
 > On a new install `~/projects/` is inside the app's internal storage, which
 > Clear Data wipes along with everything else, and nothing is backed up. An
 > install from before 1.2.0 that already had a projects directory in the app's
-> area of shared storage (`Android/data/com.vscodroid/files/projects`) keeps
+> area of shared storage (`Android/data/com.ditarector.diligent/files/projects`) keeps
 > using it, and Clear Data wipes that too. New installs stopped using that
 > location because shared storage cannot hold a symbolic link, so `npm install`
 > failed there on the first package that ships an executable.
@@ -1490,13 +1490,13 @@ editor still works, and on a blank screen it does not:
 projects: internal storage is not exposed over USB or MTP, and `adb pull` cannot
 read it from a release build. What is left:
 
-- A debug build is readable with `adb shell run-as com.vscodroid.debug`, and its
+- A debug build is readable with `adb shell run-as com.ditarector.diligent.debug`, and its
   projects can be copied out from there. The release builds refuse `run-as`.
 - An install that still keeps its projects on shared storage can be read as
   before, with USB debugging on:
 
   ```
-  adb pull /storage/emulated/0/Android/data/com.vscodroid/files/projects
+  adb pull /storage/emulated/0/Android/data/com.ditarector.diligent/files/projects
   ```
 
   Some devices also expose that path over MTP when plugged in.

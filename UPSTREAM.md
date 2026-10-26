@@ -64,6 +64,9 @@ resolve them by keeping both sides' intent:
 | File | Diligent's edit |
 | --- | --- |
 | `android/app/build.gradle.kts` | `applicationId` |
+| `scripts/deploy.sh`, `device-launch.sh`, `device-test.sh` | Default `PKG` is Diligent's debug ID |
+| `android/app/src/androidTest/` (`AndroidManifest.xml`, `SafProviderGrantReceiver.java`) | The package the instrumented tests target |
+| `CONTRIBUTING.md`, `docs/USER_GUIDE.md` | `adb` commands and storage paths name Diligent's ID |
 | `android/app/src/main/res/values*/strings.xml` | The app's name |
 | `branding/product.json` | Editor names and links |
 | `LICENSE` | Diligent's copyright line under VSCodroid's |

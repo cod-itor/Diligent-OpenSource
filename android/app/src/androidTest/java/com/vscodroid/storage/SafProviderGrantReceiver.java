@@ -8,7 +8,8 @@ import android.provider.DocumentsContract;
 
 /** Grants only this APK's fixed disposable tree to the debug application. */
 public final class SafProviderGrantReceiver extends BroadcastReceiver {
-    public static final String TARGET_PACKAGE = "com.vscodroid.debug";
+    // The app under test, read from its BuildConfig so it follows applicationId.
+    public static final String TARGET_PACKAGE = com.vscodroid.BuildConfig.APPLICATION_ID;
     public static final String GRANT = "com.vscodroid.test.saf.GRANT";
     public static final String REVOKE = "com.vscodroid.test.saf.REVOKE";
 
