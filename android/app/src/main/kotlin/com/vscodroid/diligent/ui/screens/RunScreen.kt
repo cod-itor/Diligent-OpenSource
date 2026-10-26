@@ -67,6 +67,7 @@ import com.vscodroid.diligent.run.RunPending
 import com.vscodroid.diligent.run.RunProfile
 import com.vscodroid.diligent.run.RunStatus
 import com.vscodroid.diligent.run.RunUiState
+import com.vscodroid.diligent.run.RunWhere
 import com.vscodroid.diligent.run.WatchRun
 import com.vscodroid.diligent.ui.components.StatusDot
 import com.vscodroid.diligent.ui.components.StatusLabel
@@ -167,6 +168,13 @@ private fun Details(state: RunUiState, run: RunControl) {
                 overflow = TextOverflow.Ellipsis,
             )
         }
+        (state.where as? RunWhere.Laptop)?.let { laptop ->
+            Text(
+                stringResource(R.string.diligent_run_on_laptop, laptop.name),
+                style = DiligentTheme.type.material.bodyMedium,
+                color = DiligentTheme.colors.onSurfaceVariant,
+            )
+        }
         if (state.status == RunStatus.NoTmux) {
             Text(
                 stringResource(R.string.diligent_run_no_tmux_body),
@@ -183,6 +191,7 @@ private fun Details(state: RunUiState, run: RunControl) {
             Text(state.startOutput.joinToString("\n"), style = DiligentTheme.type.codeSmall, color = DiligentTheme.colors.onSurface)
         }
         if (state.webpackNote) WebpackNote(run::dismissWebpackNote)
+        state.offerLaptop?.let { laptop -> OffloadNote(laptop, onRun = { run.runOnLaptop(laptop) }, onDismiss = run::dismissOffload) }
         TextButton(
             onClick = run::openConfig,
             modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget),
@@ -193,7 +202,7 @@ private fun Details(state: RunUiState, run: RunControl) {
 /** What the screen says about the run: more than the top bar, which stays quiet when nothing runs. */
 @Composable
 private fun screenStatus(state: RunUiState): Pair<String, StatusTone> {
-    val port = state.activeProfile?.port
+    val port = state.shownPort
     return when {
         state.pending == RunPending.Starting -> stringResource(R.string.diligent_run_status_starting) to StatusTone.Warning
         state.pending == RunPending.Stopping -> stringResource(R.string.diligent_run_status_stopping) to StatusTone.Warning
@@ -265,6 +274,28 @@ private fun WebpackNote(onDismiss: () -> Unit) {
                 onClick = onDismiss,
                 modifier = Modifier.align(Alignment.End).heightIn(min = DiligentTheme.sizes.touchTarget),
             ) { Text(stringResource(R.string.diligent_run_note_ok)) }
+        }
+    }
+}
+
+/** The offload hint: the phone is struggling with this run, and a laptop is set up. */
+@Composable
+private fun OffloadNote(laptop: String, onRun: () -> Unit, onDismiss: () -> Unit) {
+    Surface(color = DiligentTheme.colors.primaryContainer, shape = DiligentTheme.shapes.medium) {
+        Column(Modifier.padding(DiligentTheme.spacing.m)) {
+            Text(
+                stringResource(R.string.diligent_run_offload_body),
+                style = DiligentTheme.type.material.bodyMedium,
+                color = DiligentTheme.colors.onPrimaryContainer,
+            )
+            Row(Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.s)) {
+                TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
+                    Text(stringResource(R.string.diligent_run_offload_not_now))
+                }
+                Button(onClick = onRun, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
+                    Text(stringResource(R.string.diligent_run_offload_action, laptop))
+                }
+            }
         }
     }
 }
