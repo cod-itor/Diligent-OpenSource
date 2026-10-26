@@ -1,6 +1,7 @@
 package com.vscodroid.diligent
 
 import android.content.Context
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -9,7 +10,16 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +27,7 @@ import com.vscodroid.R
 import com.vscodroid.diligent.ui.BottomChrome
 import com.vscodroid.diligent.ui.NativeScreens
 import com.vscodroid.diligent.ui.TopChrome
+import com.vscodroid.diligent.ui.components.ViewSuggestionCard
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.screens.ChooseViewScreen
 import com.vscodroid.diligent.ui.theme.DiligentTheme
@@ -74,7 +85,60 @@ class DiligentController(
      */
     fun onLayoutReady() {
         attachChrome()
+        attachSuggestion()
         if (!views.hasChosen) showViewChooser()
+        // After the first layout, when the window has its real size.
+        activity.window.decorView.post { checkScreen() }
+    }
+
+    /** The window changed: size, density, display or DeX. May suggest a view. */
+    fun onConfigurationChanged() = checkScreen()
+
+    private val advisor = ViewAdvisor()
+    private var suggestion by mutableStateOf<ViewSuggestion?>(null)
+
+    private fun checkScreen() {
+        if (activity.isFinishing) return
+        advisor.onScreen(ViewAdvisor.measure(activity), shell.view, views.suggestDesktopOnBigScreens)
+            ?.let { suggestion = it }
+    }
+
+    /**
+     * The suggestion card, over everything at the bottom of the window, in
+     * both views (Desktop view has no Diligent chrome to put it in).
+     */
+    private fun attachSuggestion() {
+        val card = ComposeView(activity).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                DiligentTheme {
+                    val shown = suggestion ?: return@DiligentTheme
+                    ViewSuggestionCard(
+                        suggestion = shown,
+                        modifier = Modifier.windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
+                        ),
+                        onSwitch = {
+                            advisor.answered(shown, accepted = true)
+                            suggestion = null
+                            switchView(if (shown == ViewSuggestion.SwitchToDesktop) AppView.Desktop else AppView.Mobile)
+                        },
+                        onNotNow = {
+                            advisor.answered(shown, accepted = false)
+                            suggestion = null
+                        },
+                    )
+                }
+            }
+        }
+        activity.addContentView(
+            card,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL,
+            ),
+        )
     }
 
     private fun attachChrome() {

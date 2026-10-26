@@ -1213,6 +1213,7 @@ class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         keyboardDismissal.turned()
+        diligent.onConfigurationChanged()
         // The keyboard the extra key row stood aside for is gone, a Bluetooth one
         // asleep or unpaired, and the soft keyboard is what is left. A touch would
         // bring the row back, but the person may well carry on typing on the screen.

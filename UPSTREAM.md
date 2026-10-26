@@ -85,7 +85,7 @@ Add a row whenever a phase edits another VSCodroid file.
 VSCodroid's `versionCode` drives the data migrations in `FirstRunSetup.kt`.
 Do not reset or offset it without reading those migrations first;
 `AGENT_GUIDE.md` Phase 7 settles Diligent's version scheme.
-| `android/app/src/main/kotlin/com/vscodroid/MainActivity.kt` | Holds a `DiligentController` (with a small `DiligentActivityHost` for opening folders), calls its `onLayoutReady()` after `setContentView`, tells it about the keyboard (`onImeVisibilityChanged`) and the open folder (`rememberWorkspaceFolder`), passes its bridge host to `AndroidBridge`, and one relay branch forwards `diligent*` commands. `recreateWebView` re-adds the WebView to `editorFrame`. Back asks `diligent.onBack()` first |
+| `android/app/src/main/kotlin/com/vscodroid/MainActivity.kt` | Holds a `DiligentController` (with a small `DiligentActivityHost` for opening folders), calls its `onLayoutReady()` after `setContentView`, tells it about the keyboard (`onImeVisibilityChanged`) and the open folder (`rememberWorkspaceFolder`), passes its bridge host to `AndroidBridge`, and one relay branch forwards `diligent*` commands. `recreateWebView` re-adds the WebView to `editorFrame`. Back asks `diligent.onBack()` first. `onConfigurationChanged` tells it the screen changed (big screen suggestion) |
 | `android/app/src/main/kotlin/com/vscodroid/bridge/AndroidBridge.kt` | `diligent` constructor parameter and the `diligentEditorReady` and `diligentSetView` methods |
 | `android/app/src/test/.../bridge/BridgeTokenUniformityTest.kt` | Watches the `diligent` collaborator |
 | `docs/05-API_SPEC.md` | The Diligent relay branch and methods |
