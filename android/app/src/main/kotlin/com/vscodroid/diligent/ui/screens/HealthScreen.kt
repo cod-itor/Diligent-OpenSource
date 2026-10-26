@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
-import android.text.format.Formatter
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -45,7 +44,7 @@ import com.vscodroid.diligent.health.HealthFix
 import com.vscodroid.diligent.health.HealthProbe
 import com.vscodroid.diligent.health.HealthRules
 import com.vscodroid.diligent.health.HealthStatus
-import com.vscodroid.diligent.health.HealthTopic
+import com.vscodroid.diligent.health.HealthText
 import com.vscodroid.diligent.ui.components.StatusLabel
 import com.vscodroid.diligent.ui.components.StatusTone
 import com.vscodroid.diligent.ui.theme.DiligentTheme
@@ -121,7 +120,7 @@ private fun CheckCard(check: HealthCheck, facts: HealthFacts, onFix: (HealthFix)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    stringResource(check.topic.title),
+                    stringResource(HealthText.titleRes(check.topic)),
                     modifier = Modifier.weight(1f).semantics { heading() },
                     style = DiligentTheme.type.material.titleSmall,
                     color = DiligentTheme.colors.onSurface,
@@ -175,46 +174,7 @@ private fun CommandRow(command: String, onCopy: (String) -> Unit) {
 
 /** The sentence under a check's title, for its status. */
 @Composable
-private fun body(check: HealthCheck, facts: HealthFacts): String {
-    val context = LocalContext.current
-    val status = check.status
-    return when (check.topic) {
-        HealthTopic.Battery -> when (status) {
-            HealthStatus.Pass -> stringResource(R.string.diligent_health_battery_pass)
-            HealthStatus.Fail -> stringResource(R.string.diligent_health_battery_fail)
-            HealthStatus.CannotCheck -> stringResource(R.string.diligent_health_unreadable)
-        }
-        HealthTopic.ChildProcesses -> when (status) {
-            HealthStatus.Pass -> stringResource(R.string.diligent_health_children_pass)
-            HealthStatus.Fail -> stringResource(R.string.diligent_health_children_fail)
-            HealthStatus.CannotCheck -> stringResource(R.string.diligent_health_children_unknown)
-        }
-        HealthTopic.ChildProcessesAdb ->
-            if (status == HealthStatus.Pass) stringResource(R.string.diligent_health_children_pass)
-            else stringResource(R.string.diligent_health_adb_body)
-        HealthTopic.Notifications -> when (status) {
-            HealthStatus.Pass -> stringResource(R.string.diligent_health_notifications_pass)
-            HealthStatus.Fail -> stringResource(R.string.diligent_health_notifications_fail)
-            HealthStatus.CannotCheck -> stringResource(R.string.diligent_health_unreadable)
-        }
-        HealthTopic.Storage -> {
-            val free = Formatter.formatShortFileSize(context, facts.freeBytes ?: 0)
-            when (status) {
-                HealthStatus.Pass -> stringResource(R.string.diligent_health_storage_pass, free)
-                HealthStatus.Fail -> stringResource(R.string.diligent_health_storage_fail, free)
-                HealthStatus.CannotCheck -> stringResource(R.string.diligent_health_unreadable)
-            }
-        }
-        HealthTopic.Processes -> {
-            val count = facts.processes ?: 0
-            when (status) {
-                HealthStatus.Pass -> stringResource(R.string.diligent_health_processes_pass, count, facts.processLimit)
-                HealthStatus.Fail -> stringResource(R.string.diligent_health_processes_fail, count, facts.processLimit)
-                HealthStatus.CannotCheck -> stringResource(R.string.diligent_health_processes_unknown)
-            }
-        }
-    }
-}
+private fun body(check: HealthCheck, facts: HealthFacts): String = HealthText.detail(LocalContext.current, check, facts)
 
 private fun copy(context: Context, text: String) {
     context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText("adb", text))
@@ -223,15 +183,6 @@ private fun copy(context: Context, text: String) {
         Toast.makeText(context, R.string.diligent_health_copied, Toast.LENGTH_SHORT).show()
     }
 }
-
-private val HealthTopic.title: Int
-    get() = when (this) {
-        HealthTopic.Battery -> R.string.diligent_health_battery
-        HealthTopic.ChildProcesses, HealthTopic.ChildProcessesAdb -> R.string.diligent_health_children
-        HealthTopic.Notifications -> R.string.diligent_health_notifications
-        HealthTopic.Storage -> R.string.diligent_health_storage
-        HealthTopic.Processes -> R.string.diligent_health_processes
-    }
 
 private val HealthStatus.label: Int
     get() = when (this) {

@@ -3,6 +3,7 @@ package com.vscodroid.diligent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.ui.components.TopBarStatus
 import com.vscodroid.diligent.ui.navigation.MobileTab
@@ -133,4 +134,7 @@ interface MobileActions {
 
     /** Run profiles of the open project: start, stop, watch, preview. */
     val run: RunControl
+
+    /** The Setup screen's run: a recipe through the kit engine. */
+    val kit: KitSession
 }

@@ -57,7 +57,7 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /**
  * Mobile view's More tab: a list of everything that is not one of the four
- * main tabs, and the screens it opens (Run, Health, Settings) in its own place.
+ * main tabs, and the screens it opens (Run, Setup, Health, Settings) in its own place.
  *
  * Which entry is open is the tab's own small back stack, one level deep:
  * the list, or one detail with a back arrow. It is saved across recreation
@@ -120,6 +120,7 @@ private fun MoreContent(
                 Box(Modifier.weight(1f)) {
                     when (detail) {
                         MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack)
+                        MoreDetail.Setup -> SetupScreen(shell, actions)
                         MoreDetail.Health -> HealthScreen(onOpenRun = { onOpen(MoreDetail.Run) })
                         MoreDetail.Settings -> SettingsScreen(shell, actions)
                     }

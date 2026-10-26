@@ -112,7 +112,7 @@
     <string name="diligent_more_run">Run</string>
     <string name="diligent_more_run_body">Start and stop your project, read its log</string>
     <string name="diligent_more_setup">Setup</string>
-    <string name="diligent_more_setup_body">Install languages and tools</string>
+    <string name="diligent_more_setup_body">Start a project from a template</string>
     <string name="diligent_more_ai">AI</string>
     <string name="diligent_more_ai_body">Code together with an AI assistant</string>
     <string name="diligent_more_devices">Devices</string>
@@ -341,6 +341,50 @@
     <string name="diligent_health_fix_notifications">Open notification settings</string>
     <string name="diligent_health_fix_storage">Open storage settings</string>
     <string name="diligent_health_fix_run">Open Run</string>
+
+    <!-- Setup (More, then Setup; and New project, then Start from a template) -->
+    <string name="diligent_setup_header">New project from a template</string>
+    <string name="diligent_setup_title">What do you want to build?</string>
+    <string name="diligent_setup_intro">Pick a starting point. Diligent installs what it needs and makes a project that runs.</string>
+    <string name="diligent_setup_none">No templates come with this version of the app yet. You can still start an empty project from Projects.</string>
+    <string name="diligent_setup_size">About %1$d MB</string>
+    <string name="diligent_setup_internet_no">No internet needed</string>
+    <string name="diligent_setup_internet_once">Internet once</string>
+    <string name="diligent_setup_internet_pack">Pack download</string>
+    <string name="diligent_setup_internet_no_body">Works without internet.</string>
+    <string name="diligent_setup_internet_once_body">Needs internet once, to download packages.</string>
+    <string name="diligent_setup_internet_pack_body">Downloads a language pack first, so it needs internet.</string>
+    <string name="diligent_setup_installs">What gets installed</string>
+    <string name="diligent_setup_pack">Language pack: %1$s</string>
+    <string name="diligent_setup_nothing_extra">Nothing extra. It uses what the app already has.</string>
+    <string name="diligent_setup_space">Space needed</string>
+    <string name="diligent_setup_space_body">About %1$d MB of free space.</string>
+    <string name="diligent_setup_space_unknown">A little free space.</string>
+    <string name="diligent_setup_low_space">Your phone has %1$s free. Free up some space first, or setup may fail.</string>
+    <string name="diligent_setup_steps">Steps</string>
+    <string name="diligent_setup_start">Start</string>
+    <string name="diligent_setup_running_title">Setting up %1$s</string>
+    <string name="diligent_setup_waiting">Getting started. The first step can take a moment while the editor starts.</string>
+    <string name="diligent_setup_leave_note">You can use other tabs while this runs. Come back here to see how it is going.</string>
+    <string name="diligent_setup_step_untitled">Step %1$d</string>
+    <string name="diligent_setup_step_pending">Waiting</string>
+    <string name="diligent_setup_step_running">Working</string>
+    <string name="diligent_setup_step_ok">Done</string>
+    <string name="diligent_setup_step_fail">Failed</string>
+    <string name="diligent_setup_latest">Latest output</string>
+    <string name="diligent_setup_cancel">Cancel</string>
+    <string name="diligent_setup_done_title">%1$s is ready</string>
+    <string name="diligent_setup_done_body">Your project is set up. Open it to look at the files, or run it to see it working.</string>
+    <string name="diligent_setup_open">Open project</string>
+    <string name="diligent_setup_run">Run</string>
+    <string name="diligent_setup_back">Back to templates</string>
+    <string name="diligent_setup_failed_title">Setup did not finish</string>
+    <string name="diligent_setup_failed_body">Something went wrong. Try again, or check Health in More.</string>
+    <string name="diligent_setup_timeout">The setup engine did not answer. Wait until the editor has finished starting, then try again.</string>
+    <string name="diligent_setup_try_again">Try again</string>
+    <string name="diligent_projects_template">Start from a template</string>
+    <string name="diligent_projects_template_body">A ready-made project that runs: a website, a React app, Python and more.</string>
+    <string name="diligent_projects_empty_choice">Or start with an empty folder:</string>
 
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>

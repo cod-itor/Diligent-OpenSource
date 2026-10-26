@@ -2,7 +2,7 @@
   "name": "diligent-bridge",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "diligent",
   "engines": {
     "vscode": "^1.96.0"
@@ -12,7 +12,10 @@
   ],
   "activationEvents": [
     "onStartupFinished",
-    "onCommand:diligent.bridge.updateTasks"
+    "onCommand:diligent.bridge.updateTasks",
+    "onCommand:diligent.bridge.kitProgress",
+    "onCommand:diligent.bridge.getHealth",
+    "onCommand:diligent.bridge.installToolchain"
   ],
   "browser": "./extension.js",
   "contributes": {

@@ -260,6 +260,9 @@ async function main() {
     const androidBridge = {
         diligentEditorReady: (...a) => { calls.push(['diligentEditorReady', ...a]); },
         diligentEcho: (token, x, y) => { calls.push(['diligentEcho', token, x, y]); return `${x}+${y}`; },
+        diligentGetHealth: (token) => { calls.push(['diligentGetHealth', token]); return '{"checks":[]}'; },
+        diligentInstallToolchain: (token, name) => { calls.push(['diligentInstallToolchain', token, name]); },
+        diligentKitProgress: (token, json) => { calls.push(['diligentKitProgress', token, json]); },
         // Not a Diligent method: the branch must not reach it by name.
         reclaimSafMirror: () => { throw new Error('reached a VSCodroid method through the Diligent branch'); },
     };
@@ -330,6 +333,21 @@ async function main() {
 
     for (const name of bridge.BRIDGE_METHODS) {
         assert.ok(registered.has('diligent.bridge.' + name), `diligent.bridge.${name} was not registered`);
+    }
+    // The kit engine's calls: getHealth's answer comes back to the caller,
+    // installToolchain arrives with the token first, progress is passed on.
+    for (const name of ['kitProgress', 'getHealth', 'installToolchain']) {
+        assert.ok(bridge.BRIDGE_METHODS.includes(name), `${name} is not a bridge method`);
+        assert.ok((manifest.activationEvents || []).includes('onCommand:diligent.bridge.' + name),
+            `diligent.bridge.${name} does not activate the extension`);
+    }
+    assert.strictEqual(await registered.get('diligent.bridge.getHealth')(), '{"checks":[]}');
+    await registered.get('diligent.bridge.installToolchain')('java');
+    assert.deepStrictEqual(calls.at(-1), ['diligentInstallToolchain', 'test-token', 'java']);
+    await registered.get('diligent.bridge.kitProgress')('{"runId":"r"}');
+    assert.deepStrictEqual(calls.at(-1), ['diligentKitProgress', 'test-token', '{"runId":"r"}']);
+    for (const id of ['diligent.kit.add', 'diligent.kit.cancel']) {
+        assert.ok(bridge.ALLOWED_COMMANDS.has(id), `${id} is not allowed`);
     }
     await new Promise((resolve) => setTimeout(resolve, 100));
     assert.ok(calls.some((c) => c[0] === 'diligentEditorReady'), 'activate did not announce itself');
