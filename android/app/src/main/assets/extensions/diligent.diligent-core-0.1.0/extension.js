@@ -19,6 +19,8 @@
  * - The process budget. The count comes from process-monitor.js's snapshot;
  *   a warning is shown once each time it reaches 24.
  *
+ * - Snapshots of the open project on `refs/diligent/snapshots` (snapshots.js).
+ *
  * The app hears about runs through the bridge method `diligentUpdateTasks`.
  * This host has no way to the page's BroadcastChannel, so the call goes
  * through the `diligent.bridge.updateTasks` command that the web-side
@@ -36,6 +38,7 @@ const os = require('os');
 const path = require('path');
 const { execFile } = require('child_process');
 const sup = require('./supervisor');
+const snapshots = require('./snapshots');
 
 const UPDATE_COMMAND = 'diligent.bridge.updateTasks';
 
@@ -432,11 +435,117 @@ class Supervisor {
     }
 }
 
+// ---- snapshots ------------------------------------------------------------
+
+/** globalState key holding the folders whose owner declined `git init`. */
+const DECLINED_KEY = 'diligent.snapshot.declinedInit';
+
+/** Left out of snapshots in a repository Diligent created. */
+const FRESH_EXCLUDES = ['node_modules/', '.venv/', 'venv/', '__pycache__/', '.next/', 'dist/', 'build/'];
+
+/** @param {string} cwd */
+function gitIn(cwd) {
+    /** @type {import('./snapshots').Git} */
+    return (args, options = {}) => run('git', args, { cwd, env: options.env, timeout: 120_000 });
+}
+
+/** The open project's folder, or null. */
+function projectFolder() {
+    const folders = vscode.workspace.workspaceFolders;
+    return folders && folders.length > 0 ? folders[0].uri.fsPath : null;
+}
+
+/**
+ * Makes sure `folder` is a Git repository, asking once before `git init`.
+ * @param {string} folder
+ * @param {import('vscode').Memento} state
+ */
+async function ensureRepository(folder, state) {
+    const git = gitIn(folder);
+    if (await snapshots.gitDirOf(git)) return true;
+    /** @type {string[]} */
+    const declined = state.get(DECLINED_KEY) || [];
+    if (declined.includes(folder)) return false;
+    const yes = vscode.l10n.t('Turn on snapshots');
+    const answer = await vscode.window.showInformationMessage(
+        vscode.l10n.t('Diligent can save snapshots of this project so you can undo changes. This makes the folder a Git repository. Turn on snapshots?'),
+        yes, vscode.l10n.t('Not now'));
+    if (answer !== yes) {
+        await state.update(DECLINED_KEY, [...declined, folder]);
+        return false;
+    }
+    const r = await git(['init']);
+    if (r.code !== 0) return false;
+    // A folder that was not a repository has no .gitignore written for Git
+    // yet, and the dependency folders would make every snapshot huge. The
+    // repository is the one just made, so its own exclude file is ours to set.
+    const gitDir = await snapshots.gitDirOf(git);
+    if (gitDir) {
+        try {
+            fs.mkdirSync(path.join(gitDir, 'info'), { recursive: true });
+            fs.appendFileSync(path.join(gitDir, 'info', 'exclude'), FRESH_EXCLUDES.join('\n') + '\n');
+        } catch (err) {
+            console.warn('[Diligent] could not write the exclude file: ' + String(err));
+        }
+    }
+    return true;
+}
+
+/**
+ * Takes a snapshot of the open project. Answers the commit, or null when there
+ * is no project, the user declined, or nothing changed.
+ * @param {unknown} reason
+ * @param {import('vscode').Memento} state
+ */
+async function takeSnapshot(reason, state) {
+    const folder = projectFolder();
+    if (!folder || !(await ensureRepository(folder, state))) return null;
+    return snapshots.take(gitIn(folder), snapshots.cleanReason(reason));
+}
+
+async function showSnapshots() {
+    const folder = projectFolder();
+    if (!folder) {
+        vscode.window.showInformationMessage(vscode.l10n.t('Open a project to see its snapshots.'));
+        return;
+    }
+    const git = gitIn(folder);
+    const entries = (await snapshots.gitDirOf(git)) ? await snapshots.list(git) : [];
+    if (entries.length === 0) {
+        vscode.window.showInformationMessage(vscode.l10n.t('There are no snapshots of this project yet. Diligent takes one every 10 minutes while you save files.'));
+        return;
+    }
+    const picked = await vscode.window.showQuickPick(entries.map((e) => ({
+        label: new Date(e.time).toLocaleString(),
+        description: e.reason,
+        commit: e.commit,
+    })), { placeHolder: vscode.l10n.t('Pick a snapshot to restore') });
+    if (!picked) return;
+    const restore = vscode.l10n.t('Restore');
+    const answer = await vscode.window.showWarningMessage(
+        vscode.l10n.t('Restore the project files to how they were at {0}? Diligent saves a snapshot of the current files first, so you can come back.', picked.label),
+        { modal: true }, restore);
+    if (answer !== restore) return;
+    await snapshots.restore(git, picked.commit);
+    vscode.window.showInformationMessage(vscode.l10n.t('Files restored to {0}.', picked.label));
+}
+
 /** @param {import('vscode').ExtensionContext} context */
 function activate(context) {
     const supervisor = new Supervisor();
     const timer = setInterval(() => supervisor.check(), sup.CHECK_INTERVAL_MS);
     supervisor.check();
+
+    let savedSinceSnapshot = false;
+    let snapshotting = false;
+    const snapshotTimer = setInterval(() => {
+        if (!savedSinceSnapshot || snapshotting) return;
+        savedSinceSnapshot = false;
+        snapshotting = true;
+        takeSnapshot('auto', context.globalState)
+            .catch((err) => console.warn('[Diligent] snapshot failed: ' + String(err)))
+            .finally(() => { snapshotting = false; });
+    }, snapshots.INTERVAL_MS);
 
     /** @param {(...a: any[]) => Promise<unknown>} fn */
     const reported = (fn) => (/** @type {any[]} */ ...a) => fn(...a).catch((/** @type {unknown} */ err) => {
@@ -444,8 +553,14 @@ function activate(context) {
     });
 
     context.subscriptions.push(
-        { dispose: () => { clearInterval(timer); supervisor.dispose(); } },
+        { dispose: () => { clearInterval(timer); clearInterval(snapshotTimer); supervisor.dispose(); } },
+        vscode.workspace.onDidSaveTextDocument((doc) => {
+            if (doc.uri.scheme !== 'output') savedSinceSnapshot = true;
+        }),
         vscode.commands.registerCommand('diligent.core.stopTask', reported((id) => supervisor.stop(id))),
+        vscode.commands.registerCommand('diligent.snapshot.take',
+            reported((reason) => takeSnapshot(reason, context.globalState))),
+        vscode.commands.registerCommand('diligent.snapshot.showList', reported(() => showSnapshots())),
     );
 }
 
