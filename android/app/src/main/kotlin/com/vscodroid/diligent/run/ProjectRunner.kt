@@ -279,6 +279,30 @@ class ProjectRunner(
         }
     }
 
+    override fun showInTerminal(show: (session: String, label: String) -> Unit) {
+        val dir = state.projectDir ?: return
+        val profile = state.activeProfile ?: return
+        val session = sessionOf(profile)
+        // A server is kept alive by the supervisor, so it stays in tmux and the
+        // terminal follows its log; a script runs in the terminal, where it can
+        // read what the user types and its output stays after it ends.
+        val supervised = profile.port != null || RunWhere.parse(profile.where) != RunWhere.Phone
+        if (supervised && state.status != RunStatus.Running) start()
+        val body = try {
+            if (supervised) scripts.followLog(session, profile.command) else scripts.inTerminal(dir, profile)
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+        scope.launch {
+            val written = try {
+                bundled.run(scripts.writeTerminalScript(session, body), home)
+            } catch (_: IOException) {
+                return@launch
+            }
+            if (written.succeeded) withContext(Dispatchers.Main) { show(session, profile.name) }
+        }
+    }
+
     /**
      * Syncs the project to the laptop called [name] ([LaptopRun.sync]), then
      * starts the ssh that runs it there in the profile's tmux session, so the

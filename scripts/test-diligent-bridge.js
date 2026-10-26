@@ -381,6 +381,37 @@ async function main() {
     }
     assert.strictEqual(terminals.length, 1, 'a refused name opened a terminal');
 
+    // Run: a diligent-* run name only, one terminal per run, its own script.
+    assert.ok(bridge.ALLOWED_COMMANDS.has('diligent.mobile.showRun'), 'showRun is not allowed');
+    assert.ok(registered.has('diligent.mobile.showRun'), 'showRun is allowed but not registered');
+    const runTerminals = [];
+    const runApi = { window: {
+        get terminals() { return runTerminals.filter((t) => !t.disposed); },
+        createTerminal: (opts) => {
+            const t = { opts, name: opts.name, shown: false, disposed: false, sent: [],
+                show() { this.shown = true; }, sendText(x) { this.sent.push(x); }, dispose() { this.disposed = true; } };
+            runTerminals.push(t);
+            return t;
+        },
+    } };
+    assert.strictEqual(bridge.showRun('diligent-my_app-dev', 'dev', runApi), true);
+    assert.deepStrictEqual(runTerminals[0].opts, { name: 'Run: dev' });
+    assert.ok(runTerminals[0].shown);
+    assert.deepStrictEqual(runTerminals[0].sent, [' clear; bash ~/.diligent/term/diligent-my_app-dev.sh']);
+    assert.strictEqual(bridge.showRun('diligent-my_app-dev', 'dev', runApi), true);
+    assert.ok(runTerminals[0].disposed, 'running again left the old terminal open');
+    assert.strictEqual(runApi.window.terminals.length, 1);
+    assert.strictEqual(bridge.showRun('diligent-a-b', 'x\u001b[2Jy\n', runApi), true);
+    assert.strictEqual(runTerminals.at(-1).name, 'Run: x[2Jy', 'control characters reached the title');
+    assert.strictEqual(bridge.showRun('diligent-a-b', 42, runApi), true);
+    assert.strictEqual(runTerminals.at(-1).name, 'Run: diligent-a-b');
+    const before = runTerminals.length;
+    for (const bad of ['diligent-', "diligent-x'; rm -rf ~", 'diligent-X', 'diligent-a b', 'diligent-a\n',
+        'x-diligent-a', '../diligent-a', 'diligent-a/../../b', 42, null, undefined]) {
+        assert.strictEqual(bridge.showRun(bad, 'x', runApi), false, `${JSON.stringify(bad)} was shown`);
+    }
+    assert.strictEqual(runTerminals.length, before, 'a refused name opened a terminal');
+
     await new Promise((resolve) => setTimeout(resolve, 100));
     assert.ok(calls.some((c) => c[0] === 'diligentEditorReady'), 'activate did not announce itself');
     subscriptions.forEach((s) => s.dispose());

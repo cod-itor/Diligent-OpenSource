@@ -79,11 +79,17 @@ fun BottomChrome(shell: MobileShell, actions: MobileActions) {
                 standardEditorActions(
                     running = shell.running,
                     canPreview = shell.previewPort != null,
-                    // Starts the default profile; with none yet, opens Run,
-                    // which offers the detected one or a form.
+                    // Runs the default profile and shows its output on the
+                    // Terminal tab; with none yet, opens Run, which offers the
+                    // detected one or a form.
                     onRun = {
                         if (actions.run.state.activeProfile != null) {
-                            actions.run.start()
+                            // The output shows where a program's output belongs:
+                            // in a terminal of its own, on the Terminal tab.
+                            actions.run.showInTerminal { session, label ->
+                                actions.openTab(MobileTab.Terminal)
+                                actions.editorCommand(COMMAND_SHOW_RUN, session, label)
+                            }
                         } else {
                             shell.runRequested = true
                             actions.openTab(MobileTab.More)
@@ -134,3 +140,9 @@ private fun ChromeEditorLightPreview() = DiligentTheme(darkTheme = false) { Shel
 @Preview(name = "Chrome on Files, dark", widthDp = 360)
 @Composable
 private fun ChromeFilesDarkPreview() = DiligentTheme(darkTheme = true) { ShellSample(MobileTab.Files) }
+
+/**
+ * Opens the terminal showing one run's output (the bridge extension's
+ * `diligent.mobile.showRun`, which accepts a run's session name only).
+ */
+private const val COMMAND_SHOW_RUN = "diligent.mobile.showRun"

@@ -105,6 +105,53 @@ class RunScripts(
     fun runScriptPath(session: String) = "$runsDir/$session.sh"
 
     /**
+     * Where the action bar's Run leaves what its terminal runs: the bridge
+     * extension's `diligent.mobile.showRun` runs `~/.diligent/term/<session>.sh`
+     * and nothing else.
+     */
+    val termDir: String get() = "$homeDir/.diligent/term"
+
+    fun terminalScriptPath(session: String) = "$termDir/$session.sh"
+
+    /** Writes [body] as [session]'s terminal script. */
+    fun writeTerminalScript(session: String, body: String): String =
+        "mkdir -p ${quote(termDir)} && printf '%s' ${quote(body)} > ${quote(terminalScriptPath(session))}"
+
+    /**
+     * A script, run in the terminal itself rather than in tmux: the screen
+     * is cleared, then only the program's output shows, and the program can
+     * read what the user types (Python's `input()`, a C program's `scanf`).
+     * When it ends, one dim line says how, and the output stays on screen.
+     */
+    fun inTerminal(projectDir: String, profile: RunProfile): String = buildList {
+        addAll(environment(projectDir, profile))
+        add("clear")
+        // A subshell, so a command that ends with `exit` ends only itself and
+        // the line saying how it ended still prints.
+        add("( ${profile.command}\n)")
+        add("diligent_code=\$?")
+        add("printf '\\n\\033[2m%s\\033[0m\\n' \"Finished with exit code \$diligent_code. Tap Run to run it again.\"")
+    }.joinToString("\n") + "\n"
+
+    /**
+     * A dev server's output in the terminal: the server stays in its
+     * supervised tmux session (restarted if it crashes), and the terminal
+     * follows its log from the start, so what shows is exactly what the
+     * server printed. The log's end marker becomes a plain sentence. Ctrl-C
+     * here stops following, not the server; Stop on the action bar stops it.
+     */
+    fun followLog(session: String, command: String): String = listOf(
+        "clear",
+        "printf '\\033[2m%s\\033[0m\\n' ${quote("Showing the output of: $command (Stop on the action bar stops it)")}",
+        "tail -n +2 -F ${quote(logPath(session))} 2>/dev/null | while IFS= read -r diligent_line; do",
+        "  case \"\$diligent_line\" in",
+        "    $EXIT_MARK*) printf '\\n\\033[2m%s\\033[0m\\n' \"Stopped with exit code \${diligent_line#$EXIT_MARK}.\" ;;",
+        "    *) printf '%s\\n' \"\$diligent_line\" ;;",
+        "  esac",
+        "done",
+    ).joinToString("\n") + "\n"
+
+    /**
      * Starts [profile] in [session] with [projectDir] as its working directory.
      * Does nothing when the session is already running. Exits 127 when tmux is
      * missing and 2 when the folder is gone.
@@ -163,6 +210,16 @@ class RunScripts(
      * command ended, which is how the supervisor tells the two apart.
      */
     internal fun inner(session: String, projectDir: String, profile: RunProfile): String = buildList {
+        addAll(environment(projectDir, profile))
+        // The newline before the brace lets the command end in a comment or a `;`.
+        add("{ ${profile.command}\n} 2>&1 | tee -ia ${quote(logPath(session))}")
+        add("diligent_code=\${PIPESTATUS[0]}")
+        add("printf 'exit %s\\n' \"\$diligent_code\" > ${quote(statusPath(session))}")
+        add("printf '$EXIT_MARK%s\\n' \"\$diligent_code\" >> ${quote(logPath(session))}")
+    }.joinToString("\n")
+
+    /** The project folder and the profile's environment, the same for every way a run starts. */
+    private fun environment(projectDir: String, profile: RunProfile): List<String> = buildList {
         // A login shell may cd elsewhere in .bash_profile; the command runs in the project.
         add("cd ${quote(projectDir)} || exit 2")
         add("export PYTHONUNBUFFERED=1")
@@ -171,12 +228,7 @@ class RunScripts(
             require(RunConfig.isEnvName(k)) { "not an environment variable name: $k" }
             add("export $k=${quote(v)}")
         }
-        // The newline before the brace lets the command end in a comment or a `;`.
-        add("{ ${profile.command}\n} 2>&1 | tee -ia ${quote(logPath(session))}")
-        add("diligent_code=\${PIPESTATUS[0]}")
-        add("printf 'exit %s\\n' \"\$diligent_code\" > ${quote(statusPath(session))}")
-        add("printf '$EXIT_MARK%s\\n' \"\$diligent_code\" >> ${quote(logPath(session))}")
-    }.joinToString("\n")
+    }
 
     /**
      * Stops [session]: Ctrl-C first, as a person at the terminal would, so a

@@ -70,6 +70,9 @@ const ALLOWED_COMMANDS = new Set([
     // The AI screen's Attach: a terminal attached to one agent session,
     // registered below, which accepts diligent-ai-* session names only.
     'diligent.mobile.attachSession',
+    // The action bar's Run: a terminal showing one run's output, registered
+    // below, which accepts a diligent-* run name only.
+    'diligent.mobile.showRun',
 ]);
 
 /**
@@ -334,6 +337,45 @@ function attachSession(sessionName, api) {
     return true;
 }
 
+/** A run started from Mobile view (RunSession in Kotlin: `diligent-<project>-<profile>`). */
+const RUN_SESSION_NAME = /^diligent-[a-z0-9_-]+$/;
+
+/** The longest terminal title the action bar's Run gives. */
+const RUN_LABEL_MAX = 40;
+
+/**
+ * The action bar's Run: a terminal that shows only what the run prints.
+ *
+ * Kotlin writes `~/.diligent/term/<runName>.sh` first: for a script, the
+ * program itself, run in this terminal so it can read what the user types;
+ * for a dev server, a follower of the run's log, the server staying in its
+ * supervised tmux session. This only ever runs that file, under a name that
+ * holds no quote or shell character, so nothing sent here can choose the
+ * command. A terminal left from the run's last time is closed first, so Run
+ * twice shows one clean run rather than two.
+ * @param {unknown} runName
+ * @param {unknown} label the profile's name, for the terminal's title
+ * @param {typeof import('vscode')} api
+ * @returns {boolean} whether it opened
+ */
+function showRun(runName, label, api) {
+    if (typeof runName !== 'string' || !RUN_SESSION_NAME.test(runName)) {
+        console.warn('[Diligent] refused to show run ' + JSON.stringify(runName));
+        return false;
+    }
+    const shown = typeof label === 'string' ? label.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, RUN_LABEL_MAX) : '';
+    const name = 'Run: ' + (shown || runName);
+    for (const old of api.window.terminals) {
+        if (old.name === name) old.dispose();
+    }
+    const terminal = api.window.createTerminal({ name });
+    terminal.show();
+    // The leading space keeps it out of the shell's history; the script
+    // clears the screen, so only the run's own output stays.
+    terminal.sendText(` clear; bash ~/.diligent/term/${runName}.sh`);
+    return true;
+}
+
 /**
  * Asks the app to switch to Mobile view. Kotlin stores the choice, brings in
  * its native screens and sends `diligent.view.apply` back for the editor's
@@ -415,6 +457,8 @@ function activate(context) {
         vscode.commands.registerCommand('diligent.mobile.showTerminal', logged(() => showTerminal(vscode))),
         vscode.commands.registerCommand('diligent.mobile.attachSession',
             (/** @type {unknown} */ name) => attachSession(name, vscode)),
+        vscode.commands.registerCommand('diligent.mobile.showRun',
+            (/** @type {unknown} */ name, /** @type {unknown} */ label) => showRun(name, label, vscode)),
     );
 
     for (const name of BRIDGE_METHODS) {
@@ -443,6 +487,7 @@ module.exports = {
     showEditor,
     showTerminal,
     attachSession,
+    showRun,
     reviveArgs,
     handleEvent,
     callBridge,
