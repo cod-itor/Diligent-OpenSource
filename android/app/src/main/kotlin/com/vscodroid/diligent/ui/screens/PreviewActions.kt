@@ -3,6 +3,9 @@ package com.vscodroid.diligent.ui.screens
 import com.vscodroid.diligent.AppView
 import com.vscodroid.diligent.DeviceFolder
 import com.vscodroid.diligent.MobileActions
+import com.vscodroid.diligent.run.RunControl
+import com.vscodroid.diligent.run.RunProfile
+import com.vscodroid.diligent.run.RunUiState
 import com.vscodroid.diligent.ui.navigation.MobileTab
 
 /** [MobileActions] that do nothing, for `@Preview`s. */
@@ -19,4 +22,22 @@ internal object PreviewActions : MobileActions {
     override fun setSuggestDesktop(on: Boolean) = Unit
     override fun editorCommand(command: String, vararg args: Any?) = Unit
     override val projectsDir: String = "/home/projects"
+    override val run: RunControl = PreviewRun(RunUiState())
+}
+
+/** [PreviewActions] with the Run screen in [state]. */
+internal class PreviewRunActions(state: RunUiState) : MobileActions by PreviewActions {
+    override val run: RunControl = PreviewRun(state)
+}
+
+/** A [RunControl] frozen in [state], for `@Preview`s. */
+internal class PreviewRun(override val state: RunUiState) : RunControl {
+    override suspend fun watch(withLog: Boolean) = kotlinx.coroutines.awaitCancellation()
+    override fun select(profile: String) = Unit
+    override fun start() = Unit
+    override fun stop() = Unit
+    override fun save(profile: RunProfile) = Unit
+    override fun dismissWebpackNote() = Unit
+    override fun openPreview() = Unit
+    override fun openConfig() = Unit
 }
