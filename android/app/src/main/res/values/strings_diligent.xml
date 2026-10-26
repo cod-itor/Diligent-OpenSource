@@ -42,6 +42,25 @@
     <string name="diligent_screen_more">More</string>
     <string name="diligent_screen_run">Run</string>
 
+    <!-- More tab and Settings -->
+    <string name="diligent_settings_section_view">View</string>
+    <string name="diligent_settings_view_mobile_body">Touch-first and simple, made for one hand</string>
+    <string name="diligent_settings_view_desktop_body">The full VS Code interface</string>
+    <string name="diligent_settings_view_note">Switching keeps your open files, unsaved changes and terminals as they are.</string>
+    <string name="diligent_settings_suggest_desktop">Suggest Desktop view on big screens</string>
+    <string name="diligent_settings_suggest_desktop_body">On DeX, a monitor or a big window, Diligent asks if you want Desktop view. It never switches by itself.</string>
+    <string name="diligent_settings_section_editor">Editor</string>
+    <string name="diligent_settings_editor">Editor settings</string>
+    <string name="diligent_settings_editor_body">Font size, theme, tabs and more, in the editor\'s own settings</string>
+    <string name="diligent_settings_section_about">About</string>
+    <string name="diligent_settings_app">Diligent</string>
+    <string name="diligent_settings_version">Version %1$s</string>
+    <string name="diligent_settings_credit">Built on VSCodroid</string>
+    <string name="diligent_settings_credit_body">By Yudhi Armyndharis and the VSCodroid community</string>
+    <string name="diligent_settings_source">Source code</string>
+    <string name="diligent_settings_source_url" translatable="false">https://github.com/cod-itor/Diligent-OpenSource</string>
+    <string name="diligent_settings_no_browser">No app on this device can open web links.</string>
+
     <!-- First launch: choose a view -->
     <string name="diligent_choose_view_title">How do you want to code?</string>
     <string name="diligent_view_mobile">Mobile view</string>

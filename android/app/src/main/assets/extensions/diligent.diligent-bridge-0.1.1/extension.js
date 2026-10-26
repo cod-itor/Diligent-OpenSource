@@ -49,6 +49,8 @@ const ALLOWED_COMMANDS = new Set([
     'workbench.action.findInFiles',
     'workbench.action.showCommands',
     'undo',
+    // Settings: the editor's own settings, from Mobile view's Settings screen.
+    'workbench.action.openSettings',
 ]);
 
 /**
