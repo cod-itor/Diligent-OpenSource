@@ -60,5 +60,6 @@
     <string name="diligent_choose_view_footer">You can switch at any time.</string>
 
     <!-- Shared -->
+    <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>
 </resources>

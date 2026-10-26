@@ -427,8 +427,16 @@ class MainActivity : AppCompatActivity() {
     private val diligent by lazy {
         DiligentController(this, object : DiligentActivityHost {
             override val projectsDir: String get() = Environment.getProjectsDir(this@MainActivity)
-            override fun openFolder(path: String) {
-                if (serverPort > 0) navigateToFolder(serverPort, path)
+            // The readiness check the device-folder route makes: a server that
+            // died leaves serverPort set, and navigating then shows a
+            // connection-refused page.
+            override fun openFolder(path: String): Boolean {
+                if (serverPort > 0 && nodeService?.isServerReady() == true) {
+                    navigateToFolder(serverPort, path)
+                    return true
+                }
+                Toast.makeText(this@MainActivity, R.string.diligent_editor_starting, Toast.LENGTH_SHORT).show()
+                return false
             }
             override fun openFolderPicker() = this@MainActivity.openFolderPicker()
             override fun recentDeviceFolders() = safManager.getPersistedFolders()

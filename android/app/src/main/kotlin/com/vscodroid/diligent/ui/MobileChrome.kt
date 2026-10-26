@@ -72,7 +72,9 @@ fun BottomChrome(shell: MobileShell, actions: MobileActions) {
                     onStop = {},
                     onPreview = {},
                     onSave = { actions.editorCommand("workbench.action.files.save") },
-                    onSearch = { actions.editorCommand("workbench.action.findInFiles") },
+                    // Find in this file, what a phone user expects from Search;
+                    // searching the project opens a side bar Mobile view hides.
+                    onSearch = { actions.editorCommand("actions.find") },
                     onCommands = { actions.editorCommand("workbench.action.showCommands") },
                     onUndo = { actions.editorCommand("undo") },
                 ),

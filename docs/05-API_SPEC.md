@@ -821,8 +821,12 @@ is answered on the JavaBridge thread and hands its work to the UI thread through
 fun diligentEditorReady(authToken: String)
 // The diligent-bridge extension in the page on screen is listening. Kotlin then
 // marks that page and sends the editor commands it held during the cold start
-// (EditorChannel.editorReady). Sent once per page load, retried until the relay
-// exists. Returns nothing; a refused token does nothing.
+// (EditorChannel.editorReady), then re-applies this device's view to the new
+// page (`diligent.view.apply`, and in Mobile view the current tab). Sent once
+// per page load, retried until the relay exists. Returns nothing; a refused
+// token does nothing. Editor commands Kotlin may send are the
+// `ALLOWED_COMMANDS` of the diligent-bridge extension, and
+// `scripts/test-diligent-bridge.js` fails if Kotlin sends one not on it.
 
 @JavascriptInterface
 fun diligentSetView(authToken: String, view: String)

@@ -22,6 +22,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
 import com.vscodroid.diligent.ui.BottomChrome
@@ -57,7 +58,10 @@ class DiligentController(
     private val host: DiligentActivityHost,
     private val webView: () -> WebView?,
 ) {
-    /** This device's view, Mobile or Desktop. Read on first use, off the start path. */
+    /**
+     * This device's view, Mobile or Desktop. Read on first use, which is the
+     * first layout: one small preferences file of Diligent's own.
+     */
     val views by lazy {
         ViewSettings(activity.getSharedPreferences(ViewSettings.PREFS_NAME, Context.MODE_PRIVATE))
     }
@@ -158,13 +162,34 @@ class DiligentController(
         // drawing nothing: an empty native screen layer would still take
         // accessibility focus over the editor.
         activity.lifecycleScope.launch {
-            snapshotFlow { shell.chrome }.collect { chrome ->
-                topBar?.visibility = visibleIf(chrome.topBar)
-                bottomBars?.visibility = visibleIf(chrome.actionBar || chrome.tabBar)
-                val screenShown = chrome.nativeScreen
-                if (screenShown && nativeScreens?.visibility != View.VISIBLE) leaveEditor()
-                nativeScreens?.visibility = visibleIf(screenShown)
-            }
+            snapshotFlow { shell.chrome }.collect(::applyChrome)
+        }
+    }
+
+    /**
+     * Puts the views in line with [chrome]. Idempotent, so it is also called
+     * straight from [onImeVisibilityChanged]: through the snapshot flow alone
+     * the bars would go one frame after the keyboard came up, and the editor
+     * would be resized twice.
+     */
+    private fun applyChrome(chrome: Chrome) {
+        topBar?.visibility = visibleIf(chrome.topBar)
+        bottomBars?.visibility = visibleIf(chrome.actionBar || chrome.tabBar)
+        val layer = nativeScreens ?: return
+        val wasShown = layer.isVisible
+        if (chrome.nativeScreen == wasShown) return
+        layer.visibility = visibleIf(chrome.nativeScreen)
+        val view = webView() ?: return
+        if (chrome.nativeScreen) {
+            leaveEditor(view)
+            // Under a native screen the editor is not on screen, so TalkBack
+            // must not walk into it.
+            view.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        } else {
+            view.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+            // Back on the editor: a hardware keyboard types into it again
+            // without a tap first. The editor's own focus is the tab command's.
+            view.requestFocus()
         }
     }
 
@@ -178,13 +203,16 @@ class DiligentController(
     private fun visibleIf(shown: Boolean) = if (shown) View.VISIBLE else View.GONE
 
     /** A native screen is coming up over the editor: the keyboard must not keep typing into it. */
-    private fun leaveEditor() {
-        val view = webView() ?: return
+    private fun leaveEditor(view: WebView) {
         activity.getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(view.windowToken, 0)
         view.clearFocus()
     }
 
     private fun showViewChooser() {
+        // The editor starts underneath, and TalkBack must not reach it until
+        // the user has chosen.
+        val behind = activity.findViewById<View>(R.id.webViewContainer)
+        behind.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         val chooser = ComposeView(activity)
         chooser.setContent {
             DiligentTheme {
@@ -193,6 +221,7 @@ class DiligentController(
                 BackHandler { activity.moveTaskToBack(true) }
                 ChooseViewScreen(onChoose = { view ->
                     switchView(view)
+                    behind.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
                     (chooser.parent as? ViewGroup)?.removeView(chooser)
                 })
             }
@@ -226,6 +255,7 @@ class DiligentController(
     /** The soft keyboard came up or went down (from the extra key row's inset listener). */
     fun onImeVisibilityChanged(visible: Boolean) {
         shell.imeVisible = visible
+        applyChrome(shell.chrome)
     }
 
     /** The editor is opening [folder] (null: no folder). */
@@ -248,6 +278,9 @@ class DiligentController(
     /** What the screens call. */
     val actions: MobileActions = object : MobileActions {
         override fun openTab(tab: MobileTab) {
+            // Tapping the Terminal tab again would close and reopen the panel.
+            // Editor again is worth it: it clears a side bar a command opened.
+            if (tab == shell.tab && tab == MobileTab.Terminal) return
             shell.open(tab)
             showTab(tab)
         }
@@ -258,8 +291,7 @@ class DiligentController(
         }
 
         override fun openFolder(path: String) {
-            host.openFolder(path)
-            openTab(MobileTab.Files)
+            if (host.openFolder(path)) openTab(MobileTab.Files)
         }
 
         override fun openFolderPicker() = host.openFolderPicker()

@@ -16,9 +16,10 @@ interface DiligentActivityHost {
     /**
      * Opens [path] (a folder, or a `.code-workspace` file) in the editor. The
      * editor page reloads for it, as VS Code's own Open Folder does; open files
-     * of the previous folder close with it.
+     * of the previous folder close with it. Answers false, after telling the
+     * user, when the editor is not running yet and nothing was opened.
      */
-    fun openFolder(path: String)
+    fun openFolder(path: String): Boolean
 
     /** Opens the system folder picker, VSCodroid's route to folders on shared storage. */
     fun openFolderPicker()
