@@ -1,5 +1,5 @@
 {
-  "displayName": "VSCodroid Menus de l'éditeur",
+  "displayName": "Diligent Menus de l'éditeur",
   "description": "Entrées supplémentaires pour le menu contextuel de l'éditeur",
   "command.selectAll": "Tout sélectionner"
 }

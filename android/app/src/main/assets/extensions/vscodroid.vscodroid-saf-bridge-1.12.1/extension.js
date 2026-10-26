@@ -117,7 +117,7 @@ function sendBridgeCommand(cmd, extra = {}, timeoutMs = BRIDGE_TIMEOUT_MS) {
 }
 
 /** The terminal the Run button reuses, so that a second run replaces the first. */
-const RUN_TERMINAL = 'VSCodroid Run';
+const RUN_TERMINAL = 'Diligent Run';
 
 /** The record of installed on-demand toolchains, from this extension's own directory. */
 const TOOLCHAIN_STATE = ['..', '..', 'toolchains.json'];
@@ -275,8 +275,8 @@ function activate(context) {
                     // added the old one to.
                     vscode.window.showInformationMessage(
                         result.existed
-                            ? 'An SSH key is already set up at ~/.ssh/id_ed25519. Run "VSCodroid: Copy SSH Public Key" to add it to your Git host.'
-                            : 'SSH key created at ~/.ssh/id_ed25519. Run "VSCodroid: Copy SSH Public Key" to add it to your Git host.'
+                            ? 'An SSH key is already set up at ~/.ssh/id_ed25519. Run "Diligent: Copy SSH Public Key" to add it to your Git host.'
+                            : 'SSH key created at ~/.ssh/id_ed25519. Run "Diligent: Copy SSH Public Key" to add it to your Git host.'
                     );
                 } else {
                     vscode.window.showErrorMessage(
@@ -296,7 +296,7 @@ function activate(context) {
                 const pubKey = /** @type {string} */ (await sendBridgeCommand('getSshPublicKey'));
                 if (!pubKey || !pubKey.trim()) {
                     vscode.window.showWarningMessage(
-                        'No SSH key yet. Run "VSCodroid: Generate SSH Key" first.'
+                        'No SSH key yet. Run "Diligent: Generate SSH Key" first.'
                     );
                     return;
                 }
@@ -451,7 +451,7 @@ function activate(context) {
 
                 if (mirrors.length === 0) {
                     vscode.window.showInformationMessage(
-                        'No device folders have been copied into VSCodroid yet.'
+                        'No device folders have been copied into Diligent yet.'
                     );
                     return;
                 }
@@ -490,10 +490,10 @@ function activate(context) {
                 // different things and a single wording would have to be wrong
                 // about one of them. Modal in both, since neither is undoable.
                 const message = m.reclaimable
-                    ? `Remove VSCodroid's local copy of ${name} and free ${size}? ` +
+                    ? `Remove Diligent's local copy of ${name} and free ${size}? ` +
                       'The device folder itself is not touched, and every file in ' +
                       'the copy is already there.'
-                    : `Remove VSCodroid's local copy of ${name} and free ${size}? ` +
+                    : `Remove Diligent's local copy of ${name} and free ${size}? ` +
                       'THIS DELETES FILES. Some files in the copy are not in the ' +
                       'device folder, including anything under node_modules, .git, ' +
                       '__pycache__ or .gradle, and they exist nowhere else. This ' +
@@ -578,7 +578,7 @@ function activate(context) {
                 // no height, which is a phone in landscape.
                 vscode.window.showInformationMessage(
                     hidden
-                        ? 'Extra key row hidden. Run "VSCodroid: Toggle Extra Key Row" again to bring it back.'
+                        ? 'Extra key row hidden. Run "Diligent: Toggle Extra Key Row" again to bring it back.'
                         : 'Extra key row shown. It appears above the keyboard while you type, when the screen has room for it.'
                 );
             } catch (/** @type {*} */ err) {
@@ -686,7 +686,7 @@ function activate(context) {
                 const report = /** @type {string} */ (await sendBridgeCommand('generateBugReport'));
                 // Empty only when the bridge refused the session token.
                 if (!report) {
-                    throw new Error('VSCodroid did not accept the request. Reload the window and try again.');
+                    throw new Error('Diligent did not accept the request. Reload the window and try again.');
                 }
                 // Plain text, so the editor does not run language detection on it.
                 doc = await vscode.workspace.openTextDocument({ content: report, language: 'plaintext' });
@@ -816,7 +816,7 @@ function activate(context) {
         if (!named) return;
         const name = named.slice(named.lastIndexOf('/') + 1);
         const action = await vscode.window.showInformationMessage(
-            `This device folder is shown as ${hash}, the name of its copy in VSCodroid. ` +
+            `This device folder is shown as ${hash}, the name of its copy in Diligent. ` +
                 `Reopen it as ${name}?`,
             REOPEN, DONT_ASK_AGAIN
         );

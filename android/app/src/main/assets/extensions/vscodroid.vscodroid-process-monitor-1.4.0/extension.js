@@ -60,10 +60,10 @@ function activate(context) {
     statusBarItem.command = 'vscodroid.showProcesses';
     statusBarItem.name = 'Process Monitor';
     statusBarItem.text = '$(pulse) --';
-    statusBarItem.tooltip = 'VSCodroid Process Monitor: loading...';
+    statusBarItem.tooltip = 'Diligent Process Monitor: loading...';
     statusBarItem.show();
 
-    outputChannel = vscode.window.createOutputChannel('VSCodroid Processes');
+    outputChannel = vscode.window.createOutputChannel('Diligent Processes');
 
     // Register commands
     const showCmd = vscode.commands.registerCommand('vscodroid.showProcesses', () => {
@@ -106,7 +106,7 @@ function activate(context) {
             statusBarItem.text = '$(pulse) --';
             statusBarItem.backgroundColor = undefined;
             statusBarItem.tooltip =
-                `VSCodroid Process Monitor: no process data for ${STALE_AFTER_MS / 1000} s, ` +
+                `Diligent Process Monitor: no process data for ${STALE_AFTER_MS / 1000} s, ` +
                 'so the count is no longer live.';
             return;
         }
@@ -334,7 +334,7 @@ function showProcessTree() {
         ? new Date(s.timestamp).toLocaleTimeString()
         : 'time not recorded';
 
-    outputChannel.appendLine(`VSCodroid Process Tree (${time})`);
+    outputChannel.appendLine(`Diligent Process Tree (${time})`);
     outputChannel.appendLine(`Total phantom processes: ${s.total}`);
     if (s.budget) {
         // Two numbers and not three. A `reclaim` threshold sat between them

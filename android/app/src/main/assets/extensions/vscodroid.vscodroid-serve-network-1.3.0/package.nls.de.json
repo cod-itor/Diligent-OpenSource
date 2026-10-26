@@ -1,5 +1,5 @@
 {
-  "displayName": "VSCodroid Im Netzwerk bereitstellen",
+  "displayName": "Diligent Im Netzwerk bereitstellen",
   "description": "Zeigt die Adresse, unter der andere Geräte einen Entwicklungsserver auf diesem Gerät erreichen",
-  "command.serveOnNetwork": "VSCodroid: Im Netzwerk bereitstellen"
+  "command.serveOnNetwork": "Diligent: Im Netzwerk bereitstellen"
 }

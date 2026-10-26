@@ -68,6 +68,8 @@ resolve them by keeping both sides' intent:
 | `android/app/src/androidTest/` (`AndroidManifest.xml`, `SafProviderGrantReceiver.java`) | The package the instrumented tests target |
 | `CONTRIBUTING.md`, `docs/USER_GUIDE.md` | `adb` commands and storage paths name Diligent's ID |
 | `android/app/src/main/res/values*/strings.xml` | The app's name |
+| `assets/extensions/vscodroid.*/package.nls*.json`, `extension.js` | Visible text says Diligent (`Diligent: ...` commands); IDs unchanged |
+| `android/app/src/test/.../setup/CommandReferenceTest.kt` | Checks the `Diligent: ` command prefix |
 | `branding/product.json` | Editor names and links |
 | `LICENSE` | Diligent's copyright line under VSCodroid's |
 

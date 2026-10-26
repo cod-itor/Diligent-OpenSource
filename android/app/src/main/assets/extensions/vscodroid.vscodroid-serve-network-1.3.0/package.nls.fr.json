@@ -1,5 +1,5 @@
 {
-  "displayName": "VSCodroid Diffuser sur le réseau",
+  "displayName": "Diligent Diffuser sur le réseau",
   "description": "Affiche l'adresse par laquelle d'autres appareils peuvent atteindre un serveur de développement lancé sur cet appareil",
-  "command.serveOnNetwork": "VSCodroid: Diffuser sur le réseau"
+  "command.serveOnNetwork": "Diligent: Diffuser sur le réseau"
 }

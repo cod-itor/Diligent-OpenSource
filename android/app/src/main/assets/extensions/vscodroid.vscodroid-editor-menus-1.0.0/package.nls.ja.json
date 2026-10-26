@@ -1,5 +1,5 @@
 {
-  "displayName": "VSCodroid エディターのメニュー",
+  "displayName": "Diligent エディターのメニュー",
   "description": "エディターのコンテキスト メニューに追加する項目",
   "command.selectAll": "すべてを選択"
 }
