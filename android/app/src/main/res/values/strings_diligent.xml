@@ -31,6 +31,8 @@
     <string name="diligent_action_search">Find</string>
     <string name="diligent_action_commands">Commands</string>
     <string name="diligent_action_undo">Undo</string>
+    <string name="diligent_action_accept_suggestion">Accept suggestion</string>
+    <string name="diligent_action_next_suggestion">Next suggestion</string>
 
     <!-- Top bar menu -->
     <string name="diligent_menu_desktop_view">Switch to Desktop view</string>

@@ -13,6 +13,8 @@ import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.SkipNext
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -54,9 +56,13 @@ data class EditorAction(
  * in thumb reach, each an icon over a short label so a beginner can read
  * what it does. Every button is a full touch target; the row shares its
  * width equally, so six fit on a 360 dp phone.
+ *
+ * [compact] buttons come after them, narrower and drawn as icons only (their
+ * label is the TalkBack name and the long-press tooltip): AI suggestions'
+ * Accept and Next, which the page cannot tell this row are showing.
  */
 @Composable
-fun EditorActionBar(actions: List<EditorAction>, modifier: Modifier = Modifier) {
+fun EditorActionBar(actions: List<EditorAction>, modifier: Modifier = Modifier, compact: List<EditorAction> = emptyList()) {
     // Apart from the tab bar under it: a lighter surface and a rule, so the
     // editor's commands do not read as more navigation.
     val iconsOnly = LocalDensity.current.fontScale > LARGE_FONT_SCALE
@@ -68,6 +74,7 @@ fun EditorActionBar(actions: List<EditorAction>, modifier: Modifier = Modifier) 
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 actions.forEach { ActionButton(it, iconsOnly, Modifier.weight(1f)) }
+                compact.forEach { ActionButton(it, iconsOnly = true, Modifier.weight(COMPACT_WEIGHT)) }
             }
         }
     }
@@ -138,9 +145,26 @@ fun standardEditorActions(
     EditorAction(stringResource(R.string.diligent_action_undo), Icons.AutoMirrored.Outlined.Undo, onClick = onUndo),
 )
 
+/** A compact button's share of the row, against 1 for a standard one. */
+private const val COMPACT_WEIGHT = 0.6f
+
+/**
+ * AI suggestions' Accept (`editor.action.inlineSuggest.commit`) and Next
+ * (`editor.action.inlineSuggest.showNext`), for [EditorActionBar]'s compact
+ * slot. Both do nothing while no suggestion shows.
+ */
+@Composable
+fun suggestionActions(onAccept: () -> Unit, onNext: () -> Unit): List<EditorAction> = listOf(
+    EditorAction(stringResource(R.string.diligent_action_accept_suggestion), Icons.Outlined.Done, onClick = onAccept),
+    EditorAction(stringResource(R.string.diligent_action_next_suggestion), Icons.Outlined.SkipNext, onClick = onNext),
+)
+
 @Composable
 private fun ActionBarSample(running: Boolean) {
-    EditorActionBar(standardEditorActions(running, canPreview = running, {}, {}, {}, {}, {}, {}, {}))
+    EditorActionBar(
+        standardEditorActions(running, canPreview = running, {}, {}, {}, {}, {}, {}, {}),
+        compact = suggestionActions({}, {}),
+    )
 }
 
 @Preview(name = "Action bar, light", widthDp = 360)

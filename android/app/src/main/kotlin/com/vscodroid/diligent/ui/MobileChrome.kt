@@ -18,6 +18,7 @@ import com.vscodroid.diligent.ui.components.DiligentTopBar
 import com.vscodroid.diligent.ui.components.EditorActionBar
 import com.vscodroid.diligent.ui.components.MenuAction
 import com.vscodroid.diligent.ui.components.standardEditorActions
+import com.vscodroid.diligent.ui.components.suggestionActions
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.screens.FilesScreen
 import com.vscodroid.diligent.ui.screens.MoreScreen
@@ -95,6 +96,13 @@ fun BottomChrome(shell: MobileShell, actions: MobileActions) {
                     // something can go back without knowing Git. Still labelled
                     // Undo, the word a beginner looks for at that moment.
                     onUndo = { actions.editorCommand("diligent.snapshot.showList") },
+                ),
+                // AI suggestions (diligent-ai): take the one showing, or show
+                // the next. The page does not report whether one shows, so the
+                // pair is always there, small, and does nothing without one.
+                compact = suggestionActions(
+                    onAccept = { actions.editorCommand("editor.action.inlineSuggest.commit") },
+                    onNext = { actions.editorCommand("editor.action.inlineSuggest.showNext") },
                 ),
             )
         }
