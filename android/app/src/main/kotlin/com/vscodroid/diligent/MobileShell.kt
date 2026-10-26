@@ -77,6 +77,12 @@ class MobileShell(view: AppView?) {
      */
     var runRequested by mutableStateOf(false)
 
+    /**
+     * Set when the notification after a killed task is tapped: the More tab
+     * opens its Health screen directly and clears this.
+     */
+    var healthRequested by mutableStateOf(false)
+
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
 

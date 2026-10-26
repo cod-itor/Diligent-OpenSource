@@ -57,7 +57,7 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /**
  * Mobile view's More tab: a list of everything that is not one of the four
- * main tabs, and the screens it opens (Run, Settings) in its own place.
+ * main tabs, and the screens it opens (Run, Health, Settings) in its own place.
  *
  * Which entry is open is the tab's own small back stack, one level deep:
  * the list, or one detail with a back arrow. It is saved across recreation
@@ -83,6 +83,12 @@ fun MoreScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = 
         if (shell.runRequested) {
             detail = MoreDetail.Run
             shell.runRequested = false
+        }
+    }
+    LaunchedEffect(shell.healthRequested) {
+        if (shell.healthRequested) {
+            detail = MoreDetail.Health
+            shell.healthRequested = false
         }
     }
     MoreContent(
@@ -114,6 +120,7 @@ private fun MoreContent(
                 Box(Modifier.weight(1f)) {
                     when (detail) {
                         MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack)
+                        MoreDetail.Health -> HealthScreen(onOpenRun = { onOpen(MoreDetail.Run) })
                         MoreDetail.Settings -> SettingsScreen(shell, actions)
                     }
                 }
@@ -161,9 +168,9 @@ private fun MoreList(onOpen: (MoreDetail) -> Unit) {
     }
 }
 
-/** A detail's own small bar: back to the list, and what this screen is. */
+/** A detail's own small bar: back to the list, and what this screen is. Also Health's, over Desktop view. */
 @Composable
-private fun DetailHeader(title: String, onBack: () -> Unit) {
+internal fun DetailHeader(title: String, onBack: () -> Unit) {
     Column {
         Row(
             modifier = Modifier
