@@ -42,6 +42,77 @@
     <string name="diligent_screen_more">More</string>
     <string name="diligent_screen_run">Run</string>
 
+    <!-- Projects tab -->
+    <string name="diligent_projects_new">New project</string>
+    <string name="diligent_projects_clone">Clone from Git</string>
+    <string name="diligent_projects_open">Open folder</string>
+    <string name="diligent_projects_welcome_title">Welcome to Diligent</string>
+    <string name="diligent_projects_welcome_body">Start a new project, copy one from Git, or open a folder you already have. Your projects will show up here.</string>
+    <string name="diligent_projects_open_now">Open now</string>
+    <string name="diligent_projects_card_more">More options for %1$s</string>
+    <string name="diligent_projects_remove_recent">Remove from recent</string>
+    <string name="diligent_projects_last_opened">Opened %1$s</string>
+    <string name="diligent_projects_just_now">just now</string>
+    <string name="diligent_projects_yesterday">yesterday</string>
+    <plurals name="diligent_projects_minutes_ago">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="diligent_projects_hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="diligent_projects_days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="diligent_projects_weeks_ago">
+        <item quantity="one">%d week ago</item>
+        <item quantity="other">%d weeks ago</item>
+    </plurals>
+    <plurals name="diligent_projects_months_ago">
+        <item quantity="one">%d month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="diligent_projects_years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <string name="diligent_projects_language_typescript">TypeScript</string>
+    <string name="diligent_projects_language_javascript">JavaScript</string>
+    <string name="diligent_projects_language_python">Python</string>
+    <string name="diligent_projects_language_ruby">Ruby</string>
+    <string name="diligent_projects_language_java">Java</string>
+    <string name="diligent_projects_language_kotlin">Kotlin</string>
+    <string name="diligent_projects_language_c">C/C++</string>
+    <string name="diligent_projects_language_go">Go</string>
+    <string name="diligent_projects_language_rust">Rust</string>
+    <string name="diligent_projects_language_web">HTML/CSS</string>
+    <string name="diligent_projects_framework_next">Next.js</string>
+    <string name="diligent_projects_framework_vite">Vite</string>
+    <string name="diligent_projects_framework_express">Express</string>
+    <string name="diligent_projects_framework_django">Django</string>
+    <string name="diligent_projects_framework_flask">Flask</string>
+    <string name="diligent_projects_framework_fastapi">FastAPI</string>
+    <string name="diligent_projects_framework_rails">Rails</string>
+    <string name="diligent_projects_cancel">Cancel</string>
+    <string name="diligent_projects_new_title">New project</string>
+    <string name="diligent_projects_new_body">An empty folder in your projects folder. You can add files from the Files tab.</string>
+    <string name="diligent_projects_name">Project name</string>
+    <string name="diligent_projects_create">Create</string>
+    <string name="diligent_projects_name_empty">Give your project a name.</string>
+    <string name="diligent_projects_name_slash">A name cannot contain a slash (/).</string>
+    <string name="diligent_projects_name_reserved">Choose a different name.</string>
+    <string name="diligent_projects_name_too_long">That name is too long.</string>
+    <string name="diligent_projects_name_exists">A project with this name already exists.</string>
+    <string name="diligent_projects_create_failed">Could not create the folder. Check that there is free space and try again.</string>
+    <string name="diligent_projects_open_title">Open folder</string>
+    <string name="diligent_projects_open_device">Choose a folder on this device</string>
+    <string name="diligent_projects_open_device_body">Downloads, Documents, an SD card</string>
+    <string name="diligent_projects_device_folders">Device folders</string>
+    <string name="diligent_projects_in_projects_folder">In your projects folder</string>
+    <string name="diligent_projects_no_folders">No folders here yet.</string>
+
     <!-- First launch: choose a view -->
     <string name="diligent_choose_view_title">How do you want to code?</string>
     <string name="diligent_view_mobile">Mobile view</string>
