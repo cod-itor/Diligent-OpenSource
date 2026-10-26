@@ -23,6 +23,24 @@
     <string name="diligent_menu">Menu</string>
     <string name="diligent_no_project">No project open</string>
 
+    <!-- Editor action bar -->
+    <string name="diligent_action_run">Run</string>
+    <string name="diligent_action_stop">Stop</string>
+    <string name="diligent_action_preview">Preview</string>
+    <string name="diligent_action_save">Save</string>
+    <string name="diligent_action_search">Search</string>
+    <string name="diligent_action_commands">Commands</string>
+    <string name="diligent_action_undo">Undo</string>
+
+    <!-- Top bar menu -->
+    <string name="diligent_menu_desktop_view">Desktop view</string>
+    <string name="diligent_menu_settings">Settings</string>
+
+    <!-- Placeholder while a screen is being built -->
+    <string name="diligent_screen_projects">Your projects</string>
+    <string name="diligent_screen_files">Files</string>
+    <string name="diligent_screen_more">More</string>
+
     <!-- First launch: choose a view -->
     <string name="diligent_choose_view_title">How do you want to code?</string>
     <string name="diligent_view_mobile">Mobile view</string>

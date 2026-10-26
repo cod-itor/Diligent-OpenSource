@@ -11,12 +11,25 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- VS Code Web UI rendered in WebView -->
-    <WebView
-        android:id="@+id/webView"
+    <!--
+        The editor frame takes the height the key row leaves. It holds the
+        WebView and, above it, Diligent's native screen layer (Mobile view's
+        Projects, Files and More), so those screens cover the editor without
+        resizing or reloading it. Diligent's top and bottom bars are added to
+        this column at runtime (DiligentController).
+    -->
+    <FrameLayout
+        android:id="@+id/editorFrame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <!-- VS Code Web UI rendered in WebView -->
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
     <!-- Extra key row: Tab, Esc, Ctrl, Alt, Shift, trackpad, brackets, etc. -->
     <com.vscodroid.keyboard.ExtraKeyRow

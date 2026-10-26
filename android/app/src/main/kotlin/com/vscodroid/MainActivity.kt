@@ -62,6 +62,8 @@ import com.vscodroid.util.EditorLocale
 import com.vscodroid.util.Environment
 import com.vscodroid.bridge.AUTH_TAB_WINDOW_MILLIS
 import com.vscodroid.bridge.AndroidBridge
+import com.vscodroid.diligent.DeviceFolder
+import com.vscodroid.diligent.DiligentActivityHost
 import com.vscodroid.diligent.DiligentController
 import com.vscodroid.bridge.AuthTabWindow
 import com.vscodroid.bridge.ClipboardBridge
@@ -422,7 +424,19 @@ class MainActivity : AppCompatActivity() {
      * editor. Kept in its own files so this activity changes as little as
      * possible; see [DiligentController].
      */
-    private val diligent by lazy { DiligentController(this) { webView } }
+    private val diligent by lazy {
+        DiligentController(this, object : DiligentActivityHost {
+            override val projectsDir: String get() = Environment.getProjectsDir(this@MainActivity)
+            override fun openFolder(path: String) {
+                if (serverPort > 0) navigateToFolder(serverPort, path)
+            }
+            override fun openFolderPicker() = this@MainActivity.openFolderPicker()
+            override fun recentDeviceFolders() = safManager.getPersistedFolders()
+                .sortedByDescending { it.lastOpened }
+                .map { DeviceFolder(it.uri.toString(), it.displayName, it.lastOpened) }
+            override fun openDeviceFolder(folder: DeviceFolder) = openRecentSafFolder(folder.uri.toUri())
+        }) { webView }
+    }
 
     private lateinit var securityManager: SecurityManager
     private lateinit var safManager: SafStorageManager
@@ -2424,6 +2438,7 @@ class MainActivity : AppCompatActivity() {
         // The keyboard guard holds the keyboard down again once it has gone.
         extraKeyRow?.onImeVisibilityChanged = { visible ->
             webView?.evaluateJavascript("window.__vscodroidImeVisible = $visible;", null)
+            diligent.onImeVisibilityChanged(visible)
             if (!visible) keyboardDismissal.hidden()
         }
     }
@@ -3458,6 +3473,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun rememberWorkspaceFolder(folderPath: String?) {
         openWorkspaceFolder = folderPath
+        diligent.onWorkspaceFolder(folderPath)
         // The one `stat` this costs, and the only place it is paid. Above the
         // early return, because the return only means the preference is already
         // written; the fields still have to describe the folder being navigated
@@ -6723,7 +6739,9 @@ class MainActivity : AppCompatActivity() {
         val looping = crashLoopReached(webViewCrashes, SystemClock.elapsedRealtime())
         // Read the open folder off the dying WebView before it goes away
         val lastUrl = wv.url
-        val container = findViewById<android.widget.LinearLayout>(R.id.webViewContainer)
+        // The frame, not the column: Diligent's top and bottom bars share the
+        // column, and the native screen layer sits over the WebView in the frame.
+        val container = findViewById<android.widget.FrameLayout>(R.id.editorFrame)
         container.removeView(wv)
         // Dropped before the view it wraps is destroyed. The only thing that
         // rebuilds this is initBridge, which is reached from loadVSCode below and
@@ -6738,15 +6756,15 @@ class MainActivity : AppCompatActivity() {
 
         val newWebView = WebView(this)
         newWebView.id = R.id.webView
-        // Weight, not the default wrap_content: the replacement has to claim the
-        // height the key row leaves, the same as the one declared in the layout.
+        // Index 0 and filling the frame, as declared in the layout: the frame
+        // holds the height the key row leaves, and the native screen layer has
+        // to stay above the WebView.
         container.addView(
             newWebView,
             0,
-            android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
+            android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
             )
         )
         webView = newWebView
