@@ -352,6 +352,19 @@ class DiligentController(
             }
         }
 
+        override fun updateTasks(json: String) {
+            // Parsed here, off the UI thread; text that does not parse is dropped.
+            val update = TaskUpdate.parse(json) ?: return
+            activity.runOnUiThread { onTasks(update) }
+        }
+    }
+
+    /** The supervisor's latest tasks, or null before the first update. */
+    var tasks: TaskUpdate? = null
+        private set
+
+    private fun onTasks(update: TaskUpdate) {
+        tasks = update
     }
 
     companion object {
