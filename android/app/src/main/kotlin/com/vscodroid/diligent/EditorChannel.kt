@@ -49,7 +49,9 @@ class EditorChannel(
 
     /**
      * Asks the editor to run [command] with [args]: strings, numbers,
-     * booleans, null, or an [EditorPath].
+     * booleans, null, an [EditorPath], or a flat map of string keys to those
+     * plain values (an options object, such as
+     * `workbench.action.terminal.sendSequence`'s `{text}`).
      */
     fun run(command: String, vararg args: Any?) {
         val message = message(command, args.toList())
@@ -106,16 +108,26 @@ class EditorChannel(
             args.forEach { arg ->
                 array.put(
                     when (arg) {
-                        null -> JSONObject.NULL
                         is EditorPath -> JSONObject().put("\$path", arg.path)
-                        is String, is Boolean, is Int, is Long, is Double -> arg
-                        else -> throw IllegalArgumentException(
-                            "EditorChannel cannot send ${arg::class.java.simpleName}"
-                        )
+                        is Map<*, *> -> JSONObject().apply {
+                            arg.forEach { (k, v) ->
+                                require(k is String && k != "\$path") { "EditorChannel cannot send the key $k" }
+                                put(k, plain(v))
+                            }
+                        }
+                        else -> plain(arg)
                     }
                 )
             }
             return JSONObject().put("cmd", command).put("args", array).toString()
+        }
+
+        private fun plain(value: Any?): Any = when (value) {
+            null -> JSONObject.NULL
+            is String, is Boolean, is Int, is Long, is Double -> value
+            else -> throw IllegalArgumentException(
+                "EditorChannel cannot send ${value::class.java.simpleName}"
+            )
         }
 
         /**

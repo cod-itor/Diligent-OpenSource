@@ -92,6 +92,16 @@ class EditorChannelTest {
     }
 
     @Test
+    fun `an options object goes as a JSON object`() {
+        val m = JSONObject(EditorChannel.message("c", listOf(mapOf("text" to "tmux attach -t '=x'\r", "n" to 1))))
+        val o = m.getJSONArray("args").getJSONObject(0)
+        assertEquals("tmux attach -t '=x'\r", o.getString("text"))
+        assertEquals(1, o.getInt("n"))
+        assertThrows<IllegalArgumentException> { EditorChannel.message("c", listOf(mapOf("\$path" to "/x"))) }
+        assertThrows<IllegalArgumentException> { EditorChannel.message("c", listOf(mapOf("a" to listOf(1)))) }
+    }
+
+    @Test
     fun `an argument the editor cannot read is refused`() {
         assertThrows<IllegalArgumentException> { channel.run("cmd", Any()) }
     }

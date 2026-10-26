@@ -388,6 +388,48 @@
     <string name="diligent_projects_template_body">A ready-made project that runs: a website, a React app, Python and more.</string>
     <string name="diligent_projects_empty_choice">Or start with an empty folder:</string>
 
+    <!-- AI (More, then AI) -->
+    <string name="diligent_ai_intro">Run an AI agent in %1$s. Diligent saves a snapshot first, so you can undo what the agent changes.</string>
+    <string name="diligent_ai_no_project">Open a project first. AI agents work in the open project.</string>
+    <string name="diligent_ai_claude">Claude Code</string>
+    <string name="diligent_ai_claude_body">Anthropic\'s coding agent, as the claude command.</string>
+    <string name="diligent_ai_claude_install">Install the Claude Code extension from Extensions, then sign in from its panel. Diligent does not include Claude Code; the extension brings the claude command with it.</string>
+    <string name="diligent_ai_claude_find">Find Claude Code in Extensions</string>
+    <string name="diligent_ai_agy">Antigravity CLI</string>
+    <string name="diligent_ai_agy_body">Google\'s coding agent, as the agy command.</string>
+    <string name="diligent_ai_agy_install">Install it yourself in the Terminal with Google\'s official command:</string>
+    <string name="diligent_ai_agy_install_command" translatable="false">curl -fsSL https://antigravity.google/cli/install.sh | bash</string>
+    <string name="diligent_ai_agy_note">Diligent never runs installers for you. Google may not support Android yet; if agy does not start after installing, it cannot run on this phone.</string>
+    <string name="diligent_ai_copilot">Copilot Chat</string>
+    <string name="diligent_ai_copilot_body">GitHub Copilot Chat is built into the editor. It opens in the editor\'s chat view.</string>
+    <string name="diligent_ai_copilot_open">Open chat</string>
+    <string name="diligent_ai_status_checking">Checking</string>
+    <string name="diligent_ai_status_missing">Not installed</string>
+    <string name="diligent_ai_status_installed">Installed, version %1$s</string>
+    <string name="diligent_ai_status_running">Running, version %1$s</string>
+    <string name="diligent_ai_status_broken">Installed, but it did not start (code %1$d)</string>
+    <string name="diligent_ai_start">Start session</string>
+    <string name="diligent_ai_starting">Starting</string>
+    <string name="diligent_ai_attach">Attach</string>
+    <string name="diligent_ai_stop">Stop</string>
+    <string name="diligent_ai_undo">Undo changes since this session started</string>
+    <string name="diligent_ai_snapshot">Snapshot before the session: %1$s</string>
+    <string name="diligent_ai_start_title">Start %1$s?</string>
+    <string name="diligent_ai_start_body">Diligent saves a snapshot of the project first, so you can undo what the agent changes. If the folder is not a Git repository yet, this makes it one. The session keeps running when you leave this screen.</string>
+    <string name="diligent_ai_undo_title">Undo the agent\'s changes?</string>
+    <string name="diligent_ai_undo_body">Files go back to how they were when the %1$s session started. New files stay. Diligent saves a snapshot of how things are now first, so this can be undone from the snapshot list. Stop the agent first if it is still working.</string>
+    <string name="diligent_ai_undo_confirm">Undo changes</string>
+    <string name="diligent_ai_cancel">Cancel</string>
+    <string name="diligent_ai_copy">Copy command</string>
+    <string name="diligent_ai_copied">Copied</string>
+    <string name="diligent_ai_check_again">Check again</string>
+    <string name="diligent_ai_dismiss">OK</string>
+    <string name="diligent_ai_notice_no_tmux">tmux was not found, so sessions cannot run. Check Health in More.</string>
+    <string name="diligent_ai_notice_start_failed">The session did not start.</string>
+    <string name="diligent_ai_notice_snapshot_failed">The snapshot failed, so the session was not started.</string>
+    <string name="diligent_ai_notice_undone">Files are back to how they were when the session started.</string>
+    <string name="diligent_ai_notice_undo_failed">Undo failed. Try again, or use Undo in the editor to pick a snapshot.</string>
+
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>
