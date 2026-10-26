@@ -1,348 +1,183 @@
-<p align="center">
-  <img src="docs/logo/vscodroid.png" alt="VSCodroid Logo" width="150">
-</p>
-
-<h1 align="center">VSCodroid</h1>
+<h1 align="center">Diligent</h1>
 
 <p align="center">
-  <strong>VS Code, natively on Android.</strong><br>
-  A full-featured IDE on your phone, not a toy editor, not a cloud IDE.<br>
-  Download. Open. Code.
+  <strong>Write and run real code on your Android phone, with an interface made for a phone.</strong><br>
+  The real VS Code engine underneath. A touch-first app on top.
 </p>
 
 <p align="center">
-  <a href="https://github.com/rmyndharis/VSCodroid/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/rmyndharis/VSCodroid/build.yml?style=flat-square&logo=github&label=CI" alt="CI"></a>
-  <a href="https://github.com/rmyndharis/VSCodroid/releases"><img src="https://img.shields.io/github/v/release/rmyndharis/VSCodroid?style=flat-square&logo=github" alt="Release"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/rmyndharis/VSCodroid?style=flat-square" alt="License"></a>
-  <a href="https://github.com/rmyndharis/VSCodroid/stargazers"><img src="https://img.shields.io/github/stars/rmyndharis/VSCodroid?style=flat-square&logo=github" alt="Stars"></a>
-  <a href="https://github.com/rmyndharis/VSCodroid/issues"><img src="https://img.shields.io/github/issues/rmyndharis/VSCodroid?style=flat-square" alt="Issues"></a>
-  <a href="https://buymeacoffee.com/rmyndharis"><img src="https://img.shields.io/badge/Buy_Me_a_Coffee-support-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=black" alt="Buy Me a Coffee"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/cod-itor/Diligent-OpenSource?style=flat-square" alt="License"></a>
+  <a href="https://github.com/cod-itor/Diligent-OpenSource/issues"><img src="https://img.shields.io/github/issues/cod-itor/Diligent-OpenSource?style=flat-square" alt="Issues"></a>
+  <a href="https://github.com/rmyndharis/VSCodroid"><img src="https://img.shields.io/badge/built_on-VSCodroid-0a7d73?style=flat-square" alt="Built on VSCodroid"></a>
 </p>
 
 <p align="center">
-  <a href="#-manifesto">Manifesto</a> •
-  <a href="#-who-this-is-for">Who This Is For</a> •
-  <a href="#-why-now-quantitative-signals">Why Now</a> •
-  <a href="#-principles">Principles</a> •
-  <a href="#-our-promise">Promise</a> •
-  <a href="#-features">Features</a> •
-  <a href="#-architecture">Architecture</a> •
-  <a href="#-getting-started">Getting Started</a> •
-  <a href="#-building-from-source">Build</a> •
-  <a href="#-contributing">Contributing</a> •
-  <a href="#-license">License</a>
+  <a href="#what-diligent-is">What it is</a> •
+  <a href="#two-views-you-choose">Two views</a> •
+  <a href="#features">Features</a> •
+  <a href="#status">Status</a> •
+  <a href="#building-from-source">Build</a> •
+  <a href="#credits">Credits</a> •
+  <a href="#license">License</a>
 </p>
 
 ---
-<p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.vscodroid">
-    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" width="250">
-  </a>
-</p>
 
-> [!TIP]
->
-> ### 🚀 Now Available on Google Play!
->
-> VSCodroid is publicly available on Google Play. Download it now and start coding on your Android device.
->
-> 🔗 **[Get VSCodroid on Google Play](https://play.google.com/store/apps/details?id=com.vscodroid)**
+> [!NOTE]
+> Diligent is in early development and has no release yet. To try it, build it from source
+> (see [Building from source](#building-from-source)).
 
+## What Diligent is
 
-> _What if the next great developer is holding a phone, not a laptop?_
-> _What if a career in software could start without buying expensive hardware?_
-> _What if all you needed was curiosity, effort, and the device already in your pocket?_
+[VSCodroid](https://github.com/rmyndharis/VSCodroid) proved the hard part: the real VS Code
+editor, Node.js, Python, Git and a terminal all run on an Android phone, offline. What a phone
+still needs is an interface that fits it. On a 6-inch touch screen the desktop VS Code layout
+is cramped and hard to use.
 
-## ✊ Manifesto
+Diligent keeps VSCodroid's working engine and puts a phone-shaped app on top of it: big buttons
+within thumb reach, a bottom tab bar, and a clean editor with no desktop menus or panels.
 
-What if a software career could begin from the device already in your hand?
+**Who it is for**
 
-Around the world, people are ready to learn and build.
-Too many are told to wait:
-wait for a laptop,
-wait for better internet,
-wait for better circumstances.
+- Developers with a laptop who want to keep coding away from the desk.
+- Students whose phone is their only computer.
+- Anyone who wants a real development environment in their pocket, not a toy editor and not a
+  cloud IDE.
 
-VSCodroid is a refusal of that waiting.
-VSCodroid exists for people with talent, discipline, and ideas, but without access to expensive hardware.
+## Two views, you choose
 
-We believe access to software creation should depend on effort and curiosity, not on purchasing power.
-So this project brings a real development environment to Android:
-real editor, real terminal, real tooling, real output.
+| View | What you see | Best for |
+| --- | --- | --- |
+| **Mobile view** | Diligent's own touch-first screens around the editor: Projects, Files, Editor, Terminal and More | Phones, one-handed use, beginners |
+| **Desktop view** | The full VS Code interface, exactly as on a computer | Tablets with a keyboard, Samsung DeX, an external monitor |
 
-No watered-down coding toy.
-No mandatory cloud lock-in.
-No "come back later when you can afford more."
+- You pick on first launch and can switch at any time, without losing open files, unsaved text
+  or running terminals.
+- The app never forces a view. On a big screen it may **suggest** Desktop view; you decide.
 
-If you are **ready to learn**, you should be able to **start today**.
+## Features
 
-## 👥 Who This Is For
+From VSCodroid, unchanged:
 
-- Learners who only have access to a smartphone.
-- Developers who want a portable fallback dev environment.
-- Remote contributors who need quick fixes while away from a laptop.
-- Communities and educators who want lower barriers to coding access.
+- **Real VS Code**: the editor, Command Palette, extensions from [Open VSX](https://open-vsx.org).
+- **Integrated terminal**: bash with a real PTY (tmux, line editing, the Node and Python REPLs).
+- **Batteries included**: Node.js, Python 3, Git, npm, SSH and common tools, offline.
+- **On-demand languages**: Ruby, Java and C/C++.
+- **Extra Key Row**: Ctrl, Alt, Tab, Esc, F1 to F12, symbols and a cursor trackpad.
 
-## 🌍 Why Now?
+Added by Diligent (see [Status](#status) for what is built so far):
 
-| Signal                    | Latest data                                                                                                                                          | Why this matters for VSCodroid                                                           |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Phone-first world         | In 2024, global smartphone shipments reached **1.24 billion**, while PC shipments were **262.7 million** (about **4.7x** more smartphones than PCs). | Many people will have a phone before they ever own a laptop.                             |
-| Access is still unequal   | In 2025, **6 billion** people are online, but only **23%** of people in low-income countries use the Internet.                                       | Access to coding tools is still uneven, so lower-barrier tooling matters.                |
-| Mobile is the gateway     | In 2025, **82%** of people aged 10+ own a mobile phone globally (but only **53%** in low-income economies).                                          | The most available computing device is already in people's pockets.                      |
-| Cost blocks participation | In 2025, fixed broadband in low-income countries can cost **more than one quarter of average income**.                                               | Local/offline-capable workflows are not a luxury; they are necessary.                    |
-| Familiar tooling wins     | In Stack Overflow Developer Survey 2025, **75.9%** of respondents reported using Visual Studio Code.                                                 | Bringing the real VS Code experience to Android reduces learning and switching friction. |
+- **Mobile view** with a native top bar, bottom tabs and an action bar (Run, Preview, Save,
+  Search, Command palette, Undo).
+- **Projects and Files** screens: recent projects, clone from Git, a native file tree.
+- **Run and Preview**: run profiles per project, logs, and a preview of your dev server.
+- Later: a setup center, running on your laptop over SSH, AI agents, and pairing and sync with
+  Diligent's desktop and iPhone companions.
 
-### Data Sources
+## Status
 
-1. [IDC: Worldwide Smartphone Shipments Grew 6.4% in 2024](https://www.businesswire.com/news/home/20250113500219/en/Worldwide-Smartphone-Shipments-Grew-6.4-in-2024-Despite-Macro-Challenges-according-to-IDC)
-2. [IDC: The PC Market Closed out 2024 with Slight Growth](https://www.businesswire.com/news/home/20250108905115/en/The-PC-Market-Closed-out-2024-with-Slight-Growth-and-Mixed-Views-on-What-2025-Will-Bring-according-to-IDC)
-3. [ITU Facts and Figures 2025: Internet use](https://www.itu.int/itu-d/reports/statistics/2025/10/15/ff25-internet-use/)
-4. [ITU Facts and Figures 2025: Mobile phone ownership](https://www.itu.int/itu-d/reports/statistics/2025/10/15/ff25-mobile-phone-ownership/)
-5. [ITU Facts and Figures 2025: Affordability of ICT services](https://www.itu.int/itu-d/reports/statistics/2025/10/15/ff25-affordability-of-ict-services/)
-6. [Stack Overflow Developer Survey 2025: Technology (Dev IDEs)](https://survey.stackoverflow.co/2025/technology/)
+Diligent is built in phases, described in [AGENT_GUIDE.md](AGENT_GUIDE.md). What is done is
+recorded in [CHANGELOG-DILIGENT.md](CHANGELOG-DILIGENT.md).
 
-## 🧭 Principles
+| Phase | What | State |
+| --- | --- | --- |
+| 0 | Clone VSCodroid, rename to Diligent, build | Done |
+| 1 | The view switch and Mobile view | In progress: theme, components, the editor bridge, the view setting and the first-launch choice are in |
+| 2 | Reliability | Planned |
+| 3 | Setup center | Planned |
+| 4 | Run on laptop, AI agents, sharing | Planned |
+| 5 | Devices, pairing and sync | Planned |
+| 6 | Any phone, offline and beginner mode | Planned |
+| 7 | Release | Planned |
 
-- **Human potential first**: talent exists everywhere, even where hardware access does not.
-- **Real tools, real dignity**: people deserve production-grade workflows, not watered-down substitutes.
-- **Offline-first by design**: learning and working should remain possible when internet is weak or expensive.
-- **Local by default**: your environment runs on your own device, on `localhost`.
-- **Pathway to opportunity**: the goal is not just writing code, but opening doors to real projects and jobs.
+## Requirements
 
-## 🤝 Our Promise
+| Requirement  | Minimum                 |
+| ------------ | ----------------------- |
+| Android      | 11 (API 30)             |
+| Architecture | arm64-v8a               |
+| WebView      | Chrome 125+             |
+| RAM          | 4 GB recommended        |
+| Storage      | about 740 MB free       |
 
-- We will keep VSCodroid practical for low-resource conditions, not just high-end setups.
-- We will prioritize reliability and usefulness over hype.
-- We will build in public and listen to learners, contributors, and first-time developers.
-- We will measure success by how many people can start and keep building, not installs alone.
+Diligent's application ID is `com.ditarector.diligent`, so it installs next to VSCodroid
+without replacing it.
 
-## ✨ Features
+## Building from source
 
-- **Real VS Code**: Monaco Editor, Workbench UI, Command Palette, and all the features you know.
-- **Extension Support**: Install themes, linters, language support, and more from [Open VSX](https://open-vsx.org).
-- **Interface In Your Language**: The editor's interface follows the phone's language, in thirteen of them (Chinese Simplified and Traditional, Czech, French, German, Italian, Japanese, Korean, Polish, Portuguese (Brazil), Russian, Spanish, Turkish), with no language pack to install. The app's own screens are translated too, and so are VSCodroid's own commands, settings and walkthrough; an extension you install from Open VSX carries its own translations or none.
-- **Integrated Terminal**: Full bash terminal with real PTY support (tmux, bash line editing and the Node and Python REPLs all work).
-- **Batteries Included**: Node.js, Python 3, Git, npm, SSH, and essential tools bundled out of the box.
-- **Offline-First**: Code without an internet connection. Everything runs locally on your device.
-- **Mobile-Optimized**: Extra Key Row (Ctrl, Alt, Tab, Esc, F1-F12, symbols, cursor trackpad), touch-friendly UI, clipboard bridge.
-- **SSH Out of the Box**: Bundled OpenSSH client and `ssh-keygen`, preconfigured with sane defaults (ed25519, keepalive, `accept-new`).
-- **Language Picker**: Select your languages; Ruby, Java and C/C++ install on demand, via Play Asset Delivery on Play installs, or direct download on sideloaded installs.
-- **Dev Server Preview**: Preview a running dev server in an editor tab beside your code, or hand it to the device's browser. See [Dev Server Preview](docs/USER_GUIDE.md#dev-server-preview) in the user guide for the steps.
-
-## 📸 Screenshots
-
-<p align="center">
-  <img src="docs/screenshots/03_code_editor.png" alt="Code Editor with Terminal" width="250">
-  &nbsp;&nbsp;
-  <img src="docs/screenshots/04_extensions.png" alt="Extensions view with the bundled extensions installed" width="250">
-  &nbsp;&nbsp;
-  <img src="docs/screenshots/02_terminal.png" alt="Terminal" width="250">
-</p>
-
-<p align="center">
-  <em>Code editor with syntax highlighting</em> · <em>Extensions view, showing the bundled extensions</em> · <em>Terminal with Node.js, Git, and bundled tools</em>
-</p>
-
-## 🏗️ Architecture
-
-VSCodroid runs a local VS Code Server instance on your Android device. The VS Code Web Client renders inside a WebView, and the VS Code Server (Node.js) runs as a native ARM64 process, all on `localhost`.
-
-```mermaid
-flowchart TD
-  subgraph APP["Android App (Kotlin)"]
-    WV["WebView"]
-    WEB["VS Code Web Client (vscode-web)"]
-    KEY["Extra Key Row [Tab][Esc][Ctrl][Alt][F1-F12] + cursor trackpad"]
-    NODE["Node.js Process (VS Code Server, vscode-reh, ARM64)"]
-    REH["VS Code Server (vscode-reh)"]
-    EXT["Extension Host"]
-    TERM["Terminal (node-pty)"]
-    FS["File System / Search"]
-    WV --> WEB
-    NODE --> REH
-    REH --> EXT
-    REH --> TERM
-    REH --> FS
-    KEY --> WV
-  end
-  WEB <--> LOCAL["localhost:PORT (HTTP + WebSocket)"]
-  LOCAL <--> REH
-```
-
-> For full architecture details, see [Architecture Design Document (historical: the 2026-02-10 design, not the code)](docs/03-ARCHITECTURE.md).
-
-## 📱 Requirements
-
-| Requirement  | Minimum                            |
-| ------------ | ---------------------------------- |
-| Android      | 11 (API 30)                        |
-| Architecture | arm64-v8a                          |
-| WebView      | Chrome 125+                        |
-| RAM          | 4 GB recommended                   |
-| Storage      | ~738 MB free to install            |
-
-## 🚀 Getting Started
-
-### Install from Google Play
-
-1. **Install** from [Google Play](https://play.google.com/store/apps/details?id=com.vscodroid).
-2. Open the app. Core binaries extract automatically the first time, behind a progress bar.
-3. Pick your languages (Ruby, Java 21, C/C++). They install automatically.
-4. Start coding. Editor, terminal, and tools are ready.
-
-> You can also download APKs directly from [GitHub Releases](https://github.com/rmyndharis/VSCodroid/releases).
-
-### What's Included
-
-| Tier                         | What                                                        | How                                                      |
-| ---------------------------- | ----------------------------------------------------------- | -------------------------------------------------------- |
-| **Core (Base APK)**          | Node.js, npm, Python 3, Git, Bash, SSH, tmux, make, ripgrep | Available immediately                                    |
-| **Toolchains (Asset Packs)** | Ruby, Java 21, C/C++                                        | Select in Language Picker: Play Asset Delivery, or direct download on sideloaded installs |
-
-## 🔨 Building from Source
-
-### Prerequisites
-
-- **Android Studio** latest stable version with Android API 36 support.
-- **Android NDK** r27+ (for cross-compiling the native addons).
-- **CMake** (on PATH, or the Android SDK's `cmake` package; builds libzmq for the Jupyter extension's addon).
-- **Python** 3.x (used by the download and verification scripts).
-- **Git**.
-
-You do **not** build VS Code locally: the server tree is built once per VS Code version by a
-separate workflow and fetched as a verified tarball by `scripts/fetch-vscode-oss.sh`.
-
-### Build Steps
+You need Android Studio (API 36), the Android NDK r27 or newer, CMake, Python 3 and Git. You do
+not build VS Code yourself: the editor server is built once per VS Code version by a workflow in
+this repository and fetched as a verified tarball.
 
 ```bash
-# Clone the repository
-git clone https://github.com/rmyndharis/VSCodroid.git
-cd VSCodroid
+git clone https://github.com/cod-itor/Diligent-OpenSource.git
+cd Diligent-OpenSource
 
 # Build the Android app
 cd android && ./gradlew assembleDebug
 
-# Install on connected device
-adb install android/app/build/outputs/apk/debug/app-debug.apk
+# Install on a connected device
+adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
 > [!WARNING]
-> **The steps above build the Android shell only.** A runnable app also needs the server tree,
-> the Node runtime and the bundled tools, which the `scripts/download-*.sh` scripts fetch.
-> Four scripts cross-compile with the Android NDK: `scripts/build-native-addons.sh` (which also
-> needs CMake), `scripts/build-glibc-shim.sh`, `scripts/build-exec-trampoline.sh` and
-> `scripts/build-claude-shim.sh`. See [CONTRIBUTING.md](CONTRIBUTING.md) for the order to run them in.
+> The steps above build the Android shell only. A runnable app also needs the editor server,
+> the Node runtime and the bundled tools, which the `scripts/download-*.sh` and
+> `scripts/build-*.sh` scripts provide. [CONTRIBUTING.md](CONTRIBUTING.md) lists the order to
+> run them in. The easiest way to get a working APK is the `debug-apk` artifact of the
+> **Build** workflow on GitHub Actions.
 
-## 📦 Size Estimates
+## Contributing
 
-| Metric                                 | Size                 |
-| -------------------------------------- | -------------------- |
-| Play Store download (core)             | ~270 MB              |
-| + Each toolchain (on-demand)           | 10-74 MB per language |
-| Free space required to install         | ~738 MB              |
-| Extracted to internal storage (core)   | ~603 MB              |
-| Extracted, plus Ruby and Java          | ~830 MB              |
-| Extracted, plus all three toolchains   | ~1,090 MB            |
-| RAM usage (typical)                    | ~400-700 MB          |
+Bug reports, ideas and pull requests are welcome. Please read
+[CONTRIBUTING.md](CONTRIBUTING.md) first, and see [UPSTREAM.md](UPSTREAM.md) for how Diligent
+stays in step with VSCodroid.
 
-The install figure is larger than what the app ends up occupying because extraction
-needs room to work: it is the asset tree plus about 134 MB of headroom, which covers
-the filesystem block rounding a tree of over 23,000 files costs. When it refuses to
-start for lack of space it asks for the shortfall it measured, not for the whole
-figure, so a device already holding part of the tree is asked only for what is
-missing. Freeing only what the extracted size suggests is what leaves setup
-failing partway.
+- [Report a bug or request a feature](https://github.com/cod-itor/Diligent-OpenSource/issues)
+- [Documentation](docs/)
 
-These move with every VS Code bump. Re-measure rather than trusting them:
+For a security problem, please do **not** open a public issue; see [SECURITY.md](SECURITY.md).
 
-```bash
-# what the app will extract, and therefore what the storage gate demands.
-# python3 rather than stat: `stat -f` is the BSD spelling and `stat -c` the GNU one,
-# and the version that shipped here failed on Linux by printing a plausible 0 MB.
-# This sums the way the gate itself does, in app/build.gradle.kts: decimal MB,
-# which is the unit the app asks in, and `nls/` left out, because those bundles are
-# served to the page straight from the APK and are never unpacked. The 134.2 is
-# EXTRACTION_SLACK_BYTES, 128 MiB, in the same unit.
-python3 -c "import os; b='android/app/src/main/assets'; s={os.path.join(r,f):os.path.getsize(os.path.join(r,f)) for r,_,fs in os.walk(b) for f in fs}; n=os.path.join(b,'nls')+os.sep; t=sum(v for k,v in s.items() if not k.startswith(n)); print(f'{t/1e6:.0f} MB extracted, gate demands {t/1e6+134.2:.0f} MB')"
-```
+## Credits
 
-## 🤝 Contributing
+**Diligent is built on [VSCodroid](https://github.com/rmyndharis/VSCodroid), created by
+[Yudhi Armyndharis](https://github.com/rmyndharis) and the VSCodroid community.**
 
-We welcome contributions in code, docs, testing, UX feedback, and bug reports. If you care about widening access to software development, this is your project too.
+Everything that makes a real editor run on a phone comes from their work: the VS Code server
+on Android, the bundled Node.js, Python and Git, the terminal, the Extra Key Row, storage
+access and much more. Diligent adds a phone-first interface on top and would not exist without
+it. The About screen in the app credits VSCodroid too.
 
-```bash
-# Get started
-git clone https://github.com/rmyndharis/VSCodroid.git
-cd VSCodroid
+If VSCodroid's work helps you, consider supporting its author:
 
-# Read the contributing guide for setup details
-# See CONTRIBUTING.md
-```
+<a href="https://buymeacoffee.com/rmyndharis"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Yudhi Armyndharis a coffee" height="45"/></a>
 
-Please read our [Contributing Guide](CONTRIBUTING.md) before submitting a Pull Request.
+VSCodroid itself is available on
+[Google Play](https://play.google.com/store/apps/details?id=com.vscodroid).
 
-Quick links:
+## Legal
 
-- 🐛 [Report a Bug](https://github.com/rmyndharis/VSCodroid/issues/new?template=bug_report.md)
-- 💡 [Request a Feature](https://github.com/rmyndharis/VSCodroid/issues/new?template=feature_request.md)
-- 📖 [Documentation](docs/)
+Diligent is **not affiliated with or endorsed by Microsoft Corporation**, and is an independent
+project, not an official VSCodroid release.
 
-## 📚 Documentation
-
-| Document                                                                     | Description                                                |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| [Product Requirements](docs/01-PRD.md)                                       | Vision, goals, and product scope                           |
-| [Software Requirements](docs/02-SRS.md)                                      | Detailed functional & non-functional requirements          |
-| [Architecture (historical)](docs/03-ARCHITECTURE.md)                         | System design and component architecture                   |
-| [Technical Spec](docs/04-TECHNICAL_SPEC.md)                                  | Implementation details and technical decisions             |
-| [API Spec](docs/05-API_SPEC.md)                                              | Internal API and bridge interfaces                         |
-| [Security](docs/06-SECURITY.md)                                              | Security model and threat analysis                         |
-| [Testing Strategy](docs/07-TESTING_STRATEGY.md)                              | Test plan and quality assurance                            |
-| [Risk Matrix](docs/08-RISK_MATRIX.md)                                        | Known risks and mitigation strategies                      |
-| [Development Guide](docs/09-DEVELOPMENT_GUIDE.md)                            | Pointer to CONTRIBUTING.md, which carries the build and contribution steps |
-| [Release Plan](docs/10-RELEASE_PLAN.md)                                      | Release strategy, CI/CD, Play Store                        |
-| [User Guide](docs/USER_GUIDE.md)                                             | How to use VSCodroid (keyboard, terminal, extensions, debugging, SSH) |
-| [Milestones](MILESTONES.md)                                                  | Development milestones M0-M6                               |
-| [Glossary](docs/11-GLOSSARY.md)                                              | Terms and definitions                                      |
-| [Implementation Plan](docs/12-IMPLEMENTATION_PLAN.md)                        | Week-by-week task breakdown with dependencies              |
-| [Third-Party Attribution](NOTICE.md)                                         | Licenses for all bundled software                          |
-| [Privacy Policy](https://rmyndharis.github.io/VSCodroid/privacy-policy.html) | Data collection and privacy practices                      |
-
-## 🔒 Security
-
-If you discover a security vulnerability, please **do not** open a public issue. Instead, see our [Security Policy](SECURITY.md) for responsible disclosure instructions.
-
-## ⚖️ Legal
-
-VSCodroid is **not affiliated with or endorsed by Microsoft Corporation**.
-
-The bundled editor server is built from the MIT-licensed [Code - OSS](https://github.com/microsoft/vscode) source, with this project's Android patches and branding applied before the build. Its licence and third-party notices ship inside the tree, at `android/app/src/main/assets/vscode-reh/LICENSE.txt` and `ThirdPartyNotices.txt`.
+The bundled editor server is built from the MIT-licensed
+[Code - OSS](https://github.com/microsoft/vscode) source, with Android patches and branding
+applied before the build.
 
 - "Visual Studio Code" and "VS Code" are trademarks of Microsoft.
-- Uses [Open VSX](https://open-vsx.org) extension registry, not Microsoft Marketplace.
+- Extensions come from the [Open VSX](https://open-vsx.org) registry, not the Microsoft
+  Marketplace.
 - See [NOTICE.md](NOTICE.md) for third-party attribution.
-- See [Privacy Policy](https://rmyndharis.github.io/VSCodroid/privacy-policy.html) for data practices.
 
-## ☕ Support
+## License
 
-VSCodroid is free and open source. If it helps you code on the go, you can support its development by buying me a coffee.
-
-<a href="https://buymeacoffee.com/rmyndharis"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="50"/></a>
-
-## 📄 License
-
-VSCodroid's **own** source (the Android app, the build scripts, and the bundled configuration) is licensed under the **MIT License**. See [LICENSE](LICENSE).
-
-That licence does not extend to the third-party components VSCodroid downloads or bundles; each carries its own terms, listed in [NOTICE.md](NOTICE.md).
+Diligent's source, like VSCodroid's, is under the **MIT License**; [LICENSE](LICENSE) keeps
+VSCodroid's copyright line beside Diligent's. That licence does not extend to the third-party
+components the app downloads or bundles; each carries its own terms, listed in
+[NOTICE.md](NOTICE.md).
 
 ---
 
 <p align="center">
-  <a href="https://github.com/rmyndharis/VSCodroid/issues">🐛 Issues</a> •
-  <a href="https://github.com/rmyndharis/VSCodroid/releases">📦 Releases</a>
-</p>
-
-<p align="center">
-  Made with ❤️ for mobile developers everywhere by Yudhi Armyndharis & VSCodroid Community
+  Diligent, by Dita Rector, on the shoulders of VSCodroid by Yudhi Armyndharis and the VSCodroid community.
 </p>
