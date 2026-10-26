@@ -92,3 +92,4 @@ Do not reset or offset it without reading those migrations first;
 | `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js` |
 | `android/app/src/main/res/layout/activity_main.xml` | The WebView sits in an `editorFrame` FrameLayout, so Mobile view's native screens can cover it without resizing it |
 | `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app |
+| `scripts/build-termux-exec.sh` | Fetches Chromium's LICENSE from chromium.googlesource.com (base64, decoded, same pin): raw.githubusercontent.com keeps answering 429 for that mirror |
