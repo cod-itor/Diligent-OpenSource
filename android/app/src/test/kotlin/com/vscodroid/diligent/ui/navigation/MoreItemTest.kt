@@ -16,9 +16,9 @@ class MoreItemTest {
     }
 
     @Test
-    fun `run, setup, health and settings open now, the rest are coming soon`() {
-        assertEquals(listOf(MoreItem.Run, MoreItem.Setup, MoreItem.Health, MoreItem.Settings), MoreItem.ordered.filter { it.available })
-        for (item in listOf(MoreItem.AI, MoreItem.Devices)) {
+    fun `run, setup, AI, health and settings open now, the rest are coming soon`() {
+        assertEquals(listOf(MoreItem.Run, MoreItem.Setup, MoreItem.AI, MoreItem.Health, MoreItem.Settings), MoreItem.ordered.filter { it.available })
+        for (item in listOf(MoreItem.Devices)) {
             assertFalse(item.available, "$item")
         }
     }
