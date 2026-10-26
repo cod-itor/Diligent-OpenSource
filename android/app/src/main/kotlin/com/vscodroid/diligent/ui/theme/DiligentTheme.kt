@@ -56,6 +56,8 @@ private object Palette {
     val teal40 = Color(0xFF006A60)
     val teal80 = Color(0xFF53DBC9)
     val teal90 = Color(0xFF74F8E5)
+    /** A calmer teal for large light-mode fills; teal90 is neon over a whole card. */
+    val teal92 = Color(0xFFA0F2E4)
 
     val slate10 = Color(0xFF0E1415)
     val slate17 = Color(0xFF1A2122)
@@ -106,10 +108,14 @@ data class DiligentColors(
     val onSurface get() = scheme.onSurface
     val surfaceVariant get() = scheme.surfaceVariant
     val onSurfaceVariant get() = scheme.onSurfaceVariant
+    val surfaceContainerLow get() = scheme.surfaceContainerLow
     val surfaceContainer get() = scheme.surfaceContainer
     val surfaceContainerHigh get() = scheme.surfaceContainerHigh
     val outline get() = scheme.outline
     val outlineVariant get() = scheme.outlineVariant
+
+    /** Content of something that cannot be used now: Material's 38% of onSurface. */
+    val disabled get() = scheme.onSurface.copy(alpha = 0.38f)
     val error get() = scheme.error
     val onError get() = scheme.onError
 }
@@ -118,8 +124,18 @@ internal val LightColors = DiligentColors(
     scheme = lightColorScheme(
         primary = Palette.teal40,
         onPrimary = Color.White,
-        primaryContainer = Palette.teal90,
+        primaryContainer = Palette.teal92,
         onPrimaryContainer = Palette.teal10,
+        inversePrimary = Palette.teal80,
+        tertiary = Palette.amber40,
+        onTertiary = Color.White,
+        tertiaryContainer = Palette.amber80,
+        onTertiaryContainer = Palette.slateText,
+        inverseSurface = Palette.slate17,
+        inverseOnSurface = Palette.slate94,
+        surfaceDim = Palette.slate90,
+        surfaceBright = Palette.slate99,
+        scrim = Color.Black,
         secondary = Palette.teal30,
         onSecondary = Color.White,
         secondaryContainer = Palette.slate90,
@@ -154,6 +170,16 @@ internal val DarkColors = DiligentColors(
         onPrimary = Palette.teal20,
         primaryContainer = Palette.teal30,
         onPrimaryContainer = Palette.teal90,
+        inversePrimary = Palette.teal40,
+        tertiary = Palette.amber80,
+        onTertiary = Palette.slate10,
+        tertiaryContainer = Palette.amber40,
+        onTertiaryContainer = Palette.slate99,
+        inverseSurface = Palette.slate90,
+        inverseOnSurface = Palette.slate17,
+        surfaceDim = Palette.slate10,
+        surfaceBright = Palette.slate22,
+        scrim = Color.Black,
         secondary = Palette.teal80,
         onSecondary = Palette.teal20,
         secondaryContainer = Palette.slate30,

@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.vscodroid.R
@@ -53,7 +55,7 @@ fun ListRow(
         horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m),
     ) {
         val tint = if (enabled) DiligentTheme.colors.onSurfaceVariant
-        else DiligentTheme.colors.outline
+        else DiligentTheme.colors.disabled
         if (icon != null) {
             Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(DiligentTheme.sizes.icon))
         }
@@ -61,7 +63,7 @@ fun ListRow(
             Text(
                 title,
                 style = DiligentTheme.type.material.bodyLarge,
-                color = if (enabled) DiligentTheme.colors.onSurface else DiligentTheme.colors.onSurfaceVariant,
+                color = if (enabled) DiligentTheme.colors.onSurface else DiligentTheme.colors.disabled,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -95,7 +97,7 @@ private fun Modifier.tappable(
 fun SectionHeader(text: String, modifier: Modifier = Modifier) {
     Text(
         text,
-        modifier = modifier.padding(
+        modifier = modifier.semantics { heading() }.padding(
             start = DiligentTheme.spacing.m,
             end = DiligentTheme.spacing.m,
             top = DiligentTheme.spacing.l,

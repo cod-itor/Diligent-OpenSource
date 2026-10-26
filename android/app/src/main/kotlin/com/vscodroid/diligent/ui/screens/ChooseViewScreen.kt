@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material3.Icon
@@ -45,50 +49,93 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 fun ChooseViewScreen(onChoose: (AppView) -> Unit, modifier: Modifier = Modifier) {
     Surface(modifier = modifier.fillMaxSize(), color = DiligentTheme.colors.background) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-            // At least the screen's height, so the cards can sit at its bottom,
-            // and taller when the screen is short, so it scrolls instead.
+            val sideBySide = maxWidth >= DiligentTheme.sizes.splitMinWidth
+            val contentWidth = if (sideBySide) DiligentTheme.sizes.sheetMaxWidth * 2 else DiligentTheme.sizes.sheetMaxWidth
+            // At least the screen's height, so the welcome sits at the top and
+            // the choice at the bottom, in thumb reach; taller when the screen
+            // is short, so it scrolls instead.
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
                     .heightIn(min = maxHeight)
                     .padding(DiligentTheme.spacing.l),
-                verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m, Alignment.Bottom),
+                verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    stringResource(R.string.diligent_choose_view_title),
-                    modifier = Modifier
-                        .widthIn(max = DiligentTheme.sizes.sheetMaxWidth)
-                        .fillMaxWidth()
-                        .padding(bottom = DiligentTheme.spacing.s)
-                        .semantics { heading() },
-                    style = DiligentTheme.type.material.headlineMedium,
-                    color = DiligentTheme.colors.onBackground,
-                )
-                ViewCard(
-                    title = stringResource(R.string.diligent_view_mobile),
-                    badge = stringResource(R.string.diligent_view_mobile_badge),
-                    body = stringResource(R.string.diligent_view_mobile_body),
-                    icon = Icons.Outlined.PhoneAndroid,
-                    emphasized = true,
-                    onClick = { onChoose(AppView.Mobile) },
-                )
-                ViewCard(
-                    title = stringResource(R.string.diligent_view_desktop),
-                    badge = null,
-                    body = stringResource(R.string.diligent_view_desktop_body),
-                    icon = Icons.Outlined.DesktopWindows,
-                    emphasized = false,
-                    onClick = { onChoose(AppView.Desktop) },
-                )
-                Text(
-                    stringResource(R.string.diligent_choose_view_footer),
-                    modifier = Modifier.fillMaxWidth().padding(top = DiligentTheme.spacing.s),
-                    style = DiligentTheme.type.material.bodyMedium,
-                    color = DiligentTheme.colors.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
+                Row(
+                    modifier = Modifier.widthIn(max = contentWidth).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.s),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        Icons.Outlined.Code,
+                        contentDescription = null,
+                        tint = DiligentTheme.colors.primary,
+                        modifier = Modifier.size(DiligentTheme.sizes.iconLarge),
+                    )
+                    Text(
+                        stringResource(R.string.diligent_welcome),
+                        style = DiligentTheme.type.material.titleLarge,
+                        color = DiligentTheme.colors.onBackground,
+                    )
+                }
+                Column(
+                    modifier = Modifier.widthIn(max = contentWidth).fillMaxWidth().padding(top = DiligentTheme.spacing.xl),
+                    verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m),
+                ) {
+                    Text(
+                        stringResource(R.string.diligent_choose_view_title),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = DiligentTheme.spacing.s)
+                            .semantics { heading() },
+                        style = DiligentTheme.type.material.headlineMedium,
+                        color = DiligentTheme.colors.onBackground,
+                    )
+                    val mobile = @Composable { cardModifier: Modifier ->
+                        ViewCard(
+                            title = stringResource(R.string.diligent_view_mobile),
+                            badge = stringResource(R.string.diligent_view_mobile_badge),
+                            body = stringResource(R.string.diligent_view_mobile_body),
+                            icon = Icons.Outlined.PhoneAndroid,
+                            emphasized = true,
+                            onClick = { onChoose(AppView.Mobile) },
+                            modifier = cardModifier,
+                        )
+                    }
+                    val desktop = @Composable { cardModifier: Modifier ->
+                        ViewCard(
+                            title = stringResource(R.string.diligent_view_desktop),
+                            badge = null,
+                            body = stringResource(R.string.diligent_view_desktop_body),
+                            icon = Icons.Outlined.DesktopWindows,
+                            emphasized = false,
+                            onClick = { onChoose(AppView.Desktop) },
+                            modifier = cardModifier,
+                        )
+                    }
+                    if (sideBySide) {
+                        // Landscape and tablets: both choices in view at once.
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m),
+                        ) {
+                            mobile(Modifier.weight(1f).fillMaxHeight())
+                            desktop(Modifier.weight(1f).fillMaxHeight())
+                        }
+                    } else {
+                        mobile(Modifier)
+                        desktop(Modifier)
+                    }
+                    Text(
+                        stringResource(R.string.diligent_choose_view_footer),
+                        modifier = Modifier.fillMaxWidth().padding(top = DiligentTheme.spacing.s),
+                        style = DiligentTheme.type.material.bodyMedium,
+                        color = DiligentTheme.colors.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
     }
@@ -103,12 +150,13 @@ private fun ViewCard(
     icon: ImageVector,
     emphasized: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val container = if (emphasized) DiligentTheme.colors.primaryContainer else DiligentTheme.colors.surfaceContainer
     val content = if (emphasized) DiligentTheme.colors.onPrimaryContainer else DiligentTheme.colors.onSurface
     Surface(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .widthIn(max = DiligentTheme.sizes.sheetMaxWidth)
             .fillMaxWidth()
             .heightIn(min = DiligentTheme.sizes.touchTarget * 2),

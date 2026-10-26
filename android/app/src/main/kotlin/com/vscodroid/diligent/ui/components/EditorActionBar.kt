@@ -3,9 +3,8 @@ package com.vscodroid.diligent.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Undo
@@ -13,9 +12,15 @@ import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Stop
-import androidx.compose.material.icons.outlined.Terminal
+import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
@@ -49,38 +57,62 @@ data class EditorAction(
  */
 @Composable
 fun EditorActionBar(actions: List<EditorAction>, modifier: Modifier = Modifier) {
-    Surface(color = DiligentTheme.colors.surfaceContainer, modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(DiligentTheme.sizes.actionBar),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            actions.forEach { ActionButton(it, Modifier.weight(1f)) }
+    // Apart from the tab bar under it: a lighter surface and a rule, so the
+    // editor's commands do not read as more navigation.
+    val iconsOnly = LocalDensity.current.fontScale > LARGE_FONT_SCALE
+    Surface(color = DiligentTheme.colors.surfaceContainerLow, modifier = modifier) {
+        Column {
+            HorizontalDivider(thickness = DiligentTheme.sizes.divider, color = DiligentTheme.colors.outlineVariant)
+            Row(
+                modifier = Modifier.fillMaxWidth().heightIn(min = DiligentTheme.sizes.actionBar),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                actions.forEach { ActionButton(it, iconsOnly, Modifier.weight(1f)) }
+            }
         }
     }
 }
 
+/**
+ * One button: icon over label, or the icon alone at a large font size, where
+ * six labels no longer fit; the label is then its TalkBack name and its
+ * long-press tooltip.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ActionButton(action: EditorAction, modifier: Modifier) {
+private fun ActionButton(action: EditorAction, iconsOnly: Boolean, modifier: Modifier) {
     val tint: Color = when {
-        !action.enabled -> DiligentTheme.colors.outline
-        action.emphasized -> DiligentTheme.colors.running
+        !action.enabled -> DiligentTheme.colors.disabled
+        // Stop is the one to press to end something, so it is not "go" green.
+        action.emphasized -> DiligentTheme.colors.error
         else -> DiligentTheme.colors.onSurface
     }
-    Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .clickable(enabled = action.enabled, role = Role.Button, onClick = action.onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+        tooltip = { PlainTooltip { Text(action.label) } },
+        state = rememberTooltipState(),
+        modifier = modifier,
     ) {
-        Icon(action.icon, contentDescription = null, tint = tint, modifier = Modifier.size(DiligentTheme.sizes.icon))
-        Text(
-            action.label,
-            style = DiligentTheme.type.material.labelSmall,
-            color = tint,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = DiligentTheme.sizes.actionBar)
+                .clickable(enabled = action.enabled, role = Role.Button, onClick = action.onClick)
+                .semantics(mergeDescendants = true) { if (iconsOnly) contentDescription = action.label },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Icon(action.icon, contentDescription = null, tint = tint, modifier = Modifier.size(DiligentTheme.sizes.icon))
+            if (!iconsOnly) {
+                Text(
+                    action.label,
+                    style = DiligentTheme.type.material.labelSmall,
+                    color = tint,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
     }
 }
 
@@ -102,7 +134,7 @@ fun standardEditorActions(
     EditorAction(stringResource(R.string.diligent_action_preview), Icons.Outlined.Visibility, enabled = canPreview, onClick = onPreview),
     EditorAction(stringResource(R.string.diligent_action_save), Icons.Outlined.Save, onClick = onSave),
     EditorAction(stringResource(R.string.diligent_action_search), Icons.Outlined.Search, onClick = onSearch),
-    EditorAction(stringResource(R.string.diligent_action_commands), Icons.Outlined.Terminal, onClick = onCommands),
+    EditorAction(stringResource(R.string.diligent_action_commands), Icons.Outlined.Bolt, onClick = onCommands),
     EditorAction(stringResource(R.string.diligent_action_undo), Icons.AutoMirrored.Outlined.Undo, onClick = onUndo),
 )
 
@@ -118,3 +150,7 @@ private fun ActionBarLightPreview() = DiligentTheme(darkTheme = false) { ActionB
 @Preview(name = "Action bar running, dark", widthDp = 360)
 @Composable
 private fun ActionBarDarkPreview() = DiligentTheme(darkTheme = true) { ActionBarSample(running = true) }
+
+@Preview(name = "Action bar, 200% font", widthDp = 360, fontScale = 2f)
+@Composable
+private fun ActionBarLargeFontPreview() = DiligentTheme(darkTheme = false) { ActionBarSample(running = false) }
