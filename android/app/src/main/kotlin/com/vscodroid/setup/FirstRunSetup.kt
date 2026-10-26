@@ -3821,7 +3821,7 @@ claude() {
                     // exists so a downloaded extension a user deliberately removed
                     // does not come back on every update. This keeps that promise
                     // and takes ours out of the argument entirely.
-                    if (dirName.startsWith(OWN_EXTENSION_PREFIX)) put("isBuiltin", true)
+                    if (isOwnExtension(dirName)) put("isBuiltin", true)
                 })
             }
         } catch (e: Exception) {
@@ -4942,7 +4942,7 @@ internal fun retiredOwnExtensionDirs(present: List<String>, bundled: List<String
 
     val bundledBases = bundled.mapNotNull(::base).toSet()
     return present.filter { name ->
-        name.startsWith(OWN_EXTENSION_PREFIX) &&
+        isOwnExtension(name) &&
             name !in bundled &&
             base(name).let { it != null && it !in bundledBases }
     }
@@ -5021,6 +5021,24 @@ internal fun retiredIdsToSweep(
 internal const val OWN_EXTENSION_PREFIX = "vscodroid."
 
 /**
+ * Diligent's own extensions, `diligent.diligent-*`, which are this repository's
+ * work exactly as the `vscodroid.*` ones are: committed under
+ * `assets/extensions`, edited in place, and never published to a gallery
+ * (Open VSX had no `diligent` namespace when this was written). The publisher
+ * and the name prefix together, rather than the publisher alone, so a gallery
+ * namespace of that name could not reach the rules below.
+ */
+internal const val DILIGENT_EXTENSION_PREFIX = "diligent.diligent-"
+
+/**
+ * Whether a directory or an extension id was authored in this repository,
+ * VSCodroid's or Diligent's. Every rule that turns on authorship asks this,
+ * so the two publishers cannot drift apart.
+ */
+internal fun isOwnExtension(name: String): Boolean =
+    name.startsWith(OWN_EXTENSION_PREFIX) || name.startsWith(DILIGENT_EXTENSION_PREFIX)
+
+/**
  * The file that says an extension directory is being unpacked right now.
  *
  * Written inside the directory before the copy starts and removed after it
@@ -5081,7 +5099,7 @@ internal fun failedUnpackMustBeRemoved(
     name: String,
     existedBefore: Boolean,
     marked: Boolean,
-): Boolean = !existedBefore || !(marked || name.startsWith(OWN_EXTENSION_PREFIX))
+): Boolean = !existedBefore || !(marked || isOwnExtension(name))
 
 /**
  * Which bundled extension directories have to be unpacked over what is already
@@ -5195,7 +5213,7 @@ internal fun bundledDirsToExtract(
         .map { it.first.lowercase() }
         .toSet()
     return bundled.filter { dir ->
-        if (dir.startsWith(OWN_EXTENSION_PREFIX)) return@filter true
+        if (isOwnExtension(dir)) return@filter true
         if (dir in present && dir !in abandoned) return@filter false
         val (id, version) = splitExtensionDir(dir) ?: return@filter true
         // Lowercased to meet the record, which manifestEntryFor builds from
@@ -5271,7 +5289,7 @@ internal fun orphanedBundledCopies(
 ): List<String> {
     val listedDirs = listed.map { it.second }.toSet()
     return bundled.filter { dir ->
-        if (dir.startsWith(OWN_EXTENSION_PREFIX)) return@filter false
+        if (isOwnExtension(dir)) return@filter false
         if (dir !in onDisk || dir in listedDirs || dir in referencedElsewhere) return@filter false
         val id = splitExtensionDir(dir)?.first?.lowercase() ?: return@filter false
         listed.any { (otherId, otherDir) ->
@@ -5779,7 +5797,7 @@ internal fun bundledIdsToRelist(
         // who removed the welcome extension keeps the prune of the app's old
         // editor overrides, which commits once and for all, while the defaults
         // that replaced them never load.
-        id.startsWith(OWN_EXTENSION_PREFIX) -> true
+        isOwnExtension(id) -> true
         // Never bundled before, so there was no copy for the user to remove.
         else -> id !in previouslyBundledIds
     }
@@ -5873,7 +5891,7 @@ internal fun repointOwnExtensionEntries(
         return null
     }
     val current = bundled
-        .filter { it.startsWith(OWN_EXTENSION_PREFIX) }
+        .filter { isOwnExtension(it) }
         .mapNotNull { dir -> splitExtensionDir(dir)?.let { (id, version) -> id to (dir to version) } }
         .toMap()
 
@@ -5892,7 +5910,7 @@ internal fun repointOwnExtensionEntries(
     for (i in 0 until entries.length()) {
         val entry = entries.optJSONObject(i)
         val directory = entry?.let(::directoryOf).orEmpty()
-        val replacement = if (entry != null && directory in superseded && directory.startsWith(OWN_EXTENSION_PREFIX)) {
+        val replacement = if (entry != null && directory in superseded && isOwnExtension(directory)) {
             splitExtensionDir(directory)?.first?.let(current::get)
         } else {
             null

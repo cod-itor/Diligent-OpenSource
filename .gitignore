@@ -51,6 +51,8 @@ yarn-error.log*
 # it still named one that no longer exists, and a forgotten line means the new
 # extension is silently absent from the APK with nothing to explain why.
 !/android/app/src/main/assets/extensions/vscodroid.vscodroid-*/
+# Diligent's own extensions, source for the same reason.
+!/android/app/src/main/assets/extensions/diligent.diligent-*/
 /android/app/src/main/assets/usr/
 # Translated interface bundles, built from microsoft/vscode-loc by
 # scripts/build-nls-bundles.py against the packaged server tree. Generated for

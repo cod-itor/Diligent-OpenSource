@@ -289,11 +289,11 @@ M6 (Release)   → Play Store release
    - [x] 4 marketplace extensions bundled offline in `assets/extensions/`:
      - ESLint, Prettier, Python, Tailwind CSS
    - [x] 5 custom VSCodroid extensions:
-     - `vscodroid.vscodroid-welcome-1.9.1`, welcome tab with quick actions
-     - `vscodroid.vscodroid-saf-bridge-1.12.1`, SAF storage integration
-     - `vscodroid.vscodroid-process-monitor-1.4.0`, phantom process monitoring
-     - `vscodroid.vscodroid-serve-network-1.3.0`, serve a dev server on the LAN
-     - `vscodroid.vscodroid-editor-menus-1.0.0`, Select All in the editor context menu, declared without code so Ctrl+A never waits on an extension host
+     - `vscodroid.vscodroid-welcome-1.9.2`, welcome tab with quick actions
+     - `vscodroid.vscodroid-saf-bridge-1.12.2`, SAF storage integration
+     - `vscodroid.vscodroid-process-monitor-1.4.1`, phantom process monitoring
+     - `vscodroid.vscodroid-serve-network-1.3.1`, serve a dev server on the LAN
+     - `vscodroid.vscodroid-editor-menus-1.0.1`, Select All in the editor context menu, declared without code so Ctrl+A never waits on an extension host
    - [x] `extensions.json` manifest auto-generated on first run
 
 5. **First-run experience** (`SplashActivity.kt`, `FirstRunSetup.kt`)

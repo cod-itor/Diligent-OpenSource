@@ -3,6 +3,7 @@ package com.vscodroid.bridge
 import android.content.Context
 import android.net.Uri
 import android.webkit.JavascriptInterface
+import com.vscodroid.diligent.DiligentBridgeHost
 import com.vscodroid.storage.SafStorageManager
 import com.vscodroid.util.CrashReporter
 import com.vscodroid.util.Logger
@@ -89,6 +90,8 @@ class BridgeTokenUniformityTest {
         // being touched at all under a rejected token is the method having acted.
         val onAsyncAnswer: (String, Boolean, String) -> Unit = mockk(relaxed = true)
         val diskWork: Executor = mockk(relaxed = true)
+        // Diligent's methods, every one of which hands its work to this host.
+        val diligent: DiligentBridgeHost = mockk(relaxed = true)
 
         val bridge = AndroidBridge(
             context = context,
@@ -108,6 +111,7 @@ class BridgeTokenUniformityTest {
             onReclaimMirror = onReclaimMirror,
             onAsyncAnswer = onAsyncAnswer,
             diskWork = diskWork,
+            diligent = diligent,
         )
 
         /** Everything the bridge can reach except the validator it is allowed to consult. */
@@ -115,7 +119,7 @@ class BridgeTokenUniformityTest {
             context, clipboard, onBackPressed, onMinimize,
             onOpenFolderPicker, onOpenRecentFolder, onShowAbout, onToggleExtraKeyRow, safManager,
             onDownloadNamed, onDownloadChunk, onDownloadComplete,
-            onListMirrors, onReclaimMirror, onAsyncAnswer, diskWork,
+            onListMirrors, onReclaimMirror, onAsyncAnswer, diskWork, diligent,
         )
 
         init {

@@ -16,7 +16,10 @@ def git(*args):
 
 def problems():
     failures = []
-    for directory in sorted((ROOT / EXTENSIONS).glob("vscodroid.*")):
+    # VSCodroid's own extensions and Diligent's: both are edited in this
+    # repository and re-extracted on a device only when the directory version moves.
+    own = list((ROOT / EXTENSIONS).glob("vscodroid.*")) + list((ROOT / EXTENSIONS).glob("diligent.diligent-*"))
+    for directory in sorted(own):
         manifest = directory / "package.json"
         relative = manifest.relative_to(ROOT).as_posix()
         added = git("log", "--reverse", "--no-renames", "--diff-filter=A", "--format=%H", "--", relative).splitlines()

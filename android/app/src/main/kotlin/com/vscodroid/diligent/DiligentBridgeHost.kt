@@ -1,0 +1,14 @@
+package com.vscodroid.diligent
+
+/**
+ * What the `diligent*` methods of [com.vscodroid.bridge.AndroidBridge] ask of
+ * Diligent. Kept as one interface so the bridge, which is VSCodroid's file,
+ * gains a single constructor argument rather than one per method.
+ *
+ * Every call arrives on the WebView's JavaBridge thread, never the UI thread;
+ * an implementation that touches a view hops first.
+ */
+interface DiligentBridgeHost {
+    /** The diligent-bridge extension is listening in the page. */
+    fun editorReady()
+}

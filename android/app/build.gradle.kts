@@ -2,6 +2,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
 }
 
 // Load signing config from signing.properties (local) or env vars (CI)
@@ -466,6 +467,8 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        // Diligent's Mobile view screens (diligent/ui/).
+        compose = true
     }
 
     compileOptions {
@@ -505,6 +508,17 @@ dependencies {
 
     // Play Asset Delivery (on-demand toolchain packs)
     implementation(libs.play.asset.delivery.ktx)
+
+    // Diligent: Mobile view screens in Compose, and the window size the big
+    // screen suggestion reads. ui-tooling is debug only: it renders @Preview.
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.window)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Unit Testing (JUnit 5, JVM only)
     testImplementation(libs.junit.jupiter)
