@@ -348,6 +348,7 @@ class DiligentController(
         override fun editorCommand(command: String, vararg args: Any?) = editor.run(command, *args)
         override val projectsDir: String get() = host.projectsDir
         override val run: RunControl get() = runner
+        override val kit: KitSession get() = this@DiligentController.kit
     }
 
     /** What the `diligent*` bridge methods call. On the JavaBridge thread, so each hops. */

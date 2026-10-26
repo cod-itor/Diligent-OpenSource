@@ -100,12 +100,14 @@ data class KitStepLine(val title: String, val state: KitStepState)
  *
  * [runId] is null until the first message, since `diligent.kit.add` does not
  * answer with one; that first message is matched by recipe and project name.
- * [timedOut] is set when the engine never answered at all.
+ * [project] is the project folder the engine named. [timedOut] is set when
+ * the engine never answered at all.
  */
 data class KitRun(
     val recipe: String,
     val projectName: String,
     val runId: String? = null,
+    val project: String? = null,
     val steps: List<KitStepLine> = emptyList(),
     val line: String? = null,
     val done: KitDone? = null,
@@ -113,6 +115,9 @@ data class KitRun(
 ) {
     val finished: Boolean get() = done != null || timedOut
     val succeeded: Boolean get() = done?.ok == true
+
+    /** The finished project's folder: the end's path, else the one the engine named. */
+    val projectPath: String? get() = done?.projectPath ?: project
 
     /** Whether [progress] is about this run rather than another (a `kit add` in the terminal). */
     fun accepts(progress: KitProgress): Boolean {
@@ -148,6 +153,7 @@ data class KitRun(
         }
         return copy(
             runId = progress.runId,
+            project = progress.project ?: project,
             steps = steps,
             line = progress.line ?: line,
             done = done,
