@@ -1,6 +1,7 @@
 package com.vscodroid.diligent
 
 import android.app.Activity
+import android.content.Context
 import android.webkit.WebView
 
 /**
@@ -18,6 +19,11 @@ class DiligentController(
     private val activity: Activity,
     private val webView: () -> WebView?,
 ) {
+    /** This device's view, Mobile or Desktop. Read on first use, off the start path. */
+    val views by lazy {
+        ViewSettings(activity.getSharedPreferences(ViewSettings.PREFS_NAME, Context.MODE_PRIVATE))
+    }
+
     /** Kotlin to editor: runs allowlisted editor commands. */
     val editor = EditorChannel { script, result ->
         val view = webView()
