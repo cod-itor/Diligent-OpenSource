@@ -74,6 +74,9 @@ resolve them by keeping both sides' intent:
 | `android/app/src/main/assets/server.js` | `nameShort` and `nameLong` in `productOverrides` |
 | `scripts/verify-server-tree.py`, `scripts/test-server-bootstrap.js` | Expect the name Diligent |
 | `LICENSE` | Diligent's copyright line under VSCodroid's |
+| `android/gradle/libs.versions.toml`, `android/build.gradle.kts`, `android/app/build.gradle.kts` | Compose, Material 3 and `androidx.window` |
+| `android/app/src/main/kotlin/com/vscodroid/setup/FirstRunSetup.kt` | `isOwnExtension()`: `diligent.diligent-*` extensions count as the app's own |
+| `.gitignore`, `scripts/check-extension-updates.py` | `diligent.diligent-*` extensions are committed and need a version bump on change |
 
 Add a row whenever a phase edits another VSCodroid file.
 
