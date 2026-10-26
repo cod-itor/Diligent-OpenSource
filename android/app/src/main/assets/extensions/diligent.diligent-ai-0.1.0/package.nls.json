@@ -1,0 +1,22 @@
+{
+  "displayName": "Diligent AI",
+  "description": "AI suggestions while typing, from your laptop or your own API key. Off until you pick a provider.",
+  "command.chooseProvider": "Choose where AI suggestions come from",
+  "command.setApiKey": "Set API key for AI suggestions",
+  "command.toggleProject": "Turn AI suggestions on or off for this project",
+  "config.title": "Diligent AI suggestions",
+  "config.provider": "Where AI suggestions come from. Nothing is sent until you pick one and agree to the notice naming the service.",
+  "config.provider.off": "No suggestions. Nothing is sent.",
+  "config.provider.laptop": "Ollama on your laptop.",
+  "config.provider.apikey": "Your own API key: an OpenAI-compatible endpoint (Mistral Codestral by default), Anthropic or Gemini.",
+  "config.laptopUrl": "Ollama's address on your laptop, like `http://192.168.1.20:11434`. Ollama only listens to its own computer by default; starting it with `OLLAMA_HOST=0.0.0.0` opens it to everyone on that Wi-Fi.",
+  "config.laptopModel": "The Ollama model to use. A fill-in-the-middle code model works best.",
+  "config.apiFormat": "Which kind of service your API key is for.",
+  "config.endpoint": "The service's address. Empty uses Mistral Codestral, Anthropic or Gemini's own.",
+  "config.model": "The model to ask. Empty uses the service's default code model.",
+  "config.maxTokens": "The longest suggestion to ask for, in tokens.",
+  "config.wifiOnly": "Suggestions only on Wi-Fi: nothing is sent on mobile data.",
+  "config.enabled": "AI suggestions in this project. Turn off to never send this project's code.",
+  "config.contextBefore": "How many characters before the cursor are sent.",
+  "config.contextAfter": "How many characters after the cursor are sent."
+}
