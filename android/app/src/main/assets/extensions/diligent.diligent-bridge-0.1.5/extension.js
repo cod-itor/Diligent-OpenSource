@@ -56,6 +56,10 @@ const ALLOWED_COMMANDS = new Set([
     'diligent.core.stopTask',
     // Settings: the editor's own settings, from Mobile view's Settings screen.
     'workbench.action.openSettings',
+    // The Setup screen: start a recipe (recipe id, project name) and stop a
+    // run by its id (diligent-kit).
+    'diligent.kit.add',
+    'diligent.kit.cancel',
 ]);
 
 /**
@@ -101,6 +105,17 @@ const BRIDGE_METHODS = [
     // diligent-core's supervisor: its tasks as JSON, for the notification,
     // the wake lock and Health (AndroidBridge.diligentUpdateTasks).
     'updateTasks',
+    // diligent-kit: a Setup run's progress, for the Setup screen
+    // (AndroidBridge.diligentKitProgress).
+    'kitProgress',
+    // diligent-kit's `kit doctor`: resolves with the Health checks as JSON
+    // text (AndroidBridge.diligentGetHealth).
+    'getHealth',
+    // diligent-kit's toolchain steps: `executeCommand('diligent.bridge.installToolchain', pack)`.
+    // VSCodroid's own installToolchain(name, authToken) takes the token last and
+    // is not on the relay, so this reaches AndroidBridge.diligentInstallToolchain,
+    // which takes the token first and calls it.
+    'installToolchain',
 ];
 
 /** How long a bridge call may take before it is reported as unanswered. */
