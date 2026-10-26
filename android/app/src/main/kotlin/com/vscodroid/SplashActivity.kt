@@ -129,6 +129,8 @@ class SplashActivity : AppCompatActivity() {
         repair("the truncated-file repair") { setup.repairTruncatedSetupFiles() }
         repair("the npm wrappers") { setup.createNpmWrappers() }
         repair("the toolchain env sourcing") { setup.ensureToolchainEnvSourcing() }
+        // Diligent: the `kit` command, for a .bashrc written before it existed.
+        repair("the kit command") { setup.ensureKitFunction() }
         repair("the prompt block") { setup.ensurePromptFix() }
         repair("the startup directory guard") { setup.ensureStartupDirGuard() }
         // The same commands for shells that never read .bashrc. Outside the

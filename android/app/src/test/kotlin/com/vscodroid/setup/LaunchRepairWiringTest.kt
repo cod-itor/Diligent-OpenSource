@@ -89,6 +89,7 @@ class LaunchRepairWiringTest {
         "repairTruncatedSetupFiles",
         "createNpmWrappers",
         "ensureToolchainEnvSourcing",
+        "ensureKitFunction",
         "ensurePromptFix",
         "ensureStartupDirGuard",
         "createBashEnvFile",
