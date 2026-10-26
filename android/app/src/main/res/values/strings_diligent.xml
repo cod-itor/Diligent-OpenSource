@@ -84,6 +84,54 @@
     <string name="diligent_settings_source_url" translatable="false">https://github.com/cod-itor/Diligent-OpenSource</string>
     <string name="diligent_settings_no_browser">No app on this device can open web links.</string>
 
+    <!-- Files tab -->
+    <string name="diligent_files_no_project_title">No project open</string>
+    <string name="diligent_files_no_project_body">Open or create a project in Projects, and its files show up here.</string>
+    <string name="diligent_files_go_to_projects">Go to Projects</string>
+    <string name="diligent_files_not_a_folder">This project is a workspace file rather than a folder, so there is no file tree to show here. Its folders are in the editor\'s Explorer.</string>
+    <string name="diligent_files_unreadable">This folder could not be read. Pull down to try again.</string>
+    <string name="diligent_files_empty_title">This folder is empty</string>
+    <string name="diligent_files_empty_body">Tap New to add a file or a folder.</string>
+    <string name="diligent_files_empty_subfolder">Empty</string>
+    <string name="diligent_files_new">New</string>
+    <string name="diligent_files_new_in">New in %1$s</string>
+    <string name="diligent_files_new_file">New file</string>
+    <string name="diligent_files_new_folder">New folder</string>
+    <string name="diligent_files_rename">Rename</string>
+    <string name="diligent_files_move">Move</string>
+    <string name="diligent_files_delete">Delete</string>
+    <string name="diligent_files_cancel">Cancel</string>
+    <string name="diligent_files_create">Create</string>
+    <string name="diligent_files_name">Name</string>
+    <string name="diligent_files_more_actions">More actions for %1$s</string>
+    <string name="diligent_files_open_folder">Open folder</string>
+    <string name="diligent_files_close_folder">Close folder</string>
+    <string name="diligent_files_open_in_editor">Open in editor</string>
+    <string name="diligent_files_show_actions">Show actions</string>
+    <string name="diligent_files_rename_title">Rename %1$s</string>
+    <string name="diligent_files_move_title">Move %1$s</string>
+    <string name="diligent_files_move_here">Move here</string>
+    <string name="diligent_files_move_up">Up one folder</string>
+    <string name="diligent_files_move_no_folders">No folders in here</string>
+    <string name="diligent_files_delete_title">Delete %1$s?</string>
+    <string name="diligent_files_delete_file_body">The file %1$s will be deleted. This cannot be undone.</string>
+    <string name="diligent_files_delete_folder_body">The folder %1$s and everything in it will be deleted. This cannot be undone.</string>
+    <string name="diligent_files_deleted">Deleted %1$s</string>
+    <string name="diligent_files_heavy_git">Git\'s own data</string>
+    <string name="diligent_files_heavy_modules">Installed packages, can be very large</string>
+    <string name="diligent_files_link_outside">Link to outside the project</string>
+    <string name="diligent_files_link_outside_message">This link points outside the project, so Files does not open it.</string>
+    <string name="diligent_files_problem_empty_name">Type a name.</string>
+    <string name="diligent_files_problem_bad_name">That name is not allowed: no slashes, not . or .., and not too long.</string>
+    <string name="diligent_files_problem_name_taken">Something in this folder already has that name.</string>
+    <string name="diligent_files_problem_outside">That is outside the project.</string>
+    <string name="diligent_files_problem_missing">It is not there any more. The list has been refreshed.</string>
+    <string name="diligent_files_problem_not_a_folder">That is not a folder.</string>
+    <string name="diligent_files_problem_project_root">The project folder itself cannot be changed here.</string>
+    <string name="diligent_files_problem_into_itself">A folder cannot go inside itself.</string>
+    <string name="diligent_files_problem_already_there">It is already in that folder.</string>
+    <string name="diligent_files_problem_failed">That did not work. Check that there is space and try again.</string>
+
     <!-- First launch: choose a view -->
     <string name="diligent_welcome">Welcome to Diligent</string>
     <string name="diligent_choose_view_title">How do you want to code?</string>
