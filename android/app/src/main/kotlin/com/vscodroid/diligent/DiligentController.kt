@@ -58,7 +58,9 @@ class DiligentController(
     }
 
     /** Mobile view's state; the bars and screens draw from it. */
-    val shell by lazy { MobileShell(views.view.value) }
+    val shell by lazy {
+        MobileShell(views.view.value).apply { suggestDesktop = views.suggestDesktopOnBigScreens }
+    }
 
     private var topBar: View? = null
     private var nativeScreens: View? = null
@@ -204,6 +206,10 @@ class DiligentController(
         }
 
         override fun switchView(view: AppView) = this@DiligentController.switchView(view)
+        override fun setSuggestDesktop(on: Boolean) {
+            views.suggestDesktopOnBigScreens = on
+            shell.suggestDesktop = on
+        }
         override fun editorCommand(command: String, vararg args: Any?) = editor.run(command, *args)
         override val projectsDir: String get() = host.projectsDir
     }

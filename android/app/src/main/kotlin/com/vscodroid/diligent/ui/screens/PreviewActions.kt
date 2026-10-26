@@ -16,6 +16,7 @@ internal object PreviewActions : MobileActions {
     )
     override fun openDeviceFolder(folder: DeviceFolder) = Unit
     override fun switchView(view: AppView) = Unit
+    override fun setSuggestDesktop(on: Boolean) = Unit
     override fun editorCommand(command: String, vararg args: Any?) = Unit
     override val projectsDir: String = "/home/projects"
 }

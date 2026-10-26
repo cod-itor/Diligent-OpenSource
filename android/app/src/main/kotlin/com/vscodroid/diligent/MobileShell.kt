@@ -64,6 +64,15 @@ class MobileShell(view: AppView?) {
     /** What the top bar says about the running task, or null when nothing runs. */
     var runStatus by mutableStateOf<TopBarStatus?>(null)
 
+    /** Whether a task of the open project is running (the action bar shows Stop). */
+    var running by mutableStateOf(false)
+
+    /** The port of the running task's preview, or null when there is none to show. */
+    var previewPort by mutableStateOf<Int?>(null)
+
+    /** Settings: whether a big screen may suggest Desktop view. */
+    var suggestDesktop by mutableStateOf(true)
+
     val chrome: Chrome get() = chromeFor(view, tab, imeVisible)
 
     /** The open project's name: the folder's last segment, without `.code-workspace`. */
@@ -102,6 +111,9 @@ interface MobileActions {
 
     /** Runs an allowlisted editor command (see the diligent-bridge extension). */
     fun editorCommand(command: String, vararg args: Any?)
+
+    /** Settings: whether a big screen may suggest Desktop view (stored per device). */
+    fun setSuggestDesktop(on: Boolean)
 
     /** The folder new projects and clones go in. */
     val projectsDir: String
