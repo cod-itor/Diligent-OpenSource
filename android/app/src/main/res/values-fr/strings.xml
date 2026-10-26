@@ -432,7 +432,8 @@
     <!-- The About dialog's body: the version line and the legal disclaimer, which
          are separate resources because only one of them is a sentence. Joined
          here rather than in Kotlin so a translation can change the separator. -->
-    <string name="about_body">%1$s\n\n%2$s</string>
+    <string name="about_body">%1$s\n\n%2$s\n\n%3$s</string>
+    <string name="about_credit">Diligent est basé sur VSCodroid, de Yudhi Armyndharis et de la communauté VSCodroid (licence MIT).</string>
     <string name="about_privacy_policy">Politique de confidentialité</string>
     <!-- The written offer of source that the bundled GPL and LGPL binaries
          require, reached from the licences dialog. -->

@@ -424,7 +424,8 @@
     <!-- The About dialog's body: the version line and the legal disclaimer, which
          are separate resources because only one of them is a sentence. Joined
          here rather than in Kotlin so a translation can change the separator. -->
-    <string name="about_body">%1$s\n\n%2$s</string>
+    <string name="about_body">%1$s\n\n%2$s\n\n%3$s</string>
+    <string name="about_credit">Diligent 以 Yudhi Armyndharis 與 VSCodroid 社群開發的 VSCodroid 為基礎打造（MIT 授權）。</string>
     <string name="about_privacy_policy">隱私權政策</string>
     <!-- The written offer of source that the bundled GPL and LGPL binaries
          require, reached from the licences dialog. -->
