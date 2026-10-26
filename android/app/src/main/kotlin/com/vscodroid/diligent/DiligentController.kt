@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
+import com.vscodroid.diligent.projects.RecentProjects
 import com.vscodroid.diligent.ui.BottomChrome
 import com.vscodroid.diligent.ui.NativeScreens
 import com.vscodroid.diligent.ui.TopChrome
@@ -71,6 +72,9 @@ class DiligentController(
         val view = webView()
         if (view == null) result(null) else view.evaluateJavascript(script) { result(it) }
     }
+
+    /** Projects the editor opened, for the Projects tab. Shared with the tab through [RecentProjects.of]. */
+    private val recentProjects by lazy { RecentProjects.of(activity) }
 
     /** Mobile view's state; the bars and screens draw from it. */
     val shell by lazy {
@@ -261,6 +265,7 @@ class DiligentController(
     /** The editor is opening [folder] (null: no folder). */
     fun onWorkspaceFolder(folder: String?) {
         shell.folder = folder
+        recentProjects.opened(folder)
     }
 
     /**
