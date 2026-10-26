@@ -2467,6 +2467,9 @@ class MainActivity : AppCompatActivity() {
     private fun setupBackNavigation() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                // Mobile view's native tabs first: Back returns to the tab the
+                // user came from. Everywhere else it answers false.
+                if (diligent.onBack()) return
                 moveTaskToBack(true)
             }
         })
