@@ -848,6 +848,7 @@ class MainActivity : AppCompatActivity() {
         // survive the app being killed while the browser had the screen. See
         // receiveCallbackIntent.
         receiveCallbackIntent(intent)
+        diligent.onIntent(intent)
 
         // Last, and the position is the whole of it. Everything above runs once
         // per launch and touches the filesystem on purpose; what comes after is
@@ -860,6 +861,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         receiveCallbackIntent(intent)
+        diligent.onIntent(intent)
     }
 
     override fun onResume() {

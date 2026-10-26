@@ -1,6 +1,7 @@
 package com.vscodroid.diligent
 
 import android.content.Context
+import android.content.Intent
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -359,12 +360,15 @@ class DiligentController(
         }
     }
 
-    /** The supervisor's latest tasks, or null before the first update. */
-    var tasks: TaskUpdate? = null
-        private set
+    /** The supervisor's tasks changed: the notification, the wake lock and Health follow. */
+    private fun onTasks(update: TaskUpdate) = TaskKeeper.update(activity, update)
 
-    private fun onTasks(update: TaskUpdate) {
-        tasks = update
+    /**
+     * An intent reached the activity (launch or `onNewIntent`): a Stop tapped
+     * on the task notification. Anything else is not Diligent's and is ignored.
+     */
+    fun onIntent(intent: Intent?) {
+        TaskKeeper.stopIds(intent).forEach { editor.run(TaskKeeper.COMMAND_STOP_TASK, it) }
     }
 
     companion object {

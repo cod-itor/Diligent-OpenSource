@@ -286,6 +286,28 @@
     <string name="diligent_view_desktop_body">The full VS Code layout, as on a computer. Best with a keyboard, a tablet or a big screen.</string>
     <string name="diligent_choose_view_footer">You can switch at any time, in Settings or the menu at the top.</string>
 
+    <!-- Running tasks: the foreground notification, and the notice after a task is killed -->
+    <string name="diligent_tasks_one_running">%1$s is running</string>
+    <plurals name="diligent_tasks_running">
+        <item quantity="one">%d task is running</item>
+        <item quantity="other">%d tasks are running</item>
+    </plurals>
+    <string name="diligent_task_label">%1$s (%2$s)</string>
+    <string name="diligent_task_line_running">%1$s: running</string>
+    <string name="diligent_task_line_restarting">%1$s: starting again</string>
+    <string name="diligent_task_stop">Stop %1$s</string>
+    <string name="diligent_task_stop_all">Stop all tasks</string>
+    <string name="diligent_task_channel">Task problems</string>
+    <string name="diligent_task_channel_description">When Android stops a task you started, and what to check.</string>
+    <string name="diligent_task_problem_stopped">%1$s stopped</string>
+    <string name="diligent_task_problem_restarting">%1$s was stopped and is starting again</string>
+    <string name="diligent_task_problem_text">%1$s Tap to open Health and see what to change.</string>
+    <string name="diligent_task_cause_low_memory">The phone ran low on memory.</string>
+    <string name="diligent_task_cause_process_limit">Android\'s limit on background processes was reached.</string>
+    <string name="diligent_task_cause_port_busy">Another program is using its port.</string>
+    <string name="diligent_task_cause_killed">Android closed it in the background.</string>
+    <string name="diligent_task_cause_exit">It ended with an error.</string>
+
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>
