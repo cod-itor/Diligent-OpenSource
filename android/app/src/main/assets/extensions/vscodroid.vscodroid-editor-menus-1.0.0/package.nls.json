@@ -1,5 +1,5 @@
 {
-  "displayName": "VSCodroid Editor Menus",
+  "displayName": "Diligent Editor Menus",
   "description": "Extra entries for the editor context menu",
   "command.selectAll": "Select All"
 }

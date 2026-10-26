@@ -135,7 +135,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.vscodroid"
+        // Diligent's own ID, the one Android and Google Play see. The namespace
+        // above and every Kotlin package stay com.vscodroid on purpose: they are
+        // internal, and renaming them would make every update from VSCodroid
+        // conflict (see UPSTREAM.md).
+        applicationId = "com.ditarector.diligent"
         minSdk = 30
         // Held at 36 on purpose, and lint's OldTargetApi is answered rather than
         // ignored. Targeting 37 blocks local network access by default, so a dev

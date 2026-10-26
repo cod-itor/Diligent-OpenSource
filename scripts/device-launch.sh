@@ -19,7 +19,7 @@ set -euo pipefail
 # coordinates, nothing that breaks when the layout moves.
 
 ADB="${ADB:-$HOME/Library/Android/sdk/platform-tools/adb}"
-PKG="${PKG:-com.vscodroid.debug}"
+PKG="${PKG:-com.ditarector.diligent.debug}"
 APK="${APK:-android/app/build/outputs/apk/debug/app-debug.apk}"
 
 # Buttons to press when they appear, in the order they are looked for.

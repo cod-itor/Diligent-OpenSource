@@ -133,7 +133,7 @@ const UPSTREAM = JSON.stringify({ nameShort: 'Code - OSS', version: '1.133.0', q
     assert.strictEqual(run.status, 0, `a valid product.json should boot cleanly:\n${run.output}`);
 
     const product = JSON.parse(fs.readFileSync(path.join(dir, 'vscode-reh', 'product.json'), 'utf8'));
-    assert.strictEqual(product.nameShort, 'VSCodroid', 'the overrides were not applied');
+    assert.strictEqual(product.nameShort, 'Diligent', 'the overrides were not applied');
     assert.strictEqual(product.version, '1.133.0', 'an upstream key was lost');
     assert.strictEqual(
         product.extensionsGallery.serviceUrl,

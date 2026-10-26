@@ -347,7 +347,7 @@ def main(tree):
     except (OSError, ValueError) as e:
         check(False, "product.json is readable JSON", str(e))
     if product is not None:
-        check(product.get("nameLong") == "VSCodroid", "product.json is branded",
+        check(product.get("nameLong") == "Diligent", "product.json is branded",
               f"nameLong = {product.get('nameLong')!r}")
         # workbench.js hardcodes *.vscode-cdn.net and the WebView cannot reach it;
         # the template being absent is what makes the Kotlin-side interception the

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">VSCodroid</string>
-    <string name="notification_channel_name">Сервер VSCodroid</string>
+    <string name="app_name">Diligent</string>
+    <string name="notification_channel_name">Сервер Diligent</string>
     <string name="notification_channel_description">Поддерживает работу локального сервера разработки</string>
-    <string name="notification_title">VSCodroid работает</string>
+    <string name="notification_title">Diligent работает</string>
     <!-- The card the service puts up while first-run setup unpacks. Its own pair
          rather than the server's, because no server is running yet and the whole
          point of the hold is that the process survives a user who leaves. -->
-    <string name="notification_title_setup">VSCodroid выполняет настройку</string>
+    <string name="notification_title_setup">Diligent выполняет настройку</string>
     <string name="notification_text_setup">Идёт распаковка редактора и его инструментов. Это занимает несколько минут и происходит только один раз.</string>
     <string name="notification_text">Локальный сервер разработки активен</string>
     <!-- There was a second line here, shown when the server was adopted rather
@@ -25,7 +25,7 @@
     <!-- Shown once the automatic restart budget is spent. Replaces the two
          strings above in the same notification, which then carries no Stop
          action because there is nothing left to stop. -->
-    <string name="notification_title_stopped">Сервер VSCodroid остановлен</string>
+    <string name="notification_title_stopped">Сервер Diligent остановлен</string>
     <string name="notification_text_stopped">Сервер несколько раз аварийно завершался. Перезапустите приложение.</string>
     <string name="extracting_message">Извлечение основных файлов\u2026</string>
 
@@ -150,11 +150,11 @@
     <string name="server_starting">Запуск сервера…</string>
     <!-- Shown on the page, with the reload control, once the editor's renderer
          has died several times in a minute and the app stops reopening it. -->
-    <string name="error_renderer_crash_loop">Редактор несколько раз подряд неожиданно закрывался, поэтому VSCodroid перестал открывать его заново. Ваши файлы и сервер не затронуты. Это случается реже, если сначала закрыть другие приложения.</string>
-    <string name="legal_disclaimer">VSCodroid собран из исходного кода Code - OSS под лицензией MIT.\nНе связан с Microsoft Corporation и не одобрен ею.\n«Visual Studio Code» и «VS Code» являются товарными знаками Microsoft.\nИспользуется реестр расширений Open VSX, а не Microsoft Marketplace.</string>
+    <string name="error_renderer_crash_loop">Редактор несколько раз подряд неожиданно закрывался, поэтому Diligent перестал открывать его заново. Ваши файлы и сервер не затронуты. Это случается реже, если сначала закрыть другие приложения.</string>
+    <string name="legal_disclaimer">Diligent собран из исходного кода Code - OSS под лицензией MIT.\nНе связан с Microsoft Corporation и не одобрен ею.\n«Visual Studio Code» и «VS Code» являются товарными знаками Microsoft.\nИспользуется реестр расширений Open VSX, а не Microsoft Marketplace.</string>
 
     <!-- About dialog -->
-    <string name="about_title">О программе VSCodroid</string>
+    <string name="about_title">О программе Diligent</string>
     <string name="about_version_format">Версия %s</string>
     <string name="about_licenses">Лицензии</string>
     <string name="licenses_title">Лицензии открытого кода</string>
@@ -227,7 +227,7 @@
     <!-- Shown when a save could not be written out to the device folder. Names the
          consequence rather than the error: the user's next decision is whether to
          copy the file out before uninstalling, not which exception was thrown. -->
-    <string name="saf_write_back_failed">Не удалось сохранить %1$s в папку на устройстве. Единственная копия остаётся внутри VSCodroid.</string>
+    <string name="saf_write_back_failed">Не удалось сохранить %1$s в папку на устройстве. Единственная копия остаётся внутри Diligent.</string>
 
     <!-- Shown once after a folder opens when documents in it could not be copied into
          the editor: a provider error, or no room left. The opposite of
@@ -251,7 +251,7 @@
          because it holds documents that never reached the editor and deleting the
          directory would have taken them with it. Names the device as where the files
          are: the local copy is gone, so saf_write_back_failed's "the only copy is
-         inside VSCodroid" would be backwards here. -->
+         inside Diligent" would be backwards here. -->
     <string name="saf_directory_kept">Папка %1$s оставлена в папке на устройстве: в ней есть файлы, которые не были скопированы в редактор. Удалите её там, если они больше не нужны.</string>
 
     <!-- The same refusal one level down: a single document that never reached the
@@ -303,7 +303,7 @@
     <!-- The widest of the three. A write-back drain outlives the folder switch that
          stopped it and can still be streaming out of the copy, so a restart is what
          makes the copy safe to remove rather than closing the folder. -->
-    <string name="saf_mirror_folder_this_session">Эта папка была открыта в текущем сеансе. Перезапустите VSCodroid, затем удалите её.</string>
+    <string name="saf_mirror_folder_this_session">Эта папка была открыта в текущем сеансе. Перезапустите Diligent, затем удалите её.</string>
 
     <!-- Reasons a bridge call did not do what it was asked. These are returned to the
          page and rendered by the bundled extension's showErrorMessage, which is the
@@ -313,31 +313,31 @@
     <!-- The caller's session token did not match. Used by both the external-URL and
          the folder-removal calls; one string because it is one situation and one
          instruction. -->
-    <string name="bridge_stale_session">VSCodroid не принял запрос. Перезагрузите окно и повторите попытку.</string>
+    <string name="bridge_stale_session">Diligent не принял запрос. Перезагрузите окно и повторите попытку.</string>
     <!-- Too many storage commands already outstanding. The four that walk the disk share
          one thread with a bounded queue, so this is a wait and not a fault, and it needs
          its own sentence: bridge_stale_session above tells the reader to reload the
          window, which does not drain that thread and costs them their editor state on the
          way to waiting exactly as long. Named by AndroidBridge.STORAGE_BUSY. -->
-    <string name="bridge_storage_busy">VSCodroid занят другим запросом к хранилищу. Повторите попытку чуть позже.</string>
+    <string name="bridge_storage_busy">Diligent занят другим запросом к хранилищу. Повторите попытку чуть позже.</string>
     <!-- No Activity wired the removal callback, so nothing could have been removed.
          Distinct from a refusal with a reason: this is a mistake in the app rather
          than a state the user can act on, and saying "that folder is in use" would
          send them looking for a folder to close. -->
-    <string name="bridge_reclaim_unavailable">Сейчас VSCodroid не может управлять хранилищем папок устройства.</string>
+    <string name="bridge_reclaim_unavailable">Сейчас Diligent не может управлять хранилищем папок устройства.</string>
     <!-- Nothing on the device claimed the link. The one refusal the user can act on. -->
-    <string name="open_url_no_handler">VSCodroid не открыл ссылку: на этом устройстве нет приложения для таких ссылок.</string>
+    <string name="open_url_no_handler">Diligent не открыл ссылку: на этом устройстве нет приложения для таких ссылок.</string>
     <!-- Every other launch failure, with the class name of the exception substituted. The
          class name and never its message: ActivityNotFoundException quotes the whole
          Intent and FileUriExposedException quotes the file, so the message would hand
          the address back to the page that supplied it. -->
-    <string name="open_url_failed">VSCodroid не смог открыть эту ссылку: %1$s</string>
+    <string name="open_url_failed">Diligent не смог открыть эту ссылку: %1$s</string>
 
     <!-- A folder copied out to the device that did not arrive whole. Counts entries
          rather than naming them, because the failure is usually folder-wide and forty
          separate notices is another way of telling the user nothing. Deliberately not
          worded like saf_write_back_failed: most of the folder did arrive, so "the only
-         copy is inside VSCodroid" would overstate. -->
+         copy is inside Diligent" would overstate. -->
     <plurals name="saf_upload_incomplete">
         <item quantity="one">%2$s: %1$d объект не попал в папку на устройстве.</item>
         <item quantity="few">%2$s: %1$d объекта не попали в папку на устройстве.</item>
@@ -347,7 +347,7 @@
     <!-- The same folder stopped by the enumeration cap rather than by a refusal. Named
          separately because the cause is a limit this app chose, not the device saying
          no, and the user's next move is to copy the rest out by hand. -->
-    <string name="saf_upload_capped">Папка %1$s слишком велика, чтобы скопировать её целиком. Остальное осталось внутри VSCodroid.</string>
+    <string name="saf_upload_capped">Папка %1$s слишком велика, чтобы скопировать её целиком. Остальное осталось внутри Diligent.</string>
 
     <!-- The Toolchains toolbar's only icon-only control, and the app's only visible
          way back out of that screen. Without it a screen reader announces an
@@ -374,7 +374,7 @@
          updated, rather than because it is being installed for the first time.
          Distinct from extracting_message so that a user who did not expect a
          wait learns why there is one. -->
-    <string name="status_updating_app">Обновление VSCodroid…</string>
+    <string name="status_updating_app">Обновление Diligent…</string>
 
     <!-- Opening a device folder. The sync can take a while on a large folder and
          the dialog is not cancellable, so it has to say what is happening.
@@ -436,7 +436,8 @@
     <!-- The About dialog's body: the version line and the legal disclaimer, which
          are separate resources because only one of them is a sentence. Joined
          here rather than in Kotlin so a translation can change the separator. -->
-    <string name="about_body">%1$s\n\n%2$s</string>
+    <string name="about_body">%1$s\n\n%2$s\n\n%3$s</string>
+    <string name="about_credit">Diligent создан на основе VSCodroid, разработанного Yudhi Armyndharis и сообществом VSCodroid (лицензия MIT).</string>
     <string name="about_privacy_policy">Политика конфиденциальности</string>
     <!-- The written offer of source that the bundled GPL and LGPL binaries
          require, reached from the licences dialog. -->
@@ -450,7 +451,7 @@
     <!-- Shown once on the launch after a crash. The report is quoted into the
          message because the audience is developers, and truncated by the caller
          before it arrives. -->
-    <string name="crash_title">Сбой VSCodroid</string>
+    <string name="crash_title">Сбой Diligent</string>
     <string name="crash_message">В прошлом сеансе произошёл сбой приложения.\n\n%1$s</string>
     <string name="crash_dismiss">Закрыть</string>
     <string name="crash_copy_report">Копировать отчёт</string>
@@ -460,7 +461,7 @@
          quoted exactly as the palette lists it because the reader's next action
          is to type it, and it is the one part of this sentence a translator must
          leave in English. -->
-    <string name="storage_low_warning">Мало места (доступно %1$s). Выполните «VSCodroid: Manage Device Folder Storage» из палитры команд.</string>
+    <string name="storage_low_warning">Мало места (доступно %1$s). Выполните «Diligent: Manage Device Folder Storage» из палитры команд.</string>
 
     <!-- An Android System WebView older than the one this app is tested against.
          Both versions are arguments: the installed one is read off the device and
@@ -472,7 +473,7 @@
          changes when it does, and passing it as a number invites a translator to
          treat "105 and newer" as something to inflect. -->
     <string name="webview_below_minimum_title">Android System WebView устарел</string>
-    <string name="webview_below_minimum">На этом устройстве установлен Android System WebView версии %1$s. VSCodroid нужна версия %2$s или новее: в более старой предпросмотр Markdown и панели расширений, например чат, остаются пустыми. Обновите Android System WebView в Play Store.</string>
+    <string name="webview_below_minimum">На этом устройстве установлен Android System WebView версии %1$s. Diligent нужна версия %2$s или новее: в более старой предпросмотр Markdown и панели расширений, например чат, остаются пустыми. Обновите Android System WebView в Play Store.</string>
     <string name="webview_update">Обновить</string>
 
     <!-- The extra key row, all of it spoken rather than drawn.

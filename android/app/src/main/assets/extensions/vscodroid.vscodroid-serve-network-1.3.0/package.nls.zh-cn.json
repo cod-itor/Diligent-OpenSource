@@ -1,5 +1,5 @@
 {
-  "displayName": "VSCodroid 在网络上提供服务",
+  "displayName": "Diligent 在网络上提供服务",
   "description": "显示其他设备可以用来访问本设备上开发服务器的地址",
-  "command.serveOnNetwork": "VSCodroid: 在网络上提供服务"
+  "command.serveOnNetwork": "Diligent: 在网络上提供服务"
 }

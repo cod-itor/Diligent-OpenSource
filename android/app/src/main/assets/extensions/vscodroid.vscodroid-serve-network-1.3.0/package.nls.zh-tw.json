@@ -1,5 +1,5 @@
 {
-  "displayName": "VSCodroid 在網路上提供服務",
+  "displayName": "Diligent 在網路上提供服務",
   "description": "顯示其他裝置可以用來連到本裝置上開發伺服器的位址",
-  "command.serveOnNetwork": "VSCodroid: 在網路上提供服務"
+  "command.serveOnNetwork": "Diligent: 在網路上提供服務"
 }

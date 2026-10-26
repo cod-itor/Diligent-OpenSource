@@ -77,7 +77,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 APK_PATH="$ROOT_DIR/android/app/build/outputs/apk/debug/app-debug.apk"
-PKG="com.vscodroid.debug"
+PKG="com.ditarector.diligent.debug"
 
 # ── Derived expectations ───────────────────────────────────────────
 # Every version this suite asserts is read from the tree rather than written

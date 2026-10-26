@@ -562,7 +562,7 @@ looking for that, and say which one you found.
 cd android && ./gradlew assembleDebug
 ```
 
-Output: `android/app/build/outputs/apk/debug/app-debug.apk` (debug package name: `com.vscodroid.debug`)
+Output: `android/app/build/outputs/apk/debug/app-debug.apk` (debug package name: `com.ditarector.diligent.debug`)
 
 ### Unit Tests
 
@@ -640,10 +640,10 @@ check would wait forever.
 ```bash
 # Build and install (clears app data to ensure clean state)
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
-adb shell pm clear com.vscodroid.debug
+adb shell pm clear com.ditarector.diligent.debug
 
 # Launch via SplashActivity (required after clearing data for first-run extraction)
-adb shell am start -n com.vscodroid.debug/com.vscodroid.SplashActivity
+adb shell am start -n com.ditarector.diligent.debug/com.vscodroid.SplashActivity
 ```
 
 **Important:** After clearing app data or a fresh install, you must launch via `SplashActivity` (not `MainActivity`) so that first-run asset extraction runs.
@@ -671,7 +671,7 @@ This builds the debug APK (Gradle is incremental, so an unchanged tree costs sec
 and launches SplashActivity. With more than one device attached it refuses unless
 `ANDROID_SERIAL` names one. It does not clear app data, so first-run setup will not
 re-run on an install that has already completed it; use the `pm clear` above for that.
-It starts `com.vscodroid.debug`, which is what `assembleDebug` produces; set `PKG` to
+It starts `com.ditarector.diligent.debug`, which is what `assembleDebug` produces; set `PKG` to
 launch another package. SplashActivity rather than MainActivity, because MainActivity
 bypasses first-run setup and would open against a tree that was never extracted.
 
@@ -694,10 +694,10 @@ After deploying, verify these core flows:
 adb logcat -s VSCodroid.MainActivity VSCodroid.NodeService VSCodroid.ProcessManager VSCodroid.ToolchainManager
 
 # Everything the app process writes
-adb logcat --pid=$(adb shell pidof com.vscodroid.debug)
+adb logcat --pid=$(adb shell pidof com.ditarector.diligent.debug)
 
 # Memory
-adb shell dumpsys meminfo com.vscodroid.debug
+adb shell dumpsys meminfo com.ditarector.diligent.debug
 
 # The Node process the server runs in
 adb shell ps -A | grep libnode
@@ -713,7 +713,7 @@ writes itself, in the directory `ProcessManager` hands it as `--logsPath`
 (`Environment.getLogsDir`):
 
 ```bash
-adb shell run-as com.vscodroid.debug ls files/home/.vscodroid/data/logs
+adb shell run-as com.ditarector.diligent.debug ls files/home/.vscodroid/data/logs
 ```
 
 Those `[node]` lines come from a reader `ProcessManager` attaches to the process it spawned.
@@ -732,7 +732,7 @@ is a server to probe:
 
 ```bash
 # The port again, when the log line is gone
-adb shell run-as com.vscodroid.debug cat files/server/editor-server.pid
+adb shell run-as com.ditarector.diligent.debug cat files/server/editor-server.pid
 
 adb forward tcp:$PORT tcp:$PORT
 curl -s -o /dev/null -w '%{http_code}\n' "http://127.0.0.1:$PORT/version"

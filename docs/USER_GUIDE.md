@@ -57,7 +57,7 @@ VSCodroid is VS Code. If you have used VS Code on desktop, everything works the 
   those files; the editor then says so in a dialog, once per folder each time its
   server starts rather than on every reload, and offers the route below.
 - For a folder anywhere else on the device, choose **On the device** in that
-  question, or run **VSCodroid: Open Folder from Device**: tap the remote
+  question, or run **Diligent: Open Folder from Device**: tap the remote
   indicator at the left end of the status bar, tap the button in the empty
   Explorer, or use the Command Palette. It opens Android's folder picker; pick
   the folder and allow access, and the files other apps saved in it show as
@@ -66,7 +66,7 @@ VSCodroid is VS Code. If you have used VS Code on desktop, everything works the 
   SD card, nor to the Download or Android folder itself, so pick a folder inside
   those. Nothing in `Android/data`, `Android/obb` or `Android/sandbox` can be
   granted, since Android keeps each app's folder there to that app. A USB drive
-  can be granted whole. **VSCodroid: Open Recent Folder**, in the same menu,
+  can be granted whole. **Diligent: Open Recent Folder**, in the same menu,
   lists the folders you have granted, with **Browse device...** at the end to
   add another.
 - A device folder is edited as a copy inside the app. The copy is read from the
@@ -173,7 +173,7 @@ To edit settings as JSON, use the Command Palette: `Preferences: Open User Setti
 
 ### Text Size
 
-**VSCodroid: UI Scale**, in the Command Palette, sets the size of the whole interface: the side bar, tabs, menus, status bar, panels and editor together. It offers 100%, 110%, 125% and 150%, but only the sizes that keep the page at least 320 CSS pixels wide, so most phones go up to 110% or 125% and tablets to 150%. The room is checked against the screen when you choose a size and when the page loads, not when the window is resized, so entering split-screen at a large size can leave the page narrower than that until you choose a smaller one. The side bar closing by itself on a small screen goes by the screen's size and does not follow this size; set `vscodroid.layout.autoHideSideBar` to `on` to have it close at any size. The size is kept when the window reloads and when the app restarts. A size that does not take effect on your device is put back to 100%, and the command says so when you pick it.
+**Diligent: UI Scale**, in the Command Palette, sets the size of the whole interface: the side bar, tabs, menus, status bar, panels and editor together. It offers 100%, 110%, 125% and 150%, but only the sizes that keep the page at least 320 CSS pixels wide, so most phones go up to 110% or 125% and tablets to 150%. The room is checked against the screen when you choose a size and when the page loads, not when the window is resized, so entering split-screen at a large size can leave the page narrower than that until you choose a smaller one. The side bar closing by itself on a small screen goes by the screen's size and does not follow this size; set `vscodroid.layout.autoHideSideBar` to `on` to have it close at any size. The size is kept when the window reloads and when the app restarts. A size that does not take effect on your device is put back to 100%, and the command says so when you pick it.
 
 To change the text in one place only, use the `editor.fontSize` and `terminal.integrated.fontSize` settings, which are remembered. **Increase Editor Font Size** in the Command Palette also works, but it is not bound to a key and it resets when the window reloads.
 
@@ -196,7 +196,7 @@ or put the keyboard away, and they all return along with the row.
 
 To hide the row altogether, for example while typing on a hardware keyboard, tap
 the remote indicator at the left end of the status bar and choose
-**VSCodroid: Toggle Extra Key Row**, or run it from the Command Palette. The row
+**Diligent: Toggle Extra Key Row**, or run it from the Command Palette. The row
 stays hidden, across restarts, until you run the command again.
 
 The row also steps away by itself once you type a character on a hardware keyboard,
@@ -402,8 +402,8 @@ The Extra Key Row is especially useful in the terminal:
 
 A file open in the editor runs from the play button in the editor's title bar.
 Python files get it from the Python extension. JavaScript, TypeScript, Ruby,
-Java, C, C++ and `.sh` or `.bash` files get **VSCodroid: Run File**, which saves
-the file and runs it in a terminal named *VSCodroid Run*; the next run replaces
+Java, C, C++ and `.sh` or `.bash` files get **Diligent: Run File**, which saves
+the file and runs it in a terminal named *Diligent Run*; the next run replaces
 that terminal. Header files and the other shells' scripts do not get it. Ruby, Java and C/C++ need their toolchain from the toolchains screen
 first, and the button offers it when it is missing. A C or C++ file is built
 into a temporary file and run, so a program of several files or one that needs
@@ -439,7 +439,7 @@ work:
 
 That covers the app's own storage, and nothing else. An install from before
 1.2.0 whose projects folder is still on shared storage, under
-`Android/data/com.vscodroid/files/projects` (see [Storage](#storage)), keeps
+`Android/data/com.ditarector.diligent/files/projects` (see [Storage](#storage)), keeps
 that folder, and a program or a Git hook stored there still cannot run. A
 folder under `~` that is not `~/projects` is under the app's own storage on
 such an install, and this works there.
@@ -512,7 +512,7 @@ reason a folder opened there with **File > Open Folder** and **In the app's
 storage** shows none of those files. So bring the file inside first:
 
 1. Download the `.vsix` with the phone's browser.
-2. Run **VSCodroid: Open Folder from Device** and grant the folder it landed in;
+2. Run **Diligent: Open Folder from Device** and grant the folder it landed in;
    the file appears in the Explorer. Android does not grant the Download folder
    itself, which is where a browser usually saves, so first move the file into
    a folder of its own, such as a new one inside Download, with the phone's
@@ -917,7 +917,7 @@ Either way they land in the app's own storage and survive app updates.
 
 The Language Picker stops appearing once you answer it with Continue or Skip, but the
 screen it offers stays reachable, by two routes. From the editor, run
-**VSCodroid: Manage Toolchains** from the Command Palette (**Ctrl+Shift+P**). From
+**Diligent: Manage Toolchains** from the Command Palette (**Ctrl+Shift+P**). From
 outside it, **touch and hold the VSCodroid icon** (on the home screen or in the app
 drawer) and choose **Manage toolchains**. Both open the same screen, and installing
 and removing work exactly as they do during setup, so a language you skipped is not
@@ -1057,7 +1057,7 @@ The status bar shows a phantom process count. This tells you how many background
 ### Saving Battery
 
 - Close terminals you are not using. Each open terminal is a separate bash process.
-- An idle language server is not killed, by a timer or by hand: its extension restarts it within a second. Disabling the extension that starts it is what frees the slot; **VSCodroid: Show Process Tree** marks the idle ones.
+- An idle language server is not killed, by a timer or by hand: its extension restarts it within a second. Disabling the extension that starts it is what frees the slot; **Diligent: Show Process Tree** marks the idle ones.
 - Avoid leaving dev servers running in the background when not in use.
 
 ### Touch Gestures
@@ -1328,7 +1328,7 @@ What the status bar shows on a cold start, before you do anything, is the app's
 own share. Nothing sheds a language server automatically: a killed one
 is restarted by its extension within a second. If you hit the limit (other apps
 compete for the same 32 slots), close unused terminals and disable the extensions
-whose language servers **VSCodroid: Show Process Tree** marks idle.
+whose language servers **Diligent: Show Process Tree** marks idle.
 
 ### Memory Usage
 
@@ -1336,7 +1336,7 @@ VSCodroid typically uses 400-700 MB of RAM. On devices with 4 GB or less, you ma
 
 - Close browser tabs and other apps to free RAM.
 - Limit concurrent terminals to 1-2.
-- Language servers are the biggest memory consumers. Nothing sheds them automatically, because their extensions restart them; disable the extensions you are not using. **VSCodroid: Show Process Tree** marks the idle ones.
+- Language servers are the biggest memory consumers. Nothing sheds them automatically, because their extensions restart them; disable the extensions you are not using. **Diligent: Show Process Tree** marks the idle ones.
 
 ### os.cpus() Returns Empty
 
@@ -1478,7 +1478,7 @@ If the app shows a blank screen after opening:
 > On a new install `~/projects/` is inside the app's internal storage, which
 > Clear Data wipes along with everything else, and nothing is backed up. An
 > install from before 1.2.0 that already had a projects directory in the app's
-> area of shared storage (`Android/data/com.vscodroid/files/projects`) keeps
+> area of shared storage (`Android/data/com.ditarector.diligent/files/projects`) keeps
 > using it, and Clear Data wipes that too. New installs stopped using that
 > location because shared storage cannot hold a symbolic link, so `npm install`
 > failed there on the first package that ships an executable.
@@ -1490,13 +1490,13 @@ editor still works, and on a blank screen it does not:
 projects: internal storage is not exposed over USB or MTP, and `adb pull` cannot
 read it from a release build. What is left:
 
-- A debug build is readable with `adb shell run-as com.vscodroid.debug`, and its
+- A debug build is readable with `adb shell run-as com.ditarector.diligent.debug`, and its
   projects can be copied out from there. The release builds refuse `run-as`.
 - An install that still keeps its projects on shared storage can be read as
   before, with USB debugging on:
 
   ```
-  adb pull /storage/emulated/0/Android/data/com.vscodroid/files/projects
+  adb pull /storage/emulated/0/Android/data/com.ditarector.diligent/files/projects
   ```
 
   Some devices also expose that path over MTP when plugged in.
@@ -1509,7 +1509,7 @@ in-app routes exist:
 
 - Push to a remote, if the project is a git repository. This is the only route
   that preserves history.
-- Or run **VSCodroid: Open Folder from Device** from the Command Palette
+- Or run **Diligent: Open Folder from Device** from the Command Palette
   (**Ctrl+Shift+P**), choose a folder outside the app such as Documents, and copy
   your work there. A folder opened that way lives outside the app's storage, so
   Clear Data does not touch it. **It does not carry `.git` or `.env`**, along
@@ -1573,7 +1573,7 @@ du -sh ~/projects/*
 du -sh ~/.vscodroid/extensions/*
 ```
 
-To remove an installed toolchain, run **VSCodroid: Manage Toolchains** from the
+To remove an installed toolchain, run **Diligent: Manage Toolchains** from the
 Command Palette, or touch and hold the app icon and choose **Manage toolchains**;
 see [Installing After Setup](#installing-after-setup).
 
@@ -1597,7 +1597,7 @@ If the preview tab or the device browser opens but the page does not load:
    `0.0.0.0` is an address to bind to, not one to browse to.
 3. To reach the server from **another device** on the same network, restart it
    bound to every interface (`--host 0.0.0.0` for Vite, `-H 0.0.0.0` for
-   Next.js, `--bind 0.0.0.0` for Python) and run **VSCodroid: Serve on Network**
+   Next.js, `--bind 0.0.0.0` for Python) and run **Diligent: Serve on Network**
    from the Command Palette for the address the other device should use.
 
 ### WebView Crash Recovery
@@ -1608,7 +1608,7 @@ Recovery is bounded, because reloading a page that is itself the cause only repe
 
 ### Sending a Bug Report
 
-If the editor freezes, reloads by itself or the app closes, run **VSCodroid: Copy Bug Report** from the Command Palette once the editor is back. The report opens in a new editor tab: the device and app version, how Android recorded the app's recent exits (one it declared not responding shows as `ANR`, one closed to free memory as `LOW_MEMORY`), each time the process that draws the editor died, the newest crash logs and the last 200 lines of the server log. Nothing is sent anywhere.
+If the editor freezes, reloads by itself or the app closes, run **Diligent: Copy Bug Report** from the Command Palette once the editor is back. The report opens in a new editor tab: the device and app version, how Android recorded the app's recent exits (one it declared not responding shows as `ANR`, one closed to free memory as `LOW_MEMORY`), each time the process that draws the editor died, the newest crash logs and the last 200 lines of the server log. Nothing is sent anywhere.
 
 Read it before you share it. The server log can name your files and folders, and you can delete any line you want kept private. Then tap **Copy** in the notification that comes with it, or **Copy Bug Report** in the status bar, which stays there while the report is open, and paste the report into an issue at [github.com/rmyndharis/VSCodroid/issues](https://github.com/rmyndharis/VSCodroid/issues).
 

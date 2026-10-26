@@ -1,5 +1,5 @@
 {
-  "displayName": "VSCodroid Udostępnij w sieci",
+  "displayName": "Diligent Udostępnij w sieci",
   "description": "Pokazuje adres, pod którym inne urządzenia dosięgną serwera deweloperskiego działającego na tym urządzeniu",
-  "command.serveOnNetwork": "VSCodroid: Udostępnij w sieci"
+  "command.serveOnNetwork": "Diligent: Udostępnij w sieci"
 }

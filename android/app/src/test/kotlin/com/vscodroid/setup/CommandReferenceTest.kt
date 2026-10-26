@@ -13,7 +13,7 @@ import java.io.File
  * storage commands had no sender at all.
  *
  * What this pins is the narrower, mechanical half of that: a reference of the form
- * `VSCodroid: Something` must match a `title` contributed by a bundled extension. It is the
+ * `Diligent: Something` must match a `title` contributed by a bundled extension. It is the
  * half that rots on its own: someone renames a palette entry, and a message pointing at the
  * old name keeps compiling and keeps being wrong.
  *
@@ -28,7 +28,7 @@ class CommandReferenceTest {
     private val stringsFile = File("src/main/res/values")
 
     /**
-     * Every command title contributed by a bundled extension, e.g. "VSCodroid: About".
+     * Every command title contributed by a bundled extension, e.g. "Diligent: About".
      *
      * Parsed rather than pattern-matched, because a title is now written into the
      * manifest as `%command.about%` and the English text lives in
@@ -106,7 +106,7 @@ class CommandReferenceTest {
         val foundIn = sortedMapOf<String, MutableSet<String>>()
         for (file in sources) {
             for (m in REFERENCE.findAll(file.readText())) {
-                val named = "VSCodroid: " + m.groupValues[1].trim()
+                val named = PREFIX + m.groupValues[1].trim()
                 foundIn.getOrPut(file.extension) { sortedSetOf() }.add(named)
                 if (named !in titles) {
                     dangling.getOrPut(named) { sortedSetOf() }.add(file.name)
@@ -123,7 +123,7 @@ class CommandReferenceTest {
         //
         // Asserted per source kind rather than in total, because the two quote the
         // name differently and only one of them is fragile: a string resource
-        // escapes it as \"VSCodroid: ...\" while JavaScript writes it plainly. A
+        // escapes it as \"Diligent: ...\" while JavaScript writes it plainly. A
         // pattern that quietly stopped handling the escaped form would still match
         // the JS references and keep a total-count assertion green.
         //
@@ -136,7 +136,7 @@ class CommandReferenceTest {
         assertTrue(
             foundIn["xml"]?.isNotEmpty() == true,
             "no command reference matched in any string resource, so the escaped form " +
-                "\\\"VSCodroid: ...\\\" is no longer being recognised and this test is " +
+                "\\\"Diligent: ...\\\" is no longer being recognised and this test is " +
                 "checking nothing there. Found: $foundIn",
         )
         assertTrue(
@@ -155,7 +155,7 @@ class CommandReferenceTest {
 
     private companion object {
         /** The prefix that makes a title one of ours, and the palette's grouping. */
-        const val PREFIX = "VSCodroid: "
+        const val PREFIX = "Diligent: "
 
         /** `%command.about%` as a whole title value, which is what the editor substitutes. */
         val PLACEHOLDER = Regex("""%([^%]+)%""")
@@ -165,8 +165,8 @@ class CommandReferenceTest {
 
         /**
          * A reference in source text: the name must be QUOTED, which is how it appears
-         * when it is being given to a user to type: `\"VSCodroid: Clear Caches\"` in a
-         * Kotlin literal, `"VSCodroid: Copy SSH Public Key"` inside a JavaScript one.
+         * when it is being given to a user to type: `\"Diligent: Clear Caches\"` in a
+         * Kotlin literal, `"Diligent: Copy SSH Public Key"` inside a JavaScript one.
          *
          * The quotes are what make this specific rather than a search for the word. An
          * earlier version matched the bare prefix and flagged two CSS comments inside
@@ -174,6 +174,6 @@ class CommandReferenceTest {
          * and "VSCodroid: Enlarged touch targets" -- which name no command and never
          * reach a user.
          */
-        val REFERENCE = Regex("""\\?"VSCodroid: ([A-Z][^"\\\n]*)\\?"""")
+        val REFERENCE = Regex("""\\?"Diligent: ([A-Z][^"\\\n]*)\\?"""")
     }
 }

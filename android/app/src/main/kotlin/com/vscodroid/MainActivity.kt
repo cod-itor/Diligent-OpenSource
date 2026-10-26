@@ -6583,6 +6583,8 @@ class MainActivity : AppCompatActivity() {
         }
         val version = getString(R.string.about_version_format, versionName)
         val disclaimer = getString(R.string.legal_disclaimer)
+        // Diligent is built on VSCodroid; its MIT licence asks for this credit.
+        val credit = getString(R.string.about_credit)
 
         // An AlertDialog has three button slots and this dialog needs four
         // destinations, so "Source Code" moved one level in, onto the licences
@@ -6592,7 +6594,7 @@ class MainActivity : AppCompatActivity() {
         // raises.
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.about_title))
-            .setMessage(getString(R.string.about_body, version, disclaimer))
+            .setMessage(getString(R.string.about_body, version, disclaimer, credit))
             .setPositiveButton(getString(R.string.dialog_ok), null)
             .setNeutralButton(getString(R.string.about_licenses)) { _, _ -> showLicensesDialog() }
             .setNegativeButton(getString(R.string.about_privacy_policy)) { _, _ ->
