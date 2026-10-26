@@ -20,7 +20,7 @@ data class Chrome(
     val topBar: Boolean,
     /** A native screen (Projects, Files, More) covering the editor. */
     val nativeScreen: Boolean,
-    /** Run, Preview, Save, Search, Command palette, Undo, under the editor. */
+    /** Run, Preview, Save, Search, Command palette, Undo (the snapshot list), under the editor. */
     val actionBar: Boolean,
     /** The five tabs, at the bottom. */
     val tabBar: Boolean,
