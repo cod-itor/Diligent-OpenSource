@@ -39,7 +39,6 @@
     <!-- Placeholder while a screen is being built -->
     <string name="diligent_screen_projects">Your projects</string>
     <string name="diligent_screen_files">Files</string>
-    <string name="diligent_screen_more">More</string>
     <string name="diligent_screen_run">Run</string>
 
     <!-- Big screen suggestion -->
@@ -49,6 +48,41 @@
     <string name="diligent_suggest_mobile_body">The big screen is gone. Mobile view is easier to use on the phone.</string>
     <string name="diligent_suggest_switch">Switch</string>
     <string name="diligent_suggest_not_now">Not now</string>
+
+    <!-- More tab and Settings -->
+    <string name="diligent_more_section_tools">Tools</string>
+    <string name="diligent_more_section_app">App</string>
+    <string name="diligent_more_run">Run</string>
+    <string name="diligent_more_run_body">Start and stop your project, read its log</string>
+    <string name="diligent_more_setup">Setup</string>
+    <string name="diligent_more_setup_body">Install languages and tools</string>
+    <string name="diligent_more_ai">AI</string>
+    <string name="diligent_more_ai_body">Code together with an AI assistant</string>
+    <string name="diligent_more_devices">Devices</string>
+    <string name="diligent_more_devices_body">Pair your laptop and sync projects</string>
+    <string name="diligent_more_health">Health</string>
+    <string name="diligent_more_health_body">Check that everything works</string>
+    <string name="diligent_more_settings">Settings</string>
+    <string name="diligent_more_settings_body">View, editor and about</string>
+    <string name="diligent_more_back">Back to More</string>
+    <string name="diligent_more_footer">Diligent %1$s, built on VSCodroid</string>
+    <string name="diligent_settings_section_view">View</string>
+    <string name="diligent_settings_view_mobile_body">Touch-first and simple, made for one hand</string>
+    <string name="diligent_settings_view_desktop_body">The full VS Code interface</string>
+    <string name="diligent_settings_view_note">Switching keeps your open files, unsaved changes and terminals as they are.</string>
+    <string name="diligent_settings_suggest_desktop">Suggest Desktop view on big screens</string>
+    <string name="diligent_settings_suggest_desktop_body">On DeX, a monitor or a big window, Diligent asks if you want Desktop view. It never switches by itself.</string>
+    <string name="diligent_settings_section_editor">Editor</string>
+    <string name="diligent_settings_editor">Editor settings</string>
+    <string name="diligent_settings_editor_body">Font size, theme, tabs and more, in the editor\'s own settings</string>
+    <string name="diligent_settings_section_about">About</string>
+    <string name="diligent_settings_app">Diligent</string>
+    <string name="diligent_settings_version">Version %1$s</string>
+    <string name="diligent_settings_credit">Built on VSCodroid</string>
+    <string name="diligent_settings_credit_body">By Yudhi Armyndharis and the VSCodroid community</string>
+    <string name="diligent_settings_source">Source code</string>
+    <string name="diligent_settings_source_url" translatable="false">https://github.com/cod-itor/Diligent-OpenSource</string>
+    <string name="diligent_settings_no_browser">No app on this device can open web links.</string>
 
     <!-- First launch: choose a view -->
     <string name="diligent_welcome">Welcome to Diligent</string>
