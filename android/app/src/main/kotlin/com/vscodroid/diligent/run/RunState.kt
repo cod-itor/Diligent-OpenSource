@@ -43,6 +43,8 @@ data class RunUiState(
      * port is the one.
      */
     val localPort: Int? = null,
+    /** The laptop the screen offers to run the active profile on instead ([OffloadHint]), or null. */
+    val offerLaptop: String? = null,
 ) {
     val profiles: List<RunProfile>
         get() = (config as? RunConfigState.Loaded)?.config?.profiles.orEmpty()
@@ -80,6 +82,12 @@ interface RunControl {
     /** Writes [profile] as the project's only profile in `run.json` (Accept, or Save from the form). */
     fun save(profile: RunProfile)
     fun dismissWebpackNote()
+
+    /** Moves the active profile to the laptop called [name] and starts it there. */
+    fun runOnLaptop(name: String)
+
+    /** "Not now" on the offload hint, for this session while the app runs. */
+    fun dismissOffload()
     fun openPreview()
 
     /** Opens `run.json` in the editor. */

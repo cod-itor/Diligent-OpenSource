@@ -42,6 +42,8 @@ internal class PreviewRun(override val state: RunUiState) : RunControl {
     override fun stop() = Unit
     override fun save(profile: RunProfile) = Unit
     override fun dismissWebpackNote() = Unit
+    override fun runOnLaptop(name: String) = Unit
+    override fun dismissOffload() = Unit
     override fun openPreview() = Unit
     override fun openConfig() = Unit
 }

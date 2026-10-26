@@ -90,6 +90,9 @@
     <string name="diligent_run_open_config">Open run.json</string>
     <string name="diligent_run_log_empty">Nothing printed yet.</string>
     <string name="diligent_run_jump_to_end">Jump to the end</string>
+    <string name="diligent_run_offload_body">The phone is struggling with this one: it was closed for lack of memory, or it is taking a long time. Your laptop can run it instead.</string>
+    <string name="diligent_run_offload_action">Run on %1$s instead</string>
+    <string name="diligent_run_offload_not_now">Not now</string>
     <string name="diligent_run_on_laptop">Runs on %1$s over SSH. Start copies the project there first.</string>
     <string name="diligent_run_no_laptop">There is no laptop named %1$s. Add it in More, then Laptop, or change \"where\" in run.json.</string>
     <string name="diligent_run_where_unknown">This version of Diligent cannot run a profile on \"%1$s\". Change \"where\" in run.json.</string>

@@ -191,6 +191,7 @@ private fun Details(state: RunUiState, run: RunControl) {
             Text(state.startOutput.joinToString("\n"), style = DiligentTheme.type.codeSmall, color = DiligentTheme.colors.onSurface)
         }
         if (state.webpackNote) WebpackNote(run::dismissWebpackNote)
+        state.offerLaptop?.let { laptop -> OffloadNote(laptop, onRun = { run.runOnLaptop(laptop) }, onDismiss = run::dismissOffload) }
         TextButton(
             onClick = run::openConfig,
             modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget),
@@ -273,6 +274,28 @@ private fun WebpackNote(onDismiss: () -> Unit) {
                 onClick = onDismiss,
                 modifier = Modifier.align(Alignment.End).heightIn(min = DiligentTheme.sizes.touchTarget),
             ) { Text(stringResource(R.string.diligent_run_note_ok)) }
+        }
+    }
+}
+
+/** The offload hint: the phone is struggling with this run, and a laptop is set up. */
+@Composable
+private fun OffloadNote(laptop: String, onRun: () -> Unit, onDismiss: () -> Unit) {
+    Surface(color = DiligentTheme.colors.primaryContainer, shape = DiligentTheme.shapes.medium) {
+        Column(Modifier.padding(DiligentTheme.spacing.m)) {
+            Text(
+                stringResource(R.string.diligent_run_offload_body),
+                style = DiligentTheme.type.material.bodyMedium,
+                color = DiligentTheme.colors.onPrimaryContainer,
+            )
+            Row(Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.s)) {
+                TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
+                    Text(stringResource(R.string.diligent_run_offload_not_now))
+                }
+                Button(onClick = onRun, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
+                    Text(stringResource(R.string.diligent_run_offload_action, laptop))
+                }
+            }
         }
     }
 }

@@ -1,12 +1,15 @@
 package com.vscodroid.diligent.run
 
 import android.content.Context
+import android.os.SystemClock
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.vscodroid.R
 import com.vscodroid.diligent.MobileShell
+import com.vscodroid.diligent.TaskKeeper
+import com.vscodroid.diligent.TaskUpdate
 import com.vscodroid.diligent.laptop.LaptopMessages
 import com.vscodroid.diligent.laptop.LaptopRun
 import com.vscodroid.diligent.laptop.Machine
@@ -77,6 +80,15 @@ class ProjectRunner(
     private var pollLoop: Job? = null
     private var loadJob: Job? = null
 
+    /** The laptops in machines.json, read with the profiles; the offload hint offers the first. */
+    private var machines: List<Machine> = emptyList()
+
+    // What the offload hint counts, per session, while the screen or action bar watches.
+    private val lowMemoryKills = HashMap<String, Int>()
+    private val runningSince = HashMap<String, Long>()
+    private val offloadDismissed = HashSet<String>()
+    private var lastTasks: TaskUpdate? = null
+
     /**
      * The editor opened [folder] (null: none). A `.code-workspace` file runs
      * from its own folder. Reloads profiles and forgets the previous project's
@@ -97,6 +109,7 @@ class ProjectRunner(
         loadJob?.cancel()
         loadJob = scope.launch {
             val config = withContext(Dispatchers.IO) { RunFiles.load(File(dir)) }
+            machines = withContext(Dispatchers.IO) { Machines.load(home) }
             if (state.projectDir != dir) return@launch
             val profiles = (config as? RunConfigState.Loaded)?.config?.profiles.orEmpty()
             val active = RunSelection.pick(profiles, state.running, chosen, state.active)
@@ -109,6 +122,8 @@ class ProjectRunner(
     override suspend fun watch(withLog: Boolean) {
         watchers++
         if (withLog) logWatchers++
+        // A laptop added on the Laptop screen counts from the next look at Run.
+        scope.launch { machines = withContext(Dispatchers.IO) { Machines.load(home) } }
         ensurePolling()
         try {
             awaitCancellation()
@@ -150,12 +165,83 @@ class ProjectRunner(
             log = if (withLog) result.log else state.log,
         )
         if (result.status == RunStatus.Running) recoverLocalPort(active)
+        state = state.copy(offerLaptop = offloadOffer(active, session, result.status))
         publish()
         // A running session of another profile was found: show that one instead.
         if (next != state.active) {
             state = state.copy(active = next, status = RunStatus.Idle, log = emptyList(), localPort = null)
             refreshNote()
             poll(withLog)
+        }
+    }
+
+    /** The laptop to offer running [profile] on instead, or null; see [OffloadHint]. */
+    private fun offloadOffer(profile: RunProfile, session: String, status: RunStatus): String? {
+        val now = SystemClock.elapsedRealtime()
+        if (status == RunStatus.Running) runningSince.getOrPut(session) { now } else runningSince.remove(session)
+        val tasks = TaskKeeper.latest
+        if (tasks !== lastTasks) {
+            val previous = lastTasks?.tasks?.firstOrNull { it.id == session }
+            val current = tasks?.tasks?.firstOrNull { it.id == session }
+            lowMemoryKills[session] = OffloadHint.countKills(lowMemoryKills[session] ?: 0, previous, current)
+            lastTasks = tasks
+        }
+        val laptop = machines.firstOrNull() ?: return null
+        if (session in offloadDismissed) return null
+        val offer = OffloadHint.offer(
+            onPhone = RunWhere.parse(profile.where) == RunWhere.Phone,
+            hasLaptop = true,
+            lowMemoryKills = lowMemoryKills[session] ?: 0,
+            runningForMs = runningSince[session]?.let { now - it },
+            hasPort = profile.port != null,
+        )
+        return if (offer) laptop.name else null
+    }
+
+    override fun dismissOffload() {
+        val profile = state.activeProfile ?: return
+        offloadDismissed += sessionOf(profile)
+        state = state.copy(offerLaptop = null)
+    }
+
+    /**
+     * The offload hint's action: stops the profile on the phone, sets its
+     * `where` to the laptop in run.json (the other profiles as they are),
+     * and starts it there.
+     */
+    override fun runOnLaptop(name: String) {
+        val dir = state.projectDir ?: return
+        val profile = state.activeProfile ?: return
+        val config = (state.config as? RunConfigState.Loaded)?.config ?: return
+        if (state.pending != null) return
+        val updated = RunConfig(config.profiles.map { if (it.name == profile.name) it.copy(where = RunWhere.laptop(name)) else it })
+        state = state.copy(pending = RunPending.Stopping, offerLaptop = null)
+        publish()
+        scope.launch {
+            try {
+                bundled.run(scripts.stop(sessionOf(profile)), home)
+            } catch (e: IOException) {
+                Log.w(TAG, "Stop failed", e)
+            }
+            val ok = withContext(Dispatchers.IO) {
+                try {
+                    RunFiles.write(File(dir), updated)
+                    true
+                } catch (e: IOException) {
+                    Log.w(TAG, "Writing run.json failed", e)
+                    false
+                }
+            }
+            state = state.copy(pending = null)
+            if (state.projectDir != dir) return@launch
+            if (!ok) {
+                state = state.copy(saveFailed = true)
+                publish()
+                return@launch
+            }
+            chosen = profile.name
+            state = state.copy(config = RunConfigState.Loaded(updated), active = profile.name, status = RunStatus.Idle)
+            start()
         }
     }
 
