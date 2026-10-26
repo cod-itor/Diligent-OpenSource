@@ -9,6 +9,7 @@ import com.vscodroid.R
 import com.vscodroid.diligent.AppView
 import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.MobileShell
+import com.vscodroid.diligent.run.WatchRun
 import com.vscodroid.diligent.ui.components.DiligentTabBar
 import com.vscodroid.diligent.ui.components.DiligentTopBar
 import com.vscodroid.diligent.ui.components.EditorActionBar
@@ -62,15 +63,23 @@ fun BottomChrome(shell: MobileShell, actions: MobileActions) {
     if (!chrome.actionBar && !chrome.tabBar) return
     Column {
         if (chrome.actionBar) {
+            WatchRun(actions.run, withLog = false)
             EditorActionBar(
                 standardEditorActions(
-                    running = false,
-                    canPreview = false,
-                    // Run and Preview arrive with the Run screen; until then
-                    // Run opens More, where Run will live.
-                    onRun = { actions.openTab(MobileTab.More) },
-                    onStop = {},
-                    onPreview = {},
+                    running = shell.running,
+                    canPreview = shell.previewPort != null,
+                    // Starts the default profile; with none yet, opens Run,
+                    // which offers the detected one or a form.
+                    onRun = {
+                        if (actions.run.state.activeProfile != null) {
+                            actions.run.start()
+                        } else {
+                            shell.runRequested = true
+                            actions.openTab(MobileTab.More)
+                        }
+                    },
+                    onStop = { actions.run.stop() },
+                    onPreview = { actions.run.openPreview() },
                     onSave = { actions.editorCommand("workbench.action.files.save") },
                     onSearch = { actions.editorCommand("workbench.action.findInFiles") },
                     onCommands = { actions.editorCommand("workbench.action.showCommands") },
