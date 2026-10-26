@@ -703,6 +703,7 @@ class MainActivity : AppCompatActivity() {
             Logger.e(tag, "Launch-time refresh of the exec preload failed", e)
         }
         setContentView(R.layout.activity_main)
+        diligent.onLayoutReady()
 
         // The application context, and that is the whole of what this outlives an
         // Activity by. The manager's engine owns the `saf-writeback` daemon, which

@@ -23,6 +23,15 @@
     <string name="diligent_menu">Menu</string>
     <string name="diligent_no_project">No project open</string>
 
+    <!-- First launch: choose a view -->
+    <string name="diligent_choose_view_title">How do you want to code?</string>
+    <string name="diligent_view_mobile">Mobile view</string>
+    <string name="diligent_view_mobile_badge">Recommended for phones</string>
+    <string name="diligent_view_mobile_body">Touch-first and simple, made for one hand.</string>
+    <string name="diligent_view_desktop">Desktop view</string>
+    <string name="diligent_view_desktop_body">The full VS Code interface. Best with a keyboard, a tablet, DeX or a monitor.</string>
+    <string name="diligent_choose_view_footer">You can switch at any time.</string>
+
     <!-- Shared -->
     <string name="diligent_coming_soon">Coming soon</string>
 </resources>

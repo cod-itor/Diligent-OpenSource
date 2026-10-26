@@ -85,7 +85,7 @@ Add a row whenever a phase edits another VSCodroid file.
 VSCodroid's `versionCode` drives the data migrations in `FirstRunSetup.kt`.
 Do not reset or offset it without reading those migrations first;
 `AGENT_GUIDE.md` Phase 7 settles Diligent's version scheme.
-| `android/app/src/main/kotlin/com/vscodroid/MainActivity.kt` | Holds a `DiligentController`, passes its bridge host to `AndroidBridge`, and one relay branch forwards `diligent*` commands |
+| `android/app/src/main/kotlin/com/vscodroid/MainActivity.kt` | Holds a `DiligentController`, calls its `onLayoutReady()` after `setContentView`, passes its bridge host to `AndroidBridge`, and one relay branch forwards `diligent*` commands |
 | `android/app/src/main/kotlin/com/vscodroid/bridge/AndroidBridge.kt` | `diligent` constructor parameter and the `diligentEditorReady` method |
 | `android/app/src/test/.../bridge/BridgeTokenUniformityTest.kt` | Watches the `diligent` collaborator |
 | `docs/05-API_SPEC.md` | The Diligent relay branch and methods |
