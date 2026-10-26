@@ -1543,6 +1543,19 @@ class AndroidBridge(
         diligent?.editorReady()
     }
 
+    /**
+     * Switches to the view named [view], `mobile` or `desktop`, as if the user
+     * had picked it in Diligent's Settings: the choice is stored and the
+     * native screens and the editor layout follow, without a reload. Sent by
+     * the diligent-bridge extension's "Switch to Mobile view" command and
+     * status bar item. Any other value is ignored.
+     */
+    @JavascriptInterface
+    fun diligentSetView(authToken: String, view: String) {
+        if (!security.validateToken(authToken)) return
+        diligent?.setView(view)
+    }
+
     private fun getVersionName(): String {
         return try {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown"

@@ -38,8 +38,18 @@ const executed = [];
 const registered = new Map();
 // User-level settings as the workbench keeps them: a key absent here is unset.
 const userSettings = new Map();
+const statusItems = [];
 const vscodeStub = {
     ConfigurationTarget: { Global: 1, Workspace: 2 },
+    StatusBarAlignment: { Left: 1, Right: 2 },
+    l10n: { t: (s) => s },
+    window: {
+        createStatusBarItem: (id, alignment, priority) => {
+            const item = { id, alignment, priority, shown: false, show() { this.shown = true; }, hide() { this.shown = false; }, dispose() {} };
+            statusItems.push(item);
+            return item;
+        },
+    },
     workspace: {
         getConfiguration: () => ({
             inspect: (key) => ({ key, globalValue: userSettings.get(key) }),
@@ -195,6 +205,19 @@ async function main() {
     assert.deepStrictEqual(executed.map((e) => e.cmd), ['workbench.action.closePanel', 'workbench.action.focusActiveEditorGroup']);
     assert.strictEqual(bridge.MOBILE_SETTINGS['workbench.panel.opensMaximized'], 'always');
 
+    // ---- switching back from Desktop view ------------------------------------
+
+    const asked = [];
+    await bridge.switchToMobileView(async (method, args) => { asked.push([method, ...args]); });
+    assert.deepStrictEqual(asked, [['diligentSetView', 'mobile']]);
+    const item = { shown: false, show() { this.shown = true; }, hide() { this.shown = false; } };
+    bridge.updateViewItem(item, 'desktop');
+    assert.ok(item.shown, 'Desktop view does not offer Mobile view in the status bar');
+    bridge.updateViewItem(item, 'mobile');
+    assert.ok(!item.shown, 'Mobile view offers itself');
+    bridge.updateViewItem(item, undefined);
+    assert.ok(item.shown, 'before any view is applied the editor is in its desktop layout and should offer Mobile view');
+
     // ---- names ------------------------------------------------------------
 
     assert.strictEqual(bridge.bridgeMethodName('getView'), 'diligentGetView');
@@ -243,6 +266,14 @@ async function main() {
     poster.close();
     assert.deepStrictEqual(executed.map((e) => e.cmd), ['vscode.open'], 'activate ran a refused command');
     assert.strictEqual(executed[0].args[0].path, '/p/x.py');
+    // The status bar item has an id (one shared table across extension hosts)
+    // and runs the contributed command.
+    assert.strictEqual(statusItems.length, 1);
+    assert.strictEqual(statusItems[0].id, 'diligent.mobileView');
+    assert.ok(registered.has('diligent.switchToMobileView'), 'the contributed command is not registered');
+    const manifest = JSON.parse(fs.readFileSync(path.join(path.dirname(EXTENSION), 'package.json'), 'utf8'));
+    assert.deepStrictEqual(manifest.contributes.commands.map((c) => c.command), ['diligent.switchToMobileView']);
+
     for (const id of ['diligent.view.apply', 'diligent.mobile.showEditor', 'diligent.mobile.showTerminal']) {
         assert.ok(registered.has(id), `${id} is allowed but was not registered`);
         assert.ok(bridge.ALLOWED_COMMANDS.has(id), `${id} is registered but Kotlin may not send it`);

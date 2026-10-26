@@ -11,4 +11,7 @@ package com.vscodroid.diligent
 interface DiligentBridgeHost {
     /** The diligent-bridge extension is listening in the page. */
     fun editorReady()
+
+    /** The editor asked for a view (`mobile` or `desktop`); anything else is ignored. */
+    fun setView(view: String)
 }

@@ -13,5 +13,14 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "browser": "./extension.js"
+  "browser": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "diligent.switchToMobileView",
+        "title": "%command.switchToMobileView%",
+        "category": "Diligent"
+      }
+    ]
+  }
 }

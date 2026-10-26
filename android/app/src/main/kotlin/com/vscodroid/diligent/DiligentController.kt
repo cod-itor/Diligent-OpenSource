@@ -216,6 +216,11 @@ class DiligentController(
 
     /** What the `diligent*` bridge methods call. On the JavaBridge thread, so each hops. */
     val bridgeHost: DiligentBridgeHost = object : DiligentBridgeHost {
+        override fun setView(view: String) {
+            val target = AppView.fromKey(view) ?: return
+            activity.runOnUiThread { switchView(target) }
+        }
+
         override fun editorReady() = activity.runOnUiThread {
             editor.editorReady()
             // A new page starts in whatever layout its settings say; bring the

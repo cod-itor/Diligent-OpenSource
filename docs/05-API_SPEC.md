@@ -191,8 +191,8 @@ The OAuth pair described a flow this app does not implement; see §2.5.
 Exposed via `@JavascriptInterface`:
 
 Every method takes the session token and validates it before doing anything; a call
-with a token that does not match is refused before the method acts. Thirty of
-the thirty-six then return an empty value: `false`, `null`, `""`, `"{}"`, `"[]"`,
+with a token that does not match is refused before the method acts. Thirty-one of
+the thirty-seven then return an empty value: `false`, `null`, `""`, `"{}"`, `"[]"`,
 `0`, or nothing. **Six do not, and each is truthy on refusal.**
 `generateSshKey` returns `{"success":false,"error":"unauthorized"}`, so a caller
 testing `if (!result)` reads a refusal as success; test its `success` field.
@@ -208,7 +208,7 @@ with `"[]"`, and both are non-empty strings, so truthy until parsed. Read the to
 added without the check, so this holds for the class rather than for the list below.
 
 **Registered is not the same as reachable, and the difference decides what an extension
-can do.** All 36 methods below live on the `AndroidBridge` object injected into the
+can do.** All 37 methods below live on the `AndroidBridge` object injected into the
 workbench page, so anything running in that page's own realm can call them directly. An
 extension cannot: it runs in the web extension host, which does not see objects added by
 `addJavascriptInterface`. Extensions reach the bridge over the BroadcastChannel relay
@@ -823,6 +823,13 @@ fun diligentEditorReady(authToken: String)
 // marks that page and sends the editor commands it held during the cold start
 // (EditorChannel.editorReady). Sent once per page load, retried until the relay
 // exists. Returns nothing; a refused token does nothing.
+
+@JavascriptInterface
+fun diligentSetView(authToken: String, view: String)
+// Switches to `view`, "mobile" or "desktop", as if the user had picked it in
+// Diligent's Settings: stored per device, native screens and the editor layout
+// follow, no reload. Sent by diligent-bridge's "Diligent: Switch to Mobile view"
+// command and its status bar item. Any other value is ignored. Returns nothing.
 ```
 
 ---

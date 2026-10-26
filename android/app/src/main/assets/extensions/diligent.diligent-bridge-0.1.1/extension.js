@@ -229,6 +229,29 @@ async function showTerminal(api) {
     await api.commands.executeCommand('workbench.action.terminal.focus');
 }
 
+/**
+ * Asks the app to switch to Mobile view. Kotlin stores the choice, brings in
+ * its native screens and sends `diligent.view.apply` back for the editor's
+ * side, so this does not change the layout itself.
+ * @param {(method: string, args: unknown[]) => Promise<unknown>} call
+ */
+function switchToMobileView(call) {
+    return call('diligentSetView', ['mobile']);
+}
+
+/**
+ * The status bar item that offers Mobile view. It only matters in Desktop
+ * view, since Mobile view hides the status bar, and it is hidden there too so
+ * a user who shows the status bar again does not see an offer for the view
+ * they are in.
+ * @param {{ show(): void, hide(): void }} item
+ * @param {unknown} appliedView
+ */
+function updateViewItem(item, appliedView) {
+    if (appliedView === 'mobile') item.hide();
+    else item.show();
+}
+
 /** `getView` -> `diligentGetView`. */
 function bridgeMethodName(/** @type {string} */ name) {
     return 'diligent' + name.charAt(0).toUpperCase() + name.slice(1);
@@ -266,9 +289,23 @@ function activate(context) {
     const logged = (fn) => (/** @type {any[]} */ ...a) => fn(...a).catch((/** @type {unknown} */ err) => {
         console.warn('[Diligent] ' + String(err));
     });
+    const viewItem = vscode.window.createStatusBarItem(
+        'diligent.mobileView', vscode.StatusBarAlignment.Left, 1000);
+    viewItem.name = vscode.l10n.t('Diligent: Mobile view');
+    viewItem.text = '$(device-mobile) ' + vscode.l10n.t('Mobile view');
+    viewItem.tooltip = vscode.l10n.t('Switch to Diligent\'s touch-first Mobile view. Open files and terminals stay as they are.');
+    viewItem.command = 'diligent.switchToMobileView';
+    updateViewItem(viewItem, context.globalState.get(APPLIED_VIEW_KEY));
+
     context.subscriptions.push(
+        viewItem,
         vscode.commands.registerCommand('diligent.view.apply',
-            logged((/** @type {string} */ view) => applyView(view, context.globalState, vscode))),
+            logged(async (/** @type {string} */ view) => {
+                await applyView(view, context.globalState, vscode);
+                updateViewItem(viewItem, context.globalState.get(APPLIED_VIEW_KEY));
+            })),
+        vscode.commands.registerCommand('diligent.switchToMobileView',
+            logged(() => switchToMobileView((method, args) => callBridge(method, args)))),
         vscode.commands.registerCommand('diligent.mobile.showEditor', logged(() => showEditor(vscode))),
         vscode.commands.registerCommand('diligent.mobile.showTerminal', logged(() => showTerminal(vscode))),
     );
@@ -293,6 +330,8 @@ module.exports = {
     BRIDGE_METHODS,
     MOBILE_SETTINGS,
     applyView,
+    switchToMobileView,
+    updateViewItem,
     showEditor,
     showTerminal,
     reviveArgs,
