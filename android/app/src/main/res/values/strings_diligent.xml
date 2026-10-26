@@ -286,6 +286,62 @@
     <string name="diligent_view_desktop_body">The full VS Code layout, as on a computer. Best with a keyboard, a tablet or a big screen.</string>
     <string name="diligent_choose_view_footer">You can switch at any time, in Settings or the menu at the top.</string>
 
+    <!-- Running tasks: the foreground notification, and the notice after a task is killed -->
+    <string name="diligent_tasks_one_running">%1$s is running</string>
+    <plurals name="diligent_tasks_running">
+        <item quantity="one">%d task is running</item>
+        <item quantity="other">%d tasks are running</item>
+    </plurals>
+    <string name="diligent_task_label">%1$s (%2$s)</string>
+    <string name="diligent_task_line_running">%1$s: running</string>
+    <string name="diligent_task_line_restarting">%1$s: starting again</string>
+    <string name="diligent_task_stop">Stop %1$s</string>
+    <string name="diligent_task_stop_all">Stop all tasks</string>
+    <string name="diligent_task_channel">Task problems</string>
+    <string name="diligent_task_channel_description">When Android stops a task you started, and what to check.</string>
+    <string name="diligent_task_problem_stopped">%1$s stopped</string>
+    <string name="diligent_task_problem_restarting">%1$s was stopped and is starting again</string>
+    <string name="diligent_task_problem_text">%1$s Tap to open Health and see what to change.</string>
+    <string name="diligent_task_cause_low_memory">The phone ran low on memory.</string>
+    <string name="diligent_task_cause_process_limit">Android\'s limit on background processes was reached.</string>
+    <string name="diligent_task_cause_port_busy">Another program is using its port.</string>
+    <string name="diligent_task_cause_killed">Android closed it in the background.</string>
+    <string name="diligent_task_cause_exit">It ended with an error.</string>
+
+    <!-- Health -->
+    <string name="diligent_health_intro">These checks keep what you start running while the phone is in your pocket.</string>
+    <string name="diligent_health_pass">Passed</string>
+    <string name="diligent_health_fail">Needs a fix</string>
+    <string name="diligent_health_cannot_check">Cannot check</string>
+    <string name="diligent_health_check_again">Check again</string>
+    <string name="diligent_health_copy">Copy command</string>
+    <string name="diligent_health_copied">Copied</string>
+    <string name="diligent_health_unreadable">Diligent could not read this setting on this phone.</string>
+    <string name="diligent_health_battery">Battery optimization</string>
+    <string name="diligent_health_battery_pass">Android lets Diligent keep working in the background.</string>
+    <string name="diligent_health_battery_fail">Android may pause your tasks to save battery. In the list, choose All apps, then Diligent, then Don\'t optimize.</string>
+    <string name="diligent_health_children">Child process limit</string>
+    <string name="diligent_health_children_pass">Android will not stop the programs your tasks start.</string>
+    <string name="diligent_health_children_fail">Android may stop programs your tasks start, such as a dev server. Turn the limit off in Developer options:</string>
+    <string name="diligent_health_children_unknown">Diligent cannot read this setting on this phone. Check it in Developer options:</string>
+    <string name="diligent_health_children_steps">1. Open Settings, then About phone, and tap Build number seven times.\n2. Go back and open Developer options (under System on some phones).\n3. Turn on Disable child process restrictions.</string>
+    <string name="diligent_health_adb_body">Android 12 and 13 stop extra programs your tasks start once there are more than 32. Only a computer can lift this limit: turn on Wireless debugging in Developer options, connect with adb, then run these commands in order.</string>
+    <string name="diligent_health_notifications">Notifications</string>
+    <string name="diligent_health_notifications_pass">Diligent can show running tasks and tell you when one stops.</string>
+    <string name="diligent_health_notifications_fail">Diligent cannot show running tasks or tell you when one stops.</string>
+    <string name="diligent_health_storage">Free storage</string>
+    <string name="diligent_health_storage_pass">%1$s free.</string>
+    <string name="diligent_health_storage_fail">Only %1$s free. Installing packages and building need at least 1 GB.</string>
+    <string name="diligent_health_processes">Running processes</string>
+    <string name="diligent_health_processes_pass">%1$d of %2$d in use.</string>
+    <string name="diligent_health_processes_fail">%1$d of %2$d in use. Near the limit Android stops programs. Stop the tasks you do not need.</string>
+    <string name="diligent_health_processes_unknown">Counted while a project is open in the editor. Open one and check again.</string>
+    <string name="diligent_health_fix_battery">Open battery settings</string>
+    <string name="diligent_health_fix_developer">Open Developer options</string>
+    <string name="diligent_health_fix_notifications">Open notification settings</string>
+    <string name="diligent_health_fix_storage">Open storage settings</string>
+    <string name="diligent_health_fix_run">Open Run</string>
+
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>

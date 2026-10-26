@@ -49,7 +49,11 @@ const ALLOWED_COMMANDS = new Set([
     'workbench.action.findInFiles',
     'actions.find',
     'workbench.action.showCommands',
-    'undo',
+    // Undo: the snapshot list (diligent-core), so a beginner can go back to
+    // an earlier version of the project rather than one keystroke.
+    'diligent.snapshot.showList',
+    // The task notification's Stop: ends one supervised task by its id (diligent-core).
+    'diligent.core.stopTask',
     // Settings: the editor's own settings, from Mobile view's Settings screen.
     'workbench.action.openSettings',
 ]);
@@ -93,7 +97,11 @@ const SAVED_SETTINGS_KEY = 'diligent.savedDesktopSettings';
  * each forwarding to `AndroidBridge.diligent<Name>`.
  * @type {string[]}
  */
-const BRIDGE_METHODS = [];
+const BRIDGE_METHODS = [
+    // diligent-core's supervisor: its tasks as JSON, for the notification,
+    // the wake lock and Health (AndroidBridge.diligentUpdateTasks).
+    'updateTasks',
+];
 
 /** How long a bridge call may take before it is reported as unanswered. */
 const BRIDGE_TIMEOUT_MS = 5000;

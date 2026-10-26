@@ -14,4 +14,10 @@ interface DiligentBridgeHost {
 
     /** The editor asked for a view (`mobile` or `desktop`); anything else is ignored. */
     fun setView(view: String)
+
+    /**
+     * The supervisor's tasks, as JSON (see `diligentUpdateTasks` in
+     * docs/05-API_SPEC.md). Text that does not parse is ignored.
+     */
+    fun updateTasks(json: String)
 }

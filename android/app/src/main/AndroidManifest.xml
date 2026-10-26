@@ -15,6 +15,9 @@
     <!-- Notifications: server status in notification shade -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Diligent: a partial wake lock while a task the user started runs (diligent/TaskKeeper.kt) -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <!-- largeHeap raises the ART heap CAP for this process and nothing else:
          it does not reserve memory and no Kotlin here reads it. On an API 33
          arm64 device with 4 GB of RAM the cap moves from

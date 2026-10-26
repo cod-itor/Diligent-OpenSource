@@ -300,6 +300,14 @@ async function main() {
     assert.ok(registered.has('diligent.switchToMobileView'), 'the contributed command is not registered');
     const manifest = JSON.parse(fs.readFileSync(path.join(path.dirname(EXTENSION), 'package.json'), 'utf8'));
     assert.deepStrictEqual(manifest.contributes.commands.map((c) => c.command), ['diligent.switchToMobileView']);
+    // Never lose work: auto-save one second after typing stops. A contributed
+    // default, in the DEFAULT layer, so the user's own choice in the Settings
+    // editor still wins (FirstRunSetup.writeDefaultSettings explains why the
+    // machine settings file cannot hold a preference).
+    assert.deepStrictEqual(manifest.contributes.configurationDefaults, {
+        'files.autoSave': 'afterDelay',
+        'files.autoSaveDelay': 1000,
+    });
 
     for (const id of ['diligent.view.apply', 'diligent.mobile.showEditor', 'diligent.mobile.showTerminal']) {
         assert.ok(registered.has(id), `${id} is allowed but was not registered`);

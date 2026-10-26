@@ -1,6 +1,7 @@
 package com.vscodroid.diligent
 
 import android.content.Context
+import android.content.Intent
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,10 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
@@ -22,6 +26,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
@@ -36,6 +41,8 @@ import com.vscodroid.diligent.ui.TopChrome
 import com.vscodroid.diligent.ui.components.ViewSuggestionCard
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.screens.ChooseViewScreen
+import com.vscodroid.diligent.ui.screens.DetailHeader
+import com.vscodroid.diligent.ui.screens.HealthScreen
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 import kotlinx.coroutines.launch
 
@@ -352,7 +359,65 @@ class DiligentController(
             }
         }
 
+        override fun updateTasks(json: String) {
+            // Parsed here, off the UI thread; text that does not parse is dropped.
+            val update = TaskUpdate.parse(json) ?: return
+            activity.runOnUiThread { onTasks(update) }
+        }
     }
+
+    /** The supervisor's tasks changed: the notification, the wake lock and Health follow. */
+    private fun onTasks(update: TaskUpdate) = TaskKeeper.update(activity, update)
+
+    /**
+     * An intent reached the activity (launch or `onNewIntent`): a Stop tapped
+     * on the task notification, or the notice after a killed task. Anything
+     * else is not Diligent's and is ignored.
+     */
+    fun onIntent(intent: Intent?) {
+        TaskKeeper.stopIds(intent).forEach { editor.run(TaskKeeper.COMMAND_STOP_TASK, it) }
+        if (intent?.action == TaskKeeper.ACTION_OPEN_HEALTH) openHealth()
+    }
+
+    /**
+     * Shows Health: in Mobile view as More's Health screen; in Desktop view,
+     * which has no tabs and is never switched for the user, over the editor
+     * until Back or the back arrow.
+     */
+    private fun openHealth() {
+        if (shell.view == AppView.Mobile) {
+            shell.healthRequested = true
+            actions.openTab(MobileTab.More)
+            return
+        }
+        if (healthOverlay != null) return
+        val overlay = ComposeView(activity)
+        val close = {
+            (overlay.parent as? ViewGroup)?.removeView(overlay)
+            healthOverlay = null
+        }
+        overlay.setContent {
+            DiligentTheme {
+                BackHandler { close() }
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .background(DiligentTheme.colors.background)
+                        .windowInsetsPadding(WindowInsets.safeDrawing),
+                ) {
+                    DetailHeader(stringResource(R.string.diligent_more_health), onBack = close)
+                    HealthScreen(onOpenRun = null, modifier = Modifier.weight(1f))
+                }
+            }
+        }
+        healthOverlay = overlay
+        activity.addContentView(
+            overlay,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
+        )
+    }
+
+    private var healthOverlay: View? = null
 
     companion object {
         /** Commands the diligent-bridge extension contributes and allows. */

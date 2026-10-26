@@ -20,7 +20,7 @@ data class Chrome(
     val topBar: Boolean,
     /** A native screen (Projects, Files, More) covering the editor. */
     val nativeScreen: Boolean,
-    /** Run, Preview, Save, Search, Command palette, Undo, under the editor. */
+    /** Run, Preview, Save, Search, Command palette, Undo (the snapshot list), under the editor. */
     val actionBar: Boolean,
     /** The five tabs, at the bottom. */
     val tabBar: Boolean,
@@ -76,6 +76,12 @@ class MobileShell(view: AppView?) {
      * the More tab opens its Run screen directly and clears this.
      */
     var runRequested by mutableStateOf(false)
+
+    /**
+     * Set when the notification after a killed task is tapped: the More tab
+     * opens its Health screen directly and clears this.
+     */
+    var healthRequested by mutableStateOf(false)
 
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)

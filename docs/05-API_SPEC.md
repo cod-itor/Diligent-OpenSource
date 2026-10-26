@@ -208,7 +208,7 @@ with `"[]"`, and both are non-empty strings, so truthy until parsed. Read the to
 added without the check, so this holds for the class rather than for the list below.
 
 **Registered is not the same as reachable, and the difference decides what an extension
-can do.** All 37 methods below live on the `AndroidBridge` object injected into the
+can do.** All 38 methods below live on the `AndroidBridge` object injected into the
 workbench page, so anything running in that page's own realm can call them directly. An
 extension cannot: it runs in the web extension host, which does not see objects added by
 `addJavascriptInterface`. Extensions reach the bridge over the BroadcastChannel relay
@@ -834,6 +834,24 @@ fun diligentSetView(authToken: String, view: String)
 // Diligent's Settings: stored per device, native screens and the editor layout
 // follow, no reload. Sent by diligent-bridge's "Diligent: Switch to Mobile view"
 // command and its status bar item. Any other value is ignored. Returns nothing.
+
+@JavascriptInterface
+fun diligentUpdateTasks(authToken: String, json: String)
+// The diligent-core supervisor's tasks, sent whenever they change. `json` is
+//   {"tasks":[{"id":"<tmux session>","name":"<profile name>",
+//              "project":"<project folder>",
+//              "state":"running|restarting|failed|stopped",
+//              "cause":"low-memory|process-limit|port-busy|killed|exit"|null,
+//              "message":"<plain sentence>"|null,"restarts":<n>}],
+//    "processes":<n>|null,"processLimit":32}
+// TaskKeeper lists the running and restarting tasks on the foreground
+// notification, each with a Stop that sends `diligent.core.stopTask(id)` back to
+// the editor, holds a partial wake lock while any of them runs, and posts a
+// notification that opens Health when a task is killed or fails for a named
+// cause. `processes` feeds Health's process count. Parsed defensively: text that
+// is not a JSON object with a `tasks` array is ignored, and a task without an
+// `id` or with an unknown `state` is skipped. Returns nothing; a refused token
+// does nothing.
 ```
 
 ---

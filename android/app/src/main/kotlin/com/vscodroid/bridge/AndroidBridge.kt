@@ -1556,6 +1556,18 @@ class AndroidBridge(
         diligent?.setView(view)
     }
 
+    /**
+     * The diligent-core supervisor's tasks changed: [json] is
+     * `{"tasks":[...],"processes":n,"processLimit":32}` as docs/05-API_SPEC.md
+     * describes. Diligent lists the running ones on the foreground notification
+     * and keeps the phone awake while any runs. JSON it cannot read is ignored.
+     */
+    @JavascriptInterface
+    fun diligentUpdateTasks(authToken: String, json: String) {
+        if (!security.validateToken(authToken)) return
+        diligent?.updateTasks(json)
+    }
+
     private fun getVersionName(): String {
         return try {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown"

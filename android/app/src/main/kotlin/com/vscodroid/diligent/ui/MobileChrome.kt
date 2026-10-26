@@ -90,7 +90,11 @@ fun BottomChrome(shell: MobileShell, actions: MobileActions) {
                     // searching the project opens a side bar Mobile view hides.
                     onSearch = { actions.editorCommand("actions.find") },
                     onCommands = { actions.editorCommand("workbench.action.showCommands") },
-                    onUndo = { actions.editorCommand("undo") },
+                    // The snapshot list (diligent-core): every saved version of
+                    // the project by time and reason, so a beginner who broke
+                    // something can go back without knowing Git. Still labelled
+                    // Undo, the word a beginner looks for at that moment.
+                    onUndo = { actions.editorCommand("diligent.snapshot.showList") },
                 ),
             )
         }
