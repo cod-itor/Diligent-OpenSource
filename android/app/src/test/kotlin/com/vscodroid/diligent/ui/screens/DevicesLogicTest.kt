@@ -137,3 +137,20 @@ class SyncLogicTest {
         assertEquals(0f, progressOf(-1, 4))
     }
 }
+
+class HomePathTest {
+
+    @Test
+    fun `a path under home reads with a tilde`() {
+        assertEquals("~/projects/shop", homePath("/data/home/projects/shop", "/data/home/projects"))
+        assertEquals("~/projects/shop", homePath("/data/home/projects/shop", "/data/home/projects/"))
+        assertEquals("~", homePath("/data/home", "/data/home/projects"))
+    }
+
+    @Test
+    fun `other paths stay as they are`() {
+        assertEquals("/sdcard/shop", homePath("/sdcard/shop", "/data/home/projects"))
+        assertEquals("/data/homework/x", homePath("/data/homework/x", "/data/home/projects"))
+        assertEquals("/x/shop", homePath("/x/shop", "projects"))
+    }
+}

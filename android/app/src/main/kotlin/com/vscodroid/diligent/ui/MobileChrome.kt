@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -24,11 +25,14 @@ import com.vscodroid.diligent.ui.components.standardEditorActions
 import com.vscodroid.diligent.ui.components.suggestionActions
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.screens.FilesScreen
+import com.vscodroid.diligent.ui.screens.IncomingProjectDialog
 import com.vscodroid.diligent.ui.screens.MoreScreen
 import com.vscodroid.diligent.ui.screens.PairingSheet
 import com.vscodroid.diligent.ui.screens.PreviewActions
 import com.vscodroid.diligent.ui.screens.ProjectsScreen
+import com.vscodroid.diligent.ui.screens.SyncPickerSheet
 import com.vscodroid.diligent.ui.screens.SyncSheet
+import com.vscodroid.diligent.ui.screens.syncTargets
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /*
@@ -50,6 +54,16 @@ fun TopChrome(shell: MobileShell, actions: MobileActions) {
             MenuAction(stringResource(R.string.diligent_menu_desktop_view), Icons.Outlined.DesktopWindows) {
                 actions.switchView(AppView.Desktop)
             },
+            MenuAction(stringResource(R.string.diligent_menu_sync), Icons.Outlined.Sync) {
+                // One reachable device: straight to its plan. Otherwise pick one, or learn why there is none.
+                val folder = shell.folder
+                val targets = syncTargets(actions.devices.state.value)
+                if (folder != null && targets.size == 1) {
+                    actions.devices.planSync(targets.single().deviceId, folder)
+                } else {
+                    shell.syncPickerOpen = true
+                }
+            },
             MenuAction(stringResource(R.string.diligent_menu_share), Icons.Outlined.Share) {
                 shell.shareRequested = true
                 actions.openTab(MobileTab.More)
@@ -66,7 +80,7 @@ fun TopChrome(shell: MobileShell, actions: MobileActions) {
  */
 @Composable
 fun NativeScreens(shell: MobileShell, actions: MobileActions) {
-    if (shell.view == AppView.Mobile) DevicePrompts(actions)
+    if (shell.view == AppView.Mobile) DevicePrompts(shell, actions)
     if (!shell.chrome.nativeScreen) return
     when (shell.tab) {
         MobileTab.Projects -> ProjectsScreen(shell, actions)
@@ -78,11 +92,26 @@ fun NativeScreens(shell: MobileShell, actions: MobileActions) {
 
 /** What diligent-link asks of the user wherever they are in Mobile view. */
 @Composable
-private fun DevicePrompts(actions: MobileActions) {
+private fun DevicePrompts(shell: MobileShell, actions: MobileActions) {
     val link = actions.devices
     val state by link.state.collectAsStateWithLifecycle()
     state.pairing?.let { PairingSheet(it, link) }
     state.sync?.let { SyncSheet(it, link, onOpenTerminal = { actions.openTab(MobileTab.Terminal) }) }
+    if (shell.syncPickerOpen) {
+        SyncPickerSheet(
+            state = state,
+            projectPath = shell.folder,
+            onPick = { device -> shell.folder?.let { link.planSync(device.deviceId, it) } },
+            onOpenDevices = {
+                shell.devicesRequested = true
+                actions.openTab(MobileTab.More)
+            },
+            onDismiss = { shell.syncPickerOpen = false },
+        )
+    }
+    state.incomingProject?.let { incoming ->
+        IncomingProjectDialog(incoming, actions.projectsDir, onAnswer = link::answerIncomingProject)
+    }
 }
 
 /** Under the editor: the action bar on the Editor tab, then the tab bar. */

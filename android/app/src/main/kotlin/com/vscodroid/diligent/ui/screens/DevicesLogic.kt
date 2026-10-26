@@ -152,3 +152,17 @@ fun PlanPart.pluralRes(): Int = when (this) {
 /** How far the transfer is, from 0 to 1; 0 before the count is known. */
 fun progressOf(doneFiles: Int, totalFiles: Int): Float =
     if (totalFiles <= 0) 0f else doneFiles.coerceIn(0, totalFiles).toFloat() / totalFiles
+
+/**
+ * [path] as a beginner reads it: `~/projects/shop` when it is under the
+ * home folder that holds [projectsDir], else unchanged.
+ */
+fun homePath(path: String, projectsDir: String): String {
+    val home = projectsDir.trimEnd('/').substringBeforeLast('/', missingDelimiterValue = "")
+    if (home.isEmpty()) return path
+    return when {
+        path == home -> "~"
+        path.startsWith("$home/") -> "~/" + path.removePrefix("$home/")
+        else -> path
+    }
+}

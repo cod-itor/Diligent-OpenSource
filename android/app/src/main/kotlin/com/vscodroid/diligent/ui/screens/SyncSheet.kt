@@ -18,8 +18,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Devices
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
@@ -29,6 +31,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,9 +51,13 @@ import androidx.compose.ui.window.DialogProperties
 import com.vscodroid.R
 import com.vscodroid.diligent.devices.ConflictChoice
 import com.vscodroid.diligent.devices.DeviceLink
+import com.vscodroid.diligent.devices.DevicesState
+import com.vscodroid.diligent.devices.IncomingProject
+import com.vscodroid.diligent.devices.PairedDevice
 import com.vscodroid.diligent.devices.LinkRoute
 import com.vscodroid.diligent.devices.SyncConflict
 import com.vscodroid.diligent.devices.SyncUi
+import com.vscodroid.diligent.ui.components.ListRow
 import com.vscodroid.diligent.ui.components.SheetButtons
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 
@@ -353,6 +360,85 @@ private fun ChoiceButtons(onChoose: (ConflictChoice) -> Unit) {
     }
 }
 
+/**
+ * The top bar's Sync, when it cannot start at once: pick one of the
+ * reachable paired devices, or learn why there is none and go to Devices.
+ */
+@Composable
+fun SyncPickerSheet(state: DevicesState, projectPath: String?, onPick: (PairedDevice) -> Unit, onOpenDevices: () -> Unit, onDismiss: () -> Unit) {
+    DiligentSheet(onDismiss = onDismiss) { hide ->
+        SyncPickerContent(
+            state = state,
+            projectPath = projectPath,
+            onPick = { device -> hide { onPick(device) } },
+            onOpenDevices = { hide(onOpenDevices) },
+            onClose = { hide {} },
+        )
+    }
+}
+
+@Composable
+internal fun SyncPickerContent(
+    state: DevicesState,
+    projectPath: String?,
+    onPick: (PairedDevice) -> Unit,
+    onOpenDevices: () -> Unit,
+    onClose: () -> Unit,
+) {
+    val targets = syncTargets(state)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = DiligentTheme.spacing.l)
+            .navigationBarsPadding(),
+        verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.s),
+    ) {
+        val inset = Modifier.padding(horizontal = DiligentTheme.spacing.l)
+        when {
+            projectPath == null -> {
+                DevicesBody(stringResource(R.string.diligent_sync_pick_no_project), inset)
+                Row(inset) { WideButton(R.string.diligent_devices_close, onClose) }
+            }
+            targets.isEmpty() -> {
+                DevicesBody(stringResource(R.string.diligent_sync_pick_none), inset)
+                Row(inset) { WideButton(R.string.diligent_sync_open_devices, onOpenDevices) }
+            }
+            else -> {
+                DevicesTitle(stringResource(R.string.diligent_sync_pick_title, projectPath.substringAfterLast('/')), inset)
+                for (device in targets) {
+                    ListRow(
+                        title = device.name,
+                        icon = Icons.Outlined.Devices,
+                        subtitle = stringResource(statusRes(device.route)),
+                        onClick = { onPick(device) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** "Receive project shop into ~/projects/shop?", from another device. */
+@Composable
+fun IncomingProjectDialog(incoming: IncomingProject, projectsDir: String, onAnswer: (Boolean) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onAnswer(false) },
+        title = { Text(stringResource(R.string.diligent_incoming_title, incoming.name, homePath(incoming.targetPath, projectsDir))) },
+        text = { Text(stringResource(R.string.diligent_incoming_body, incoming.fromDevice, incoming.name)) },
+        confirmButton = {
+            TextButton(onClick = { onAnswer(true) }, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
+                Text(stringResource(R.string.diligent_incoming_receive))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onAnswer(false) }, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
+                Text(stringResource(R.string.diligent_incoming_not_now))
+            }
+        },
+    )
+}
+
 // -- Previews --
 
 private val SyncSamples = listOf(
@@ -425,3 +511,36 @@ private fun ConflictWidePreview() = DiligentTheme(darkTheme = true) { ConflictSc
 private fun ConflictBinaryPreview() = DiligentTheme(darkTheme = false) {
     ConflictScreen(PreviewConflicts.copy(conflicts = PreviewConflicts.conflicts.drop(1)), { _, _ -> }, {})
 }
+
+@Composable
+private fun PickerSamples() {
+    Column(verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.s)) {
+        for ((state, project) in listOf(
+            PreviewDevicesState to "/home/projects/hello-next",
+            PreviewDevicesState.copy(myDevices = emptyList()) to "/home/projects/hello-next",
+            PreviewDevicesState to null,
+        )) {
+            Surface(color = DiligentTheme.colors.scheme.surfaceContainerLow) {
+                Column(Modifier.padding(top = DiligentTheme.spacing.l)) { SyncPickerContent(state, project, {}, {}, {}) }
+            }
+        }
+    }
+}
+
+@Preview(name = "Sync picker, light", widthDp = 360, heightDp = 800)
+@Composable
+private fun PickerLightPreview() = DiligentTheme(darkTheme = false) { PickerSamples() }
+
+@Preview(name = "Sync picker, dark", widthDp = 360, heightDp = 800)
+@Composable
+private fun PickerDarkPreview() = DiligentTheme(darkTheme = true) { PickerSamples() }
+
+private val PreviewIncoming = IncomingProject("shop", "Toto's Laptop", "/home/projects/shop")
+
+@Preview(name = "Incoming project, light", widthDp = 360, heightDp = 400)
+@Composable
+private fun IncomingLightPreview() = DiligentTheme(darkTheme = false) { IncomingProjectDialog(PreviewIncoming, "/home/projects") {} }
+
+@Preview(name = "Incoming project, dark, large font", widthDp = 360, heightDp = 600, fontScale = 2f)
+@Composable
+private fun IncomingDarkPreview() = DiligentTheme(darkTheme = true) { IncomingProjectDialog(PreviewIncoming, "/home/projects") {} }
