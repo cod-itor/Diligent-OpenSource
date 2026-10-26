@@ -5,6 +5,7 @@ import com.vscodroid.diligent.devices.Approval
 import com.vscodroid.diligent.devices.DevicesState
 import com.vscodroid.diligent.devices.LinkRoute
 import com.vscodroid.diligent.devices.PairedDevice
+import com.vscodroid.diligent.devices.SyncUi
 import com.vscodroid.diligent.projects.RelativeTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -102,5 +103,37 @@ class PairingLogicTest {
         assertEquals("2:00", countdownText(120))
         assertEquals("1:05", countdownText(65))
         assertEquals("0:09", countdownText(9))
+    }
+}
+
+class SyncLogicTest {
+
+    private fun plan(here: List<String>, there: List<String>, both: List<String>) =
+        SyncUi.Plan("Laptop", here, there, both, LinkRoute.Wifi)
+
+    @Test
+    fun `the plan lists the kinds that have files, in order`() {
+        val groups = planGroups(plan(listOf("a", "b", "c"), listOf("d"), listOf("e")))
+        assertEquals(listOf(PlanPart.NewerHere, PlanPart.NewerThere, PlanPart.ChangedOnBoth), groups.map { it.part })
+        assertEquals(listOf(3, 1, 1), groups.map { it.paths.size })
+    }
+
+    @Test
+    fun `empty kinds are left out, and a plan with nothing is empty`() {
+        assertEquals(listOf(PlanPart.NewerThere), planGroups(plan(emptyList(), listOf("d"), emptyList())).map { it.part })
+        assertEquals(emptyList<PlanGroup>(), planGroups(plan(emptyList(), emptyList(), emptyList())))
+    }
+
+    @Test
+    fun `each kind has its own plural`() {
+        assertEquals(PlanPart.entries.size, PlanPart.entries.map { it.pluralRes() }.toSet().size)
+    }
+
+    @Test
+    fun `progress is a fraction that never goes past the ends`() {
+        assertEquals(0f, progressOf(0, 0))
+        assertEquals(0.5f, progressOf(2, 4))
+        assertEquals(1f, progressOf(9, 4))
+        assertEquals(0f, progressOf(-1, 4))
     }
 }

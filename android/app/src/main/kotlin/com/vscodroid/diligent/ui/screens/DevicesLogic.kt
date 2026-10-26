@@ -1,10 +1,12 @@
 package com.vscodroid.diligent.ui.screens
 
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import com.vscodroid.R
 import com.vscodroid.diligent.devices.DevicesState
 import com.vscodroid.diligent.devices.LinkRoute
 import com.vscodroid.diligent.devices.PairedDevice
+import com.vscodroid.diligent.devices.SyncUi
 import com.vscodroid.diligent.projects.RelativeTime
 
 /*
@@ -125,3 +127,28 @@ fun secondsLeft(expiresAtMs: Long, now: Long): Int {
 
 /** "1:05" for 65 seconds. */
 fun countdownText(seconds: Int): String = "${seconds / 60}:${(seconds % 60).toString().padStart(2, '0')}"
+
+/** The three kinds of file in a sync plan, in the order the plan shows them. */
+enum class PlanPart { NewerHere, NewerThere, ChangedOnBoth }
+
+/** One kind of file in the plan, with its paths, for an expandable list. */
+data class PlanGroup(val part: PlanPart, val paths: List<String>)
+
+/** The plan's groups that have files; empty when both sides are already the same. */
+fun planGroups(plan: SyncUi.Plan): List<PlanGroup> = listOf(
+    PlanGroup(PlanPart.NewerHere, plan.newerHere),
+    PlanGroup(PlanPart.NewerThere, plan.newerThere),
+    PlanGroup(PlanPart.ChangedOnBoth, plan.changedOnBoth),
+).filter { it.paths.isNotEmpty() }
+
+/** The plural behind "3 files newer here", "1 file newer on Laptop", "1 file changed on both". */
+@PluralsRes
+fun PlanPart.pluralRes(): Int = when (this) {
+    PlanPart.NewerHere -> R.plurals.diligent_sync_newer_here
+    PlanPart.NewerThere -> R.plurals.diligent_sync_newer_there
+    PlanPart.ChangedOnBoth -> R.plurals.diligent_sync_changed_both
+}
+
+/** How far the transfer is, from 0 to 1; 0 before the count is known. */
+fun progressOf(doneFiles: Int, totalFiles: Int): Float =
+    if (totalFiles <= 0) 0f else doneFiles.coerceIn(0, totalFiles).toFloat() / totalFiles

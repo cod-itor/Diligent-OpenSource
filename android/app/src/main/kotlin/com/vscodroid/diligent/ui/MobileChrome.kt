@@ -15,7 +15,6 @@ import com.vscodroid.R
 import com.vscodroid.diligent.AppView
 import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.MobileShell
-import com.vscodroid.diligent.devices.DeviceLink
 import com.vscodroid.diligent.run.WatchRun
 import com.vscodroid.diligent.ui.components.DiligentTabBar
 import com.vscodroid.diligent.ui.components.DiligentTopBar
@@ -29,6 +28,7 @@ import com.vscodroid.diligent.ui.screens.MoreScreen
 import com.vscodroid.diligent.ui.screens.PairingSheet
 import com.vscodroid.diligent.ui.screens.PreviewActions
 import com.vscodroid.diligent.ui.screens.ProjectsScreen
+import com.vscodroid.diligent.ui.screens.SyncSheet
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /*
@@ -66,7 +66,7 @@ fun TopChrome(shell: MobileShell, actions: MobileActions) {
  */
 @Composable
 fun NativeScreens(shell: MobileShell, actions: MobileActions) {
-    if (shell.view == AppView.Mobile) DevicePrompts(actions.devices)
+    if (shell.view == AppView.Mobile) DevicePrompts(actions)
     if (!shell.chrome.nativeScreen) return
     when (shell.tab) {
         MobileTab.Projects -> ProjectsScreen(shell, actions)
@@ -78,9 +78,11 @@ fun NativeScreens(shell: MobileShell, actions: MobileActions) {
 
 /** What diligent-link asks of the user wherever they are in Mobile view. */
 @Composable
-private fun DevicePrompts(link: DeviceLink) {
+private fun DevicePrompts(actions: MobileActions) {
+    val link = actions.devices
     val state by link.state.collectAsStateWithLifecycle()
     state.pairing?.let { PairingSheet(it, link) }
+    state.sync?.let { SyncSheet(it, link, onOpenTerminal = { actions.openTab(MobileTab.Terminal) }) }
 }
 
 /** Under the editor: the action bar on the Editor tab, then the tab bar. */

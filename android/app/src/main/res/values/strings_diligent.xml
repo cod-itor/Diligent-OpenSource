@@ -617,6 +617,63 @@
     <string name="diligent_pair_failed_title">Could not pair with %1$s</string>
     <string name="diligent_pair_done">Done</string>
 
+    <!-- Sync -->
+    <string name="diligent_sync_planning_title">Comparing with %1$s</string>
+    <string name="diligent_sync_planning_body">Saving your open files and checking what changed on each device.</string>
+    <string name="diligent_sync_plan_title">Sync with %1$s</string>
+    <string name="diligent_sync_plan_separator">", "</string>
+    <plurals name="diligent_sync_newer_here">
+        <item quantity="one">%1$d file newer here</item>
+        <item quantity="other">%1$d files newer here</item>
+    </plurals>
+    <plurals name="diligent_sync_newer_there">
+        <item quantity="one">%1$d file newer on %2$s</item>
+        <item quantity="other">%1$d files newer on %2$s</item>
+    </plurals>
+    <plurals name="diligent_sync_changed_both">
+        <item quantity="one">%1$d file changed on both</item>
+        <item quantity="other">%1$d files changed on both</item>
+    </plurals>
+    <string name="diligent_sync_plan_same">Everything is already the same on both devices.</string>
+    <string name="diligent_sync_plan_safety">Both devices save a snapshot first, so you can undo this sync. Files changed on both are not overwritten: you choose.</string>
+    <string name="diligent_sync_show_files">Show files</string>
+    <string name="diligent_sync_hide_files">Hide files</string>
+    <string name="diligent_sync_start">Sync</string>
+    <string name="diligent_sync_transferring_title">Syncing with %1$s</string>
+    <plurals name="diligent_sync_transferring_count">
+        <item quantity="one">%1$d of %2$d file</item>
+        <item quantity="other">%1$d of %2$d files</item>
+    </plurals>
+    <string name="diligent_sync_stop">Stop sync</string>
+    <string name="diligent_sync_done_title">Sync finished</string>
+    <plurals name="diligent_sync_done_sent">
+        <item quantity="one">%1$d file sent to %2$s</item>
+        <item quantity="other">%1$d files sent to %2$s</item>
+    </plurals>
+    <plurals name="diligent_sync_done_received">
+        <item quantity="one">%1$d file received from %2$s</item>
+        <item quantity="other">%1$d files received from %2$s</item>
+    </plurals>
+    <string name="diligent_sync_install_title">Packages changed</string>
+    <string name="diligent_sync_install_body">A package list or lock file changed. If the project does not start, update its packages with %1$s. This is optional: you can do it now or later.</string>
+    <string name="diligent_sync_install_button">Run %1$s?</string>
+    <string name="diligent_sync_install_how">Opens the Terminal. Type the command there and press Enter. Nothing runs by itself.</string>
+    <string name="diligent_sync_failed_title">Sync did not finish</string>
+    <!-- Conflicts: side-by-side compare -->
+    <string name="diligent_sync_conflict_title">Changed on both devices</string>
+    <plurals name="diligent_sync_conflicts_left">
+        <item quantity="one">%d file left to choose</item>
+        <item quantity="other">%d files left to choose</item>
+    </plurals>
+    <string name="diligent_sync_conflict_body">Your copy and the copy from %1$s are different. Choose which to keep. Keep both saves theirs next to yours with (from %1$s) in its name.</string>
+    <string name="diligent_sync_conflict_mine">On this phone</string>
+    <string name="diligent_sync_conflict_theirs">On %1$s</string>
+    <string name="diligent_sync_conflict_binary">This file is not text, so it cannot be shown here.</string>
+    <string name="diligent_sync_conflict_empty">(empty file)</string>
+    <string name="diligent_sync_keep_mine">Keep mine</string>
+    <string name="diligent_sync_keep_theirs">Keep theirs</string>
+    <string name="diligent_sync_keep_both">Keep both</string>
+
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>
