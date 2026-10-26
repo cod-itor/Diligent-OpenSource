@@ -50,7 +50,9 @@ class GitClone(
 
     suspend fun clone(url: String, parent: File, name: String, onLine: (String) -> Unit = {}): CloneOutcome {
         val target = File(parent, ProjectNames.clean(name))
-        val problem = withContext(io) {
+        // Not cancellable: a Stop landing between mkdir and the try below
+        // would leave an empty folder that blocks the next attempt.
+        val problem = withContext(NonCancellable + io) {
             ProjectNames.problemIn(parent, name) ?: run {
                 parent.mkdirs()
                 if (target.mkdir()) null else NameProblem.Exists
@@ -67,7 +69,7 @@ class GitClone(
             }
             return CloneOutcome.Failed(result.lastLines)
         } finally {
-            if (!kept) withContext(NonCancellable + io) { removeTree(target.toPath()) }
+            if (!kept) withContext(NonCancellable + io) { removeUntilGone(target.toPath()) }
         }
     }
 
@@ -75,6 +77,22 @@ class GitClone(
         /** The command line. Every value from the user goes through [BundledShell.quote]. */
         fun script(url: String, folderName: String): String =
             "GIT_TERMINAL_PROMPT=0 git clone --progress -- ${BundledShell.quote(url)} ${BundledShell.quote(folderName)} < /dev/null"
+
+        /**
+         * [removeTree], a few times over: git's own signal handler may still be
+         * deleting, or a helper still writing, in the moment after a Stop, and a
+         * file landing behind the walk leaves its folder not empty.
+         */
+        internal fun removeUntilGone(root: Path, attempts: Int = REMOVE_ATTEMPTS, pauseMs: Long = REMOVE_PAUSE_MS) {
+            repeat(attempts) { attempt ->
+                removeTree(root)
+                if (!Files.exists(root, java.nio.file.LinkOption.NOFOLLOW_LINKS)) return
+                if (attempt < attempts - 1) Thread.sleep(pauseMs)
+            }
+        }
+
+        private const val REMOVE_ATTEMPTS = 5
+        private const val REMOVE_PAUSE_MS = 200L
 
         /** Deletes [root] and everything under it, removing links as links. Best effort: what cannot go stays. */
         internal fun removeTree(root: Path) {

@@ -63,6 +63,7 @@ fun problemMessage(problem: FileProblem): String = stringResource(
  * what the file system said when [problemName] was tried anyway, shown until
  * the name is changed. A rename starts with
  * the part before the extension selected, which is the part usually changed.
+ * While [busy] (the confirmed name is being made), confirming again is off.
  */
 @Composable
 fun NameDialog(
@@ -74,6 +75,7 @@ fun NameDialog(
     check: (String) -> FileProblem? = { null },
     problem: FileProblem? = null,
     problemName: String? = null,
+    busy: Boolean = false,
 ) {
     var value by remember {
         val stem = initial.lastIndexOf('.').takeIf { it > 0 } ?: initial.length
@@ -83,7 +85,7 @@ fun NameDialog(
     // An empty field is not an error until something has been typed in it.
     val live = check(typed)?.takeUnless { it == FileProblem.EmptyName && value.text.isEmpty() }
     val shown = live ?: problem.takeIf { typed == problemName }
-    val canConfirm = typed.isNotEmpty() && live == null
+    val canConfirm = typed.isNotEmpty() && live == null && !busy
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
 
@@ -192,7 +194,7 @@ fun MoveDialog(
                     }
                     val shown = folders
                     if (shown != null && shown.isEmpty()) {
-                        item(key = "empty") {
+                        item(key = EMPTY_ROW_KEY) {
                             Text(
                                 stringResource(R.string.diligent_files_move_no_folders),
                                 style = DiligentTheme.type.material.bodyMedium,
@@ -277,3 +279,6 @@ private fun MoveDarkPreview() = DiligentTheme(darkTheme = true) {
         )
     }
 }
+
+/** The lazy list key of the "no folders here" row; not shown to anyone. */
+private const val EMPTY_ROW_KEY = "empty"

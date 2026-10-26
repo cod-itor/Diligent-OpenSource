@@ -123,7 +123,9 @@ class BundledShell(private val context: Context) {
          * A process Java starts shares the app's process group, so `kill 0`
          * from it would signal the app itself. With job control on (`set -m`),
          * bash puts a background job in a group of its own; bash waits for it,
-         * passes SIGTERM to that group, and exits with the job's status. Job
+         * passes SIGTERM to that group, waits for it to end (so whoever ended
+         * bash knows the script's processes are gone too, and can clean up
+         * after them), and exits with the job's status. Job
          * control is switched off again once the job has its group, or bash
          * would print "[1]+ Done" lines into the output. The
          * newline before `)` keeps a script ending in a comment from
@@ -131,7 +133,7 @@ class BundledShell(private val context: Context) {
          */
         internal fun wrap(script: String): String =
             "set -m; ( $script\n) & pg=\$!; set +m; " +
-                "trap 'kill -TERM -\$pg 2>/dev/null; exit 143' TERM; " +
+                "trap 'kill -TERM -\$pg 2>/dev/null; wait \$pg; exit 143' TERM; " +
                 "wait \$pg"
 
         /**

@@ -61,4 +61,20 @@ class BundledShellWrapTest {
         Thread.sleep(3_500)
         assertEquals(false, marker.exists(), "the script's child outlived the kill")
     }
+
+    @Test
+    fun `bash exits only once the script's group has ended`() {
+        // The script's own TERM handler takes a moment, as git's cleanup does;
+        // once bash has exited, what that handler does must already be done.
+        val marker = java.io.File.createTempFile("bundled-shell", ".marker").apply { delete() }
+        val p = start(
+            "trap 'sleep 0.5; touch ${BundledShell.quote(marker.path)}; exit 1' TERM; " +
+                "sleep 30 & wait",
+        )
+        Thread.sleep(500)
+        p.destroy()
+        assertEquals(true, p.waitFor(5, java.util.concurrent.TimeUnit.SECONDS), "bash did not exit on SIGTERM")
+        assertEquals(true, marker.exists(), "bash exited before the script's group finished")
+        marker.delete()
+    }
 }

@@ -155,6 +155,14 @@ private class FilesState(val files: ProjectFiles, private val scope: CoroutineSc
     var dialog by mutableStateOf<FilesDialog?>(null)
     var notice by mutableStateOf<FilesNotice?>(null)
 
+    /**
+     * True while a create, rename, move or delete runs. A second tap in that
+     * time (a double tap, or Done then the button) is ignored: run twice, the
+     * second would find its own first's result and report it as a problem.
+     */
+    var busy by mutableStateOf(false)
+        private set
+
     val root: String get() = files.root
 
     fun newFolder(): String = tree.folderOnScreen(lastOpened)
@@ -214,8 +222,21 @@ private class FilesState(val files: ProjectFiles, private val scope: CoroutineSc
     /** Whether [folder]'s last listing holds [name]; the operation itself has the final word. */
     fun holds(folder: String, name: String): Boolean = tree.children[folder]?.any { it.name == name } == true
 
-    fun create(folder: String, name: String, isFolder: Boolean, openFile: (String) -> Unit) {
+    /** Runs [block] unless an operation already runs; all calls are on the main thread. */
+    private fun operate(block: suspend () -> Unit) {
+        if (busy) return
+        busy = true
         scope.launch {
+            try {
+                block()
+            } finally {
+                busy = false
+            }
+        }
+    }
+
+    fun create(folder: String, name: String, isFolder: Boolean, openFile: (String) -> Unit) {
+        operate {
             val made = if (isFolder) files.createFolder(folder, name) else files.createFile(folder, name)
             when (made) {
                 is FileResult.Refused -> refuse(made.problem) { FilesDialog.Create(folder, isFolder, it, name.trim()) }
@@ -232,7 +253,7 @@ private class FilesState(val files: ProjectFiles, private val scope: CoroutineSc
     }
 
     fun rename(entry: FileEntry, name: String) {
-        scope.launch {
+        operate {
             when (val renamed = files.rename(entry.path, name)) {
                 is FileResult.Refused -> refuse(renamed.problem) { FilesDialog.Rename(entry, it, name.trim()) }
                 is FileResult.Done -> {
@@ -245,8 +266,8 @@ private class FilesState(val files: ProjectFiles, private val scope: CoroutineSc
     }
 
     fun move(entry: FileEntry, folder: String) {
-        scope.launch {
-            dialog = null
+        dialog = null
+        operate {
             when (val result = files.move(entry.path, folder)) {
                 is FileResult.Refused -> refuse(result.problem) { null }
                 is FileResult.Done -> {
@@ -259,8 +280,8 @@ private class FilesState(val files: ProjectFiles, private val scope: CoroutineSc
     }
 
     fun delete(entry: FileEntry) {
-        scope.launch {
-            dialog = null
+        dialog = null
+        operate {
             when (val deleted = files.delete(entry.path)) {
                 is FileResult.Refused -> refuse(deleted.problem) { null }
                 is FileResult.Done -> {
@@ -371,6 +392,7 @@ private fun ProjectTree(folder: String, projectName: String, actions: MobileActi
             },
             problem = dialog.problem,
             problemName = dialog.tried,
+            busy = state.busy,
         )
         is FilesDialog.Rename -> {
             val parent = File(dialog.entry.path).parent ?: state.root
@@ -386,6 +408,7 @@ private fun ProjectTree(folder: String, projectName: String, actions: MobileActi
                 },
                 problem = dialog.problem,
                 problemName = dialog.tried,
+                busy = state.busy,
             )
         }
         is FilesDialog.Move -> MoveDialog(
