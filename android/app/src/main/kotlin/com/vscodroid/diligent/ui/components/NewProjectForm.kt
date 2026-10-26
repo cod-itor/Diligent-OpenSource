@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,6 +38,9 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
  * Asks for a new project's name. The name is checked as it is typed, but an
  * empty field only complains once Create is pressed: a red "give it a name"
  * on a field nobody has touched yet reads as a telling-off.
+ *
+ * With [onTemplate], the form first offers "Start from a template" (the
+ * Setup screen), and the name field below makes an empty folder as before.
  */
 @Composable
 fun NewProjectForm(
@@ -47,6 +54,7 @@ fun NewProjectForm(
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
     autoFocus: Boolean = true,
+    onTemplate: (() -> Unit)? = null,
 ) {
     val focus = remember { FocusRequester() }
     if (autoFocus) LaunchedEffect(focus) { focus.requestFocus() }
@@ -68,6 +76,14 @@ fun NewProjectForm(
             style = DiligentTheme.type.material.titleLarge,
             color = DiligentTheme.colors.onSurface,
         )
+        onTemplate?.let {
+            TemplateChoice(it)
+            Text(
+                stringResource(R.string.diligent_projects_empty_choice),
+                style = DiligentTheme.type.material.titleSmall,
+                color = DiligentTheme.colors.onSurface,
+            )
+        }
         Text(
             stringResource(R.string.diligent_projects_new_body),
             style = DiligentTheme.type.material.bodyMedium,
@@ -98,6 +114,38 @@ fun NewProjectForm(
             onConfirm = onCreate,
             onCancel = onCancel,
         )
+    }
+}
+
+/** "Start from a template": one tap to the Setup screen, above the empty folder's name field. */
+@Composable
+private fun TemplateChoice(onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().heightIn(min = DiligentTheme.sizes.touchTarget),
+        color = DiligentTheme.colors.primaryContainer,
+        shape = DiligentTheme.shapes.medium,
+    ) {
+        Row(
+            Modifier.padding(DiligentTheme.spacing.m),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m),
+        ) {
+            Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = DiligentTheme.colors.onPrimaryContainer)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.xs)) {
+                Text(
+                    stringResource(R.string.diligent_projects_template),
+                    style = DiligentTheme.type.material.titleMedium,
+                    color = DiligentTheme.colors.onPrimaryContainer,
+                )
+                Text(
+                    stringResource(R.string.diligent_projects_template_body),
+                    style = DiligentTheme.type.material.bodyMedium,
+                    color = DiligentTheme.colors.onPrimaryContainer,
+                )
+            }
+            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null, tint = DiligentTheme.colors.onPrimaryContainer)
+        }
     }
 }
 
@@ -142,12 +190,13 @@ fun NameProblem.messageRes(): Int = when (this) {
 }
 
 @Composable
-private fun FormSample(name: String, problem: NameProblem?) {
+private fun FormSample(name: String, problem: NameProblem?, withTemplate: Boolean = false) {
     Surface(color = DiligentTheme.colors.scheme.surfaceContainerLow) {
         NewProjectForm(
             name = name, onNameChange = {}, problem = problem, showEmptyProblem = false,
             createFailed = false, busy = false, onCreate = {}, onCancel = {},
             modifier = Modifier.padding(top = DiligentTheme.spacing.l), autoFocus = false,
+            onTemplate = if (withTemplate) ({}) else null,
         )
     }
 }
@@ -159,3 +208,11 @@ private fun NewProjectLightPreview() = DiligentTheme(darkTheme = false) { FormSa
 @Preview(name = "New project, name taken, dark", widthDp = 360)
 @Composable
 private fun NewProjectDarkPreview() = DiligentTheme(darkTheme = true) { FormSample("shop", NameProblem.Exists) }
+
+@Preview(name = "New project, with template, light", widthDp = 360)
+@Composable
+private fun NewProjectTemplateLightPreview() = DiligentTheme(darkTheme = false) { FormSample("", null, withTemplate = true) }
+
+@Preview(name = "New project, with template, dark", widthDp = 360)
+@Composable
+private fun NewProjectTemplateDarkPreview() = DiligentTheme(darkTheme = true) { FormSample("", null, withTemplate = true) }
