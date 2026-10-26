@@ -28,6 +28,7 @@ Versions are deliberately not listed unless pinned in this repository: most comp
 | @vscode/native-watchdog | MIT | https://github.com/microsoft/node-native-watchdog, bundled by the Code - OSS build |
 | @vscode/deviceid | MIT | https://github.com/microsoft/vscode-deviceid, bundled by the Code - OSS build |
 | @vscode/sandbox-runtime | Apache-2.0 | https://github.com/anthropic-experimental/sandbox-runtime, bundled by the Code - OSS build |
+| ZXing core 3.5.4 | Apache-2.0 | https://github.com/zxing/zxing, linked into the app for the Share screen's QR code |
 | @vscode/spdlog | MIT | https://github.com/microsoft/node-spdlog, bundled by the Code - OSS build. Its native addon does not ship: `scripts/build-native-addons.sh` deletes it and replaces `index.js` with a JavaScript logger from this repository |
 | kerberos (Node addon) | Apache-2.0 | https://github.com/mongodb-js/kerberos. The npm addon, not the MIT Kerberos 5 C libraries listed below |
 | @microsoft/mxc-sdk | MIT | https://www.npmjs.com/package/@microsoft/mxc-sdk, bundled by the Code - OSS build |
