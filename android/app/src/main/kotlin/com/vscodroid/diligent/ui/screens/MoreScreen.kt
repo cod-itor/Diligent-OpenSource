@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Devices
+import androidx.compose.material.icons.outlined.Laptop
 import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
@@ -57,7 +58,7 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /**
  * Mobile view's More tab: a list of everything that is not one of the four
- * main tabs, and the screens it opens (Run, Setup, Health, Settings) in its own place.
+ * main tabs, and the screens it opens (Run, Setup, Laptop, Health, Settings) in its own place.
  *
  * Which entry is open is the tab's own small back stack, one level deep:
  * the list, or one detail with a back arrow. It is saved across recreation
@@ -121,6 +122,7 @@ private fun MoreContent(
                     when (detail) {
                         MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack)
                         MoreDetail.Setup -> SetupScreen(shell, actions)
+                        MoreDetail.Laptop -> LaptopScreen()
                         MoreDetail.Health -> HealthScreen(onOpenRun = { onOpen(MoreDetail.Run) })
                         MoreDetail.Settings -> SettingsScreen(shell, actions)
                     }
@@ -209,6 +211,7 @@ private val MoreItem.title: Int
     get() = when (this) {
         MoreItem.Run -> R.string.diligent_more_run
         MoreItem.Setup -> R.string.diligent_more_setup
+        MoreItem.Laptop -> R.string.diligent_more_laptop
         MoreItem.AI -> R.string.diligent_more_ai
         MoreItem.Devices -> R.string.diligent_more_devices
         MoreItem.Health -> R.string.diligent_more_health
@@ -220,6 +223,7 @@ private val MoreItem.subtitle: Int
     get() = when (this) {
         MoreItem.Run -> R.string.diligent_more_run_body
         MoreItem.Setup -> R.string.diligent_more_setup_body
+        MoreItem.Laptop -> R.string.diligent_more_laptop_body
         MoreItem.AI -> R.string.diligent_more_ai_body
         MoreItem.Devices -> R.string.diligent_more_devices_body
         MoreItem.Health -> R.string.diligent_more_health_body
@@ -235,6 +239,7 @@ private val MoreItem.icon: ImageVector
     get() = when (this) {
         MoreItem.Run -> Icons.Outlined.PlayArrow
         MoreItem.Setup -> Icons.Outlined.Build
+        MoreItem.Laptop -> Icons.Outlined.Laptop
         MoreItem.AI -> Icons.Outlined.AutoAwesome
         MoreItem.Devices -> Icons.Outlined.Devices
         MoreItem.Health -> Icons.Outlined.MonitorHeart
