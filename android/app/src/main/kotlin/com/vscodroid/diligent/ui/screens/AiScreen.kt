@@ -63,9 +63,12 @@ internal const val COMMAND_OPEN_CHAT = "workbench.action.chat.open"
 internal const val COMMAND_SEARCH_EXTENSIONS = "workbench.extensions.search"
 internal const val CLAUDE_EXTENSION_QUERY = "anthropic.claude-code"
 
-/** A new terminal, and typing into the active one: how Attach runs `tmux attach`. */
-internal const val COMMAND_NEW_TERMINAL = "workbench.action.terminal.new"
-internal const val COMMAND_SEND_SEQUENCE = "workbench.action.terminal.sendSequence"
+/**
+ * Attach: the bridge extension opens a terminal on the session. It takes a
+ * session name and checks it is one of Diligent's AI sessions, so no command
+ * here can type arbitrary text into a terminal.
+ */
+internal const val COMMAND_ATTACH_SESSION = "diligent.mobile.attachSession"
 
 /**
  * AI (More, then AI): the terminal agents Claude Code (`claude`) and the
@@ -94,10 +97,9 @@ fun AiScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = Mo
         onStop = sessions::stop,
         onUndo = sessions::undo,
         onAttach = { agent ->
-            sessions.attachCommand(agent)?.let { command ->
+            sessions.session(agent)?.let { session ->
                 actions.openTab(MobileTab.Terminal)
-                actions.editorCommand(COMMAND_NEW_TERMINAL)
-                actions.editorCommand(COMMAND_SEND_SEQUENCE, mapOf("text" to command + "\r"))
+                actions.editorCommand(COMMAND_ATTACH_SESSION, session)
             }
         },
         onRefresh = sessions::refresh,

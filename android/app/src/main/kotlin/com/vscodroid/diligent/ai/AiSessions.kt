@@ -79,8 +79,6 @@ class AiSessions(private val context: Context, private val scope: CoroutineScope
 
     fun session(agent: AiAgent): String? = state.projectName?.let { AiSession.name(agent, it) }
 
-    fun attachCommand(agent: AiAgent): String? = session(agent)?.let(scripts::attachCommand)
-
     fun dismissNotice() {
         state = state.copy(notice = null)
     }
