@@ -3,6 +3,7 @@ package com.vscodroid.diligent
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -119,8 +120,6 @@ class ShareProxyTest {
         val server = keep(upstream.accept()).apply { soTimeout = 10_000 }
         client.getOutputStream().write(1)
         assertEquals(1, server.getInputStream().read())
-        val port = proxy.port
-
         proxy.close()
         proxy.close() // twice is fine
 
@@ -131,7 +130,10 @@ class ShareProxyTest {
         }
         assertTrue(ended)
         assertEquals(-1, server.getInputStream().read())
-        assertThrows(IOException::class.java) { Socket(loopback, port).close() }
+        // Asked of the proxy, not by dialling the old port: once freed, the
+        // port can go to another test's socket at once, and a connect there
+        // would succeed for reasons that have nothing to do with the proxy.
+        assertFalse(proxy.isListening)
         assertTrue(proxy.isClosed)
     }
 

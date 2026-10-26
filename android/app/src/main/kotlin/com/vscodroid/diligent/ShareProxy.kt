@@ -153,6 +153,9 @@ class ShareProxy private constructor(
 
     val isClosed: Boolean get() = closed
 
+    /** Whether the listening socket is still open; false once [close] has run. */
+    internal val isListening: Boolean get() = !server.isClosed
+
     companion object {
         const val MAX_CONNECTIONS = 64
         private const val CONNECT_TIMEOUT_MS = 5_000
