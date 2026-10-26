@@ -812,8 +812,8 @@ fun toggleExtraKeyRow(authToken: String): Boolean
 Diligent's own methods, all named `diligentXxx` and all reached through the one relay
 branch described above, with the token first and then the call's `args` in order. Each
 is answered on the JavaBridge thread and hands its work to the UI thread through
-`DiligentBridgeHost`, so none of them blocks the page; `diligentGetHealth` is the
-exception that answers with data, read on the JavaBridge thread itself. The bundled extension
+`DiligentBridgeHost`, so none of them blocks the page; `diligentGetHealth` and
+`diligentNetworkType` are the exceptions that answer with data, read on the JavaBridge thread itself. The bundled extension
 `diligent.diligent-bridge` is their caller; it also runs editor commands for Kotlin, on
 `BroadcastChannel('diligent-events')`, for the commands on its allowlist only.
 
@@ -876,7 +876,7 @@ fun diligentGetHealth(authToken: String): String
 // The Health screen's checks, for `kit doctor`:
 //   {"checks":[{"id":"battery|child-processes|child-processes-adb|notifications|storage|processes",
 //               "title":"<text>","state":"pass|fail|unknown","detail":"<plain sentence>"}]}
-// The one Diligent method that answers with data: it is read on the JavaBridge
+// It answers with data, like diligentNetworkType: it is read on the JavaBridge
 // thread (guarded system service and settings reads, string resources) and
 // returned straight away, so the relay posts it as `data` to the caller. A
 // refused token answers the empty string.
@@ -887,6 +887,24 @@ fun diligentInstallToolchain(authToken: String, name: String)
 // can reach it through the one Diligent relay branch (`installToolchain` is
 // not on the relay). Starts the install and returns; nothing is reported
 // back. A refused token does nothing.
+
+@JavascriptInterface
+fun diligentRemoveToolchain(authToken: String, name: String)
+// `removeToolchain(name, authToken)` with the token first, for the kit engine's
+// `kit remove` (`executeCommand('diligent.bridge.removeToolchain', pack)`).
+// Starts the removal and returns; nothing is reported back. A refused token
+// does nothing.
+
+@JavascriptInterface
+fun diligentNetworkType(authToken: String): String
+// The phone's active network: "wifi" (Wi-Fi or Ethernet, or an unknown transport
+// Android reports as not metered), "cellular" (mobile data, also under a VPN, and
+// any other metered network) or "none" (no network that reaches the internet).
+// Read from ConnectivityManager on the JavaBridge thread and returned straight
+// away, like diligentGetHealth. The diligent-ai extension asks before each
+// suggestion request when "Suggestions only on Wi-Fi" is on, through
+// `executeCommand('diligent.bridge.networkType')`. A refused token answers the
+// empty string.
 ```
 
 ---

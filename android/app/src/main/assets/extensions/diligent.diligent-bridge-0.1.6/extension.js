@@ -60,6 +60,16 @@ const ALLOWED_COMMANDS = new Set([
     // run by its id (diligent-kit).
     'diligent.kit.add',
     'diligent.kit.cancel',
+    // AI suggestions (diligent-ai): Accept and Next in Mobile view's action bar.
+    'editor.action.inlineSuggest.commit',
+    'editor.action.inlineSuggest.showNext',
+    // The AI screen: Copilot Chat's view, and the Claude Code extension's
+    // Marketplace page (called with "anthropic.claude-code").
+    'workbench.action.chat.open',
+    'workbench.extensions.search',
+    // The AI screen's Attach: a terminal attached to one agent session,
+    // registered below, which accepts diligent-ai-* session names only.
+    'diligent.mobile.attachSession',
 ]);
 
 /**
@@ -116,6 +126,12 @@ const BRIDGE_METHODS = [
     // is not on the relay, so this reaches AndroidBridge.diligentInstallToolchain,
     // which takes the token first and calls it.
     'installToolchain',
+    // diligent-kit's `kit remove`: `executeCommand('diligent.bridge.removeToolchain', pack)`,
+    // AndroidBridge.diligentRemoveToolchain, which calls VSCodroid's removeToolchain.
+    'removeToolchain',
+    // diligent-ai's "Suggestions only on Wi-Fi": resolves with "wifi",
+    // "cellular" or "none" (AndroidBridge.diligentNetworkType).
+    'networkType',
 ];
 
 /** How long a bridge call may take before it is reported as unanswered. */
@@ -296,6 +312,28 @@ async function showTerminal(api) {
     await api.commands.executeCommand('workbench.action.terminal.focus');
 }
 
+/** The AI screen's agent sessions (tmux `diligent-ai-<agent>-<project>`). */
+const AI_SESSION_NAME = /^diligent-ai-[a-z0-9_-]+$/;
+
+/**
+ * Opens a terminal attached to the tmux session [sessionName]. Anything but a
+ * `diligent-ai-*` name is refused, so the text sent to the shell is always
+ * this fixed command with a name that holds no quote or shell character.
+ * @param {unknown} sessionName
+ * @param {typeof import('vscode')} api
+ * @returns {boolean} whether it attached
+ */
+function attachSession(sessionName, api) {
+    if (typeof sessionName !== 'string' || !AI_SESSION_NAME.test(sessionName)) {
+        console.warn('[Diligent] refused to attach to ' + JSON.stringify(sessionName));
+        return false;
+    }
+    const terminal = api.window.createTerminal({ name: sessionName });
+    terminal.show();
+    terminal.sendText(`tmux attach -t '=${sessionName}'`);
+    return true;
+}
+
 /**
  * Asks the app to switch to Mobile view. Kotlin stores the choice, brings in
  * its native screens and sends `diligent.view.apply` back for the editor's
@@ -375,6 +413,8 @@ function activate(context) {
             logged(() => switchToMobileView((method, args) => callBridge(method, args)))),
         vscode.commands.registerCommand('diligent.mobile.showEditor', logged(() => showEditor(vscode))),
         vscode.commands.registerCommand('diligent.mobile.showTerminal', logged(() => showTerminal(vscode))),
+        vscode.commands.registerCommand('diligent.mobile.attachSession',
+            (/** @type {unknown} */ name) => attachSession(name, vscode)),
     );
 
     for (const name of BRIDGE_METHODS) {
@@ -402,6 +442,7 @@ module.exports = {
     updateViewItem,
     showEditor,
     showTerminal,
+    attachSession,
     reviveArgs,
     handleEvent,
     callBridge,

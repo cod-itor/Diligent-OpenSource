@@ -18,6 +18,9 @@
     <!-- Diligent: a partial wake lock while a task the user started runs (diligent/TaskKeeper.kt) -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- Diligent: whether the phone is on Wi-Fi, for "AI suggestions only on Wi-Fi" (diligent/ai/NetworkType.kt) -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <!-- largeHeap raises the ART heap CAP for this process and nothing else:
          it does not reserve memory and no Kotlin here reads it. On an API 33
          arm64 device with 4 GB of RAM the cap moves from

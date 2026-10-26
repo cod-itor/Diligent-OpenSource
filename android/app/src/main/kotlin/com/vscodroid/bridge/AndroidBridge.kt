@@ -15,6 +15,7 @@ import com.google.android.play.core.assetpacks.model.AssetPackStatus
 import com.vscodroid.R
 import com.vscodroid.authCallbackIsExpected
 import com.vscodroid.diligent.DiligentBridgeHost
+import com.vscodroid.diligent.ai.NetworkType
 import com.vscodroid.isExtensionCallback
 import com.vscodroid.setup.ToolchainManager
 import com.vscodroid.setup.ToolchainRegistry
@@ -1601,6 +1602,29 @@ class AndroidBridge(
     fun diligentInstallToolchain(authToken: String, name: String) {
         if (!security.validateToken(authToken)) return
         installToolchain(name, authToken)
+    }
+
+    /**
+     * [removeToolchain] with the token first, for the kit engine's `kit remove`
+     * through the relay's one Diligent branch. Same behaviour: starts the
+     * removal and returns.
+     */
+    @JavascriptInterface
+    fun diligentRemoveToolchain(authToken: String, name: String) {
+        if (!security.validateToken(authToken)) return
+        removeToolchain(name, authToken)
+    }
+
+    /**
+     * The phone's network now, `wifi`, `cellular` or `none`, for the AI
+     * suggestions' "only on Wi-Fi" setting (diligent/ai/NetworkType.kt).
+     * Answered here, on the JavaBridge thread. A refused token answers the
+     * empty string.
+     */
+    @JavascriptInterface
+    fun diligentNetworkType(authToken: String): String {
+        if (!security.validateToken(authToken)) return ""
+        return NetworkType.current(context)
     }
 
     private fun getVersionName(): String {

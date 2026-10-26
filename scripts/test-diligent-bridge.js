@@ -263,6 +263,8 @@ async function main() {
         diligentGetHealth: (token) => { calls.push(['diligentGetHealth', token]); return '{"checks":[]}'; },
         diligentInstallToolchain: (token, name) => { calls.push(['diligentInstallToolchain', token, name]); },
         diligentKitProgress: (token, json) => { calls.push(['diligentKitProgress', token, json]); },
+        diligentRemoveToolchain: (token, name) => { calls.push(['diligentRemoveToolchain', token, name]); },
+        diligentNetworkType: (token) => { calls.push(['diligentNetworkType', token]); return 'wifi'; },
         // Not a Diligent method: the branch must not reach it by name.
         reclaimSafMirror: () => { throw new Error('reached a VSCodroid method through the Diligent branch'); },
     };
@@ -336,7 +338,7 @@ async function main() {
     }
     // The kit engine's calls: getHealth's answer comes back to the caller,
     // installToolchain arrives with the token first, progress is passed on.
-    for (const name of ['kitProgress', 'getHealth', 'installToolchain']) {
+    for (const name of ['kitProgress', 'getHealth', 'installToolchain', 'removeToolchain', 'networkType']) {
         assert.ok(bridge.BRIDGE_METHODS.includes(name), `${name} is not a bridge method`);
         assert.ok((manifest.activationEvents || []).includes('onCommand:diligent.bridge.' + name),
             `diligent.bridge.${name} does not activate the extension`);
@@ -344,11 +346,41 @@ async function main() {
     assert.strictEqual(await registered.get('diligent.bridge.getHealth')(), '{"checks":[]}');
     await registered.get('diligent.bridge.installToolchain')('java');
     assert.deepStrictEqual(calls.at(-1), ['diligentInstallToolchain', 'test-token', 'java']);
+    await registered.get('diligent.bridge.removeToolchain')('java');
+    assert.deepStrictEqual(calls.at(-1), ['diligentRemoveToolchain', 'test-token', 'java']);
+    // diligent-ai's Wi-Fi gate gets the answer back.
+    assert.strictEqual(await registered.get('diligent.bridge.networkType')(), 'wifi');
+    assert.deepStrictEqual(calls.at(-1), ['diligentNetworkType', 'test-token']);
     await registered.get('diligent.bridge.kitProgress')('{"runId":"r"}');
     assert.deepStrictEqual(calls.at(-1), ['diligentKitProgress', 'test-token', '{"runId":"r"}']);
-    for (const id of ['diligent.kit.add', 'diligent.kit.cancel']) {
+    for (const id of ['diligent.kit.add', 'diligent.kit.cancel',
+        'editor.action.inlineSuggest.commit', 'editor.action.inlineSuggest.showNext']) {
         assert.ok(bridge.ALLOWED_COMMANDS.has(id), `${id} is not allowed`);
     }
+    for (const id of ['workbench.action.chat.open', 'workbench.extensions.search', 'diligent.mobile.attachSession']) {
+        assert.ok(bridge.ALLOWED_COMMANDS.has(id), `${id} is not allowed`);
+    }
+    for (const id of ['workbench.action.terminal.sendSequence', 'workbench.action.terminal.new']) {
+        assert.ok(!bridge.ALLOWED_COMMANDS.has(id), `${id} must not be allowed`);
+    }
+    // Attach: a diligent-ai-* session only, in a terminal of its own.
+    assert.ok(registered.has('diligent.mobile.attachSession'), 'attachSession is allowed but not registered');
+    const terminals = [];
+    const termApi = { window: { createTerminal: (opts) => {
+        const t = { opts, shown: false, sent: [], show() { this.shown = true; }, sendText(x) { this.sent.push(x); } };
+        terminals.push(t);
+        return t;
+    } } };
+    assert.strictEqual(bridge.attachSession('diligent-ai-claude-my_app2', termApi), true);
+    assert.deepStrictEqual(terminals[0].opts, { name: 'diligent-ai-claude-my_app2' });
+    assert.ok(terminals[0].shown);
+    assert.deepStrictEqual(terminals[0].sent, ["tmux attach -t '=diligent-ai-claude-my_app2'"]);
+    for (const bad of ['diligent-ai-', 'diligent-ai-x\'; rm -rf ~', 'diligent-ai-X', 'diligent-my-app-dev',
+        'diligent-ai-a b', 'diligent-ai-a\n', 'x-diligent-ai-a', 42, null, undefined]) {
+        assert.strictEqual(bridge.attachSession(bad, termApi), false, `${JSON.stringify(bad)} was attached`);
+    }
+    assert.strictEqual(terminals.length, 1, 'a refused name opened a terminal');
+
     await new Promise((resolve) => setTimeout(resolve, 100));
     assert.ok(calls.some((c) => c[0] === 'diligentEditorReady'), 'activate did not announce itself');
     subscriptions.forEach((s) => s.dispose());

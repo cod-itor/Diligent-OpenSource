@@ -30,6 +30,14 @@ traffic between the editor page and the local server. `FOREGROUND_SERVICE` and
 working. `POST_NOTIFICATIONS` is for the notification showing the server's
 status.
 
+Diligent adds two. `WAKE_LOCK` keeps the phone awake while a task you started
+is running. `ACCESS_NETWORK_STATE` tells whether the phone is on Wi-Fi or mobile
+data, so that AI suggestions while typing, which are off until you pick a
+provider, are only sent on Wi-Fi when you ask for that. Suggestions send the
+code around the cursor to the service you picked (your own laptop, or a
+service you hold a key for) and to nothing else; files such as `.env` and keys
+are never sent.
+
 Two more are added by libraries the app is built with, and the Play listing
 shows that merged set rather than ours, so they are named here as well.
 `FOREGROUND_SERVICE_DATA_SYNC` comes from Google's asset delivery library, which

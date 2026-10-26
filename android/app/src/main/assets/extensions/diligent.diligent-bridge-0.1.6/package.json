@@ -2,7 +2,7 @@
   "name": "diligent-bridge",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "publisher": "diligent",
   "engines": {
     "vscode": "^1.96.0"
@@ -15,7 +15,9 @@
     "onCommand:diligent.bridge.updateTasks",
     "onCommand:diligent.bridge.kitProgress",
     "onCommand:diligent.bridge.getHealth",
-    "onCommand:diligent.bridge.installToolchain"
+    "onCommand:diligent.bridge.installToolchain",
+    "onCommand:diligent.bridge.removeToolchain",
+    "onCommand:diligent.bridge.networkType"
   ],
   "browser": "./extension.js",
   "contributes": {
