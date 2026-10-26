@@ -37,6 +37,7 @@
     <!-- Top bar menu -->
     <string name="diligent_menu_desktop_view">Switch to Desktop view</string>
     <string name="diligent_menu_settings">Settings</string>
+    <string name="diligent_menu_share">Share to other devices</string>
 
     <!-- Placeholder while a screen is being built -->
     <string name="diligent_screen_projects">Your projects</string>
@@ -119,6 +120,8 @@
     <string name="diligent_more_ai_body">Code together with an AI assistant</string>
     <string name="diligent_more_devices">Devices</string>
     <string name="diligent_more_devices_body">Pair your laptop and sync projects</string>
+    <string name="diligent_more_share">Share</string>
+    <string name="diligent_more_share_body">Open the editor or a preview on your other devices</string>
     <string name="diligent_more_health">Health</string>
     <string name="diligent_more_health_body">Check that everything works</string>
     <string name="diligent_more_settings">Settings</string>
@@ -429,6 +432,39 @@
     <string name="diligent_ai_notice_snapshot_failed">The snapshot failed, so the session was not started.</string>
     <string name="diligent_ai_notice_undone">Files are back to how they were when the session started.</string>
     <string name="diligent_ai_notice_undo_failed">Undo failed. Try again, or use Undo in the editor to pick a snapshot.</string>
+
+    <!-- Share (More, then Share): the editor and previews over Tailscale -->
+    <string name="diligent_share_intro">Open this editor, or the app your project runs, in a browser on your laptop, tablet or other phone. It works over Tailscale, so only devices signed in to your own Tailscale network can connect.</string>
+    <string name="diligent_share_no_tailscale_title">Install Tailscale and sign in</string>
+    <string name="diligent_share_no_tailscale_body">Tailscale is a private network between your own devices. Install it on this phone and on the other device, sign in to both with the same account, turn it on, then come back here.</string>
+    <string name="diligent_share_get_tailscale">Get Tailscale</string>
+    <string name="diligent_share_no_store">No app store or browser can open the link. Search for Tailscale in your app store.</string>
+    <string name="diligent_share_check_again">Check again</string>
+    <string name="diligent_share_address">This phone on Tailscale: %1$s</string>
+    <string name="diligent_share_editor_title">Editor</string>
+    <string name="diligent_share_editor_body">The full editor in a browser. The link includes the editor\'s access key, so send it only to your own devices.</string>
+    <string name="diligent_share_editor_not_ready">The editor is still starting. Try again in a moment.</string>
+    <string name="diligent_share_start_editor">Share editor</string>
+    <string name="diligent_share_preview_title">Preview</string>
+    <string name="diligent_share_preview_body">The app your project is running, on port %1$d.</string>
+    <string name="diligent_share_preview_body_none">The app your project runs, once it is running.</string>
+    <string name="diligent_share_preview_none">Run a project with a preview to share it.</string>
+    <string name="diligent_share_start_preview">Share preview</string>
+    <string name="diligent_share_copy">Copy link</string>
+    <string name="diligent_share_copied">Link copied</string>
+    <string name="diligent_share_stop">Stop sharing</string>
+    <string name="diligent_share_qr">QR code for %1$s</string>
+    <string name="diligent_share_safety">Sharing is off until you turn it on. It turns off after 60 minutes without use, when Tailscale disconnects, or when you tap Stop sharing here or on the notification.</string>
+    <string name="diligent_share_no_token">The editor\'s access key is missing. Restart the editor, then try again.</string>
+    <string name="diligent_share_failed">Could not start sharing on the Tailscale address. Try again.</string>
+    <string name="diligent_share_stopped_idle">Sharing turned off after 60 minutes without use.</string>
+    <string name="diligent_share_stopped_tailscale">Sharing turned off because Tailscale disconnected.</string>
+    <string name="diligent_share_stopped_failed">Sharing stopped unexpectedly.</string>
+    <string name="diligent_share_channel">Sharing</string>
+    <string name="diligent_share_channel_description">Shown while the editor or a preview is open to your other devices.</string>
+    <string name="diligent_share_notification_title">Sharing on</string>
+    <string name="diligent_share_notification_editor">Editor at %1$s:%2$d</string>
+    <string name="diligent_share_notification_preview">Preview at %1$s:%2$d</string>
 
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>

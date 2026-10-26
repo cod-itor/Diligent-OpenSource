@@ -34,6 +34,8 @@ orgJson = "20260814"
 kotlinCompose = "2.2.10"
 composeBom = "2026.08.00"
 window = "1.5.1"
+# Diligent: the QR code on the Share screen. ZXing core only (pure Java, Apache-2.0).
+zxing = "3.5.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +74,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "window" }
+zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinCompose" }

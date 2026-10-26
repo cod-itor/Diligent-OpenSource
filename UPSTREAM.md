@@ -74,7 +74,7 @@ resolve them by keeping both sides' intent:
 | `android/app/src/main/assets/server.js` | `nameShort` and `nameLong` in `productOverrides` |
 | `scripts/verify-server-tree.py`, `scripts/test-server-bootstrap.js` | Expect the name Diligent |
 | `LICENSE` | Diligent's copyright line under VSCodroid's |
-| `android/gradle/libs.versions.toml`, `android/build.gradle.kts`, `android/app/build.gradle.kts` | Compose, Material 3 and `androidx.window` |
+| `android/gradle/libs.versions.toml`, `android/build.gradle.kts`, `android/app/build.gradle.kts` | Compose, Material 3, `androidx.window`, and ZXing core (`com.google.zxing:core`, the Share screen's QR code) |
 | `android/app/src/main/kotlin/com/vscodroid/setup/FirstRunSetup.kt` | `isOwnExtension()`: `diligent.diligent-*` extensions count as the app's own |
 | `.gitignore`, `scripts/check-extension-updates.py` | `diligent.diligent-*` extensions are committed and need a version bump on change |
 | `android/app/src/main/kotlin/com/vscodroid/setup/FirstRunSetup.kt`, `SplashActivity.kt` | `KIT_BLOCK` (the `kit` shell function) in the new `.bashrc`, and `ensureKitFunction()` run at every launch to append it to an existing one |
@@ -95,3 +95,4 @@ Do not reset or offset it without reading those migrations first;
 | `android/app/src/main/res/layout/activity_main.xml` | The WebView sits in an `editorFrame` FrameLayout, so Mobile view's native screens can cover it without resizing it |
 | `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app, the `WAKE_LOCK` permission `diligent/TaskKeeper.kt` holds while a task runs, and `ACCESS_NETWORK_STATE` for `diligent/ai/NetworkType.kt` |
 | `android/app/src/main/kotlin/com/vscodroid/service/NodeService.kt` | Three one-line calls into `diligent/TaskKeeper.kt`: `attach` in `onCreate`, `detach` in `onDestroy`, and `decorate` in `createNotification`, which lists the running tasks with a Stop each on the running card |
+| `NOTICE.md` | A ZXing row under Core Components, for the QR code on the Share screen |

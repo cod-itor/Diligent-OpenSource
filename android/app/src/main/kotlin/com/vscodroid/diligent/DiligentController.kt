@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
@@ -125,6 +126,7 @@ class DiligentController(
      * underneath, so the editor is ready by the time the user picks.
      */
     fun onLayoutReady() {
+        ShareKeeper.forgetStale(activity)
         attachChrome()
         attachSuggestion()
         if (!views.hasChosen) showViewChooser()
@@ -349,6 +351,11 @@ class DiligentController(
         override val projectsDir: String get() = host.projectsDir
         override val run: RunControl get() = runner
         override val kit: KitSession get() = this@DiligentController.kit
+
+        // The editor page is http://127.0.0.1:<port>/..., so the WebView's own
+        // address names the port without asking the activity.
+        override fun editorPort(): Int? =
+            webView()?.url?.toUri()?.takeIf { it.scheme == "http" && it.host == "127.0.0.1" }?.port?.takeIf { it > 0 }
     }
 
     /** What the `diligent*` bridge methods call. On the JavaBridge thread, so each hops. */
@@ -396,6 +403,12 @@ class DiligentController(
     fun onIntent(intent: Intent?) {
         TaskKeeper.stopIds(intent).forEach { editor.run(TaskKeeper.COMMAND_STOP_TASK, it) }
         if (intent?.action == TaskKeeper.ACTION_OPEN_HEALTH) openHealth()
+        // Share: Stop on the "Sharing on" notification, or a tap on it.
+        if (ShareKeeper.isStop(intent)) ShareKeeper.stop(activity)
+        if (ShareKeeper.isOpen(intent) && shell.view == AppView.Mobile) {
+            shell.shareRequested = true
+            actions.openTab(MobileTab.More)
+        }
     }
 
     /**

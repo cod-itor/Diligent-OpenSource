@@ -518,6 +518,8 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.window)
+    // Diligent: QR code encoder for the Share screen
+    implementation(libs.zxing.core)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Unit Testing (JUnit 5, JVM only)

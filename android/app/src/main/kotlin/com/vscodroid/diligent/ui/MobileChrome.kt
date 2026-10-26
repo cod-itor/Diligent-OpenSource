@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -44,6 +45,10 @@ fun TopChrome(shell: MobileShell, actions: MobileActions) {
         menu = listOf(
             MenuAction(stringResource(R.string.diligent_menu_desktop_view), Icons.Outlined.DesktopWindows) {
                 actions.switchView(AppView.Desktop)
+            },
+            MenuAction(stringResource(R.string.diligent_menu_share), Icons.Outlined.Share) {
+                shell.shareRequested = true
+                actions.openTab(MobileTab.More)
             },
             MenuAction(stringResource(R.string.diligent_menu_settings), Icons.Outlined.Settings) { actions.openTab(MobileTab.More) },
         ),

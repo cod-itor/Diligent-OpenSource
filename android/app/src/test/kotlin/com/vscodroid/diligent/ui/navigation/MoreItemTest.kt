@@ -10,14 +10,14 @@ class MoreItemTest {
     @Test
     fun `the list follows the guide's order`() {
         assertEquals(
-            listOf(MoreItem.Run, MoreItem.Setup, MoreItem.AI, MoreItem.Devices, MoreItem.Health, MoreItem.Settings),
+            listOf(MoreItem.Run, MoreItem.Setup, MoreItem.AI, MoreItem.Devices, MoreItem.Share, MoreItem.Health, MoreItem.Settings),
             MoreItem.ordered,
         )
     }
 
     @Test
-    fun `run, setup, AI, health and settings open now, the rest are coming soon`() {
-        assertEquals(listOf(MoreItem.Run, MoreItem.Setup, MoreItem.AI, MoreItem.Health, MoreItem.Settings), MoreItem.ordered.filter { it.available })
+    fun `run, setup, AI, share, health and settings open now, the rest are coming soon`() {
+        assertEquals(listOf(MoreItem.Run, MoreItem.Setup, MoreItem.AI, MoreItem.Share, MoreItem.Health, MoreItem.Settings), MoreItem.ordered.filter { it.available })
         for (item in listOf(MoreItem.Devices)) {
             assertFalse(item.available, "$item")
         }

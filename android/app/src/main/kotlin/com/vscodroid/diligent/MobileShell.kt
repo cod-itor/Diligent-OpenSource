@@ -84,6 +84,12 @@ class MobileShell(view: AppView?) {
      */
     var healthRequested by mutableStateOf(false)
 
+    /**
+     * Set by the top bar's Share and a tap on the "Sharing on" notification:
+     * the More tab opens its Share screen directly and clears this.
+     */
+    var shareRequested by mutableStateOf(false)
+
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
 
@@ -137,4 +143,7 @@ interface MobileActions {
 
     /** The Setup screen's run: a recipe through the kit engine. */
     val kit: KitSession
+
+    /** The editor server's loopback port, for the Share screen, or null while it is not loaded. */
+    fun editorPort(): Int? = null
 }

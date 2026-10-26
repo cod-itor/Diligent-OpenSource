@@ -1,7 +1,7 @@
 package com.vscodroid.diligent.ui.navigation
 
 /** A screen the More tab opens in its place, with a back arrow to the list. */
-enum class MoreDetail { Run, Setup, AI, Health, Settings }
+enum class MoreDetail { Run, Setup, AI, Share, Health, Settings }
 
 /**
  * The entries of the More tab, in the order the list shows them.
@@ -19,6 +19,7 @@ enum class MoreItem(val phase: Int, val detail: MoreDetail?) {
     Setup(phase = 3, detail = MoreDetail.Setup),
     AI(phase = 4, detail = MoreDetail.AI),
     Devices(phase = 5, detail = null),
+    Share(phase = 4, detail = MoreDetail.Share),
     Health(phase = 2, detail = MoreDetail.Health),
     Settings(phase = 1, detail = MoreDetail.Settings),
     ;
