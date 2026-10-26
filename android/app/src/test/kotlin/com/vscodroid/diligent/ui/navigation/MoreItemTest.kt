@@ -1,7 +1,6 @@
 package com.vscodroid.diligent.ui.navigation
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -16,11 +15,8 @@ class MoreItemTest {
     }
 
     @Test
-    fun `run, setup, laptop, AI, share, health and settings open now, the rest are coming soon`() {
-        assertEquals(listOf(MoreItem.Run, MoreItem.Setup, MoreItem.Laptop, MoreItem.AI, MoreItem.Share, MoreItem.Health, MoreItem.Settings), MoreItem.ordered.filter { it.available })
-        for (item in listOf(MoreItem.Devices)) {
-            assertFalse(item.available, "$item")
-        }
+    fun `every entry opens now`() {
+        assertEquals(MoreItem.ordered, MoreItem.ordered.filter { it.available })
     }
 
     @Test
