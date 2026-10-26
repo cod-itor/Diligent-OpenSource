@@ -110,14 +110,17 @@ fun SheetButtons(
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
     cancel: String = stringResource(R.string.diligent_projects_cancel),
+    showCancel: Boolean = true,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.s, Alignment.End),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TextButton(onClick = onCancel, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
-            Text(cancel)
+        if (showCancel) {
+            TextButton(onClick = onCancel, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
+                Text(cancel)
+            }
         }
         Button(
             onClick = onConfirm,

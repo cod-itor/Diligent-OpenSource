@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -57,7 +58,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.vscodroid.R
 import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.MobileShell
+import com.vscodroid.diligent.process.BundledShell
+import com.vscodroid.diligent.projects.CloneOutcome
 import com.vscodroid.diligent.projects.CreateResult
+import com.vscodroid.diligent.projects.GitClone
+import com.vscodroid.diligent.projects.GitUrl
 import com.vscodroid.diligent.projects.NameProblem
 import com.vscodroid.diligent.projects.ProjectFramework
 import com.vscodroid.diligent.projects.ProjectKind
@@ -66,12 +71,18 @@ import com.vscodroid.diligent.projects.ProjectNames
 import com.vscodroid.diligent.projects.ProjectsFolder
 import com.vscodroid.diligent.projects.RecentProject
 import com.vscodroid.diligent.projects.RecentProjects
+import com.vscodroid.diligent.ui.components.CloneForm
+import com.vscodroid.diligent.ui.components.CloneStage
 import com.vscodroid.diligent.ui.components.NewProjectForm
 import com.vscodroid.diligent.ui.components.OpenFolderList
 import com.vscodroid.diligent.ui.components.ProjectCard
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -125,7 +136,11 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
             onCreated = { path -> actions.openFolder(path) },
         )
         ProjectsSheet.Open -> OpenFolderSheet(actions, now, onDismiss = close)
-        ProjectsSheet.Clone -> Unit
+        ProjectsSheet.Clone -> CloneSheet(
+            projectsDir = actions.projectsDir,
+            onDismiss = close,
+            onCloned = { path -> actions.openFolder(path) },
+        )
         null -> Unit
     }
 }
@@ -383,6 +398,109 @@ private fun NewProjectSheet(projectsDir: String, onDismiss: () -> Unit, onCreate
         )
     }
 }
+
+/**
+ * Clone from Git. The folder name follows the address until the user edits
+ * it. Git runs through [BundledShell], off the main thread; its lines stream
+ * into the sheet as they come. The sheet cannot be swiped away mid-clone:
+ * Stop cancels the clone, which removes the half-made folder, and returns to
+ * the address.
+ */
+@Composable
+private fun CloneSheet(projectsDir: String, onDismiss: () -> Unit, onCloned: (String) -> Unit) {
+    val context = LocalContext.current
+    val cloner = remember(context) { GitClone(BundledShell(context)) }
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    val parent = remember(projectsDir) { File(projectsDir) }
+
+    var url by rememberSaveable { mutableStateOf("") }
+    var folderName by rememberSaveable { mutableStateOf("") }
+    var nameEdited by rememberSaveable { mutableStateOf(false) }
+    var nameProblem by remember { mutableStateOf<NameProblem?>(NameProblem.Empty) }
+    var stage by remember { mutableStateOf<CloneStage>(CloneStage.Input) }
+    var job by remember { mutableStateOf<Job?>(null) }
+
+    LaunchedEffect(folderName) {
+        nameProblem = withContext(Dispatchers.IO) { ProjectNames.problemIn(parent, folderName) }
+    }
+
+    val setUrl: (String) -> Unit = { value ->
+        url = value
+        if (!nameEdited) folderName = GitUrl.folderName(value).orEmpty()
+    }
+
+    DiligentSheet(onDismiss = onDismiss, locked = stage is CloneStage.Running) { hide ->
+        CloneForm(
+            url = url,
+            onUrlChange = setUrl,
+            onPaste = {
+                scope.launch {
+                    clipboard.getClipEntry()?.clipData?.takeIf { it.itemCount > 0 }
+                        ?.getItemAt(0)?.coerceToText(context)?.toString()?.trim()
+                        ?.let(setUrl)
+                }
+            },
+            urlValid = GitUrl.isValid(url),
+            folderName = folderName,
+            onFolderNameChange = {
+                folderName = it
+                nameEdited = true
+            },
+            nameProblem = nameProblem,
+            stage = stage,
+            onClone = clone@{
+                if (job?.isActive == true) return@clone
+                val lines = OutputTail(OUTPUT_KEPT)
+                stage = CloneStage.Running(emptyList())
+                job = scope.launch {
+                    // Git's lines arrive on the IO thread, fast; the tail is
+                    // thread-safe and the stage is replaced on the main thread.
+                    val ticker = launch {
+                        lines.updates.collect { stage = CloneStage.Running(it) }
+                    }
+                    val outcome = try {
+                        cloner.clone(url, parent, folderName, lines::add)
+                    } finally {
+                        ticker.cancel()
+                    }
+                    when (outcome) {
+                        is CloneOutcome.Done -> hide { onCloned(outcome.folder.path) }
+                        is CloneOutcome.Failed -> stage = CloneStage.Failed(outcome.lastLines.takeLast(OUTPUT_KEPT))
+                        is CloneOutcome.Refused -> {
+                            nameProblem = outcome.problem
+                            stage = CloneStage.Input
+                        }
+                    }
+                }
+            },
+            onStop = {
+                scope.launch {
+                    job?.cancelAndJoin()
+                    stage = CloneStage.Input
+                }
+            },
+            onEdit = { stage = CloneStage.Input },
+            onCancel = { hide {} },
+        )
+    }
+}
+
+/** The end of git's output, collected from any thread and offered as a flow of snapshots. */
+private class OutputTail(private val keep: Int) {
+    private val lines = ArrayDeque<String>()
+    private val _updates = MutableStateFlow(emptyList<String>())
+    val updates: StateFlow<List<String>> = _updates
+
+    fun add(line: String) = synchronized(lines) {
+        lines.addLast(line)
+        while (lines.size > keep) lines.removeFirst()
+        _updates.value = lines.toList()
+    }
+}
+
+/** How much of git's output the sheet holds on to. */
+private const val OUTPUT_KEPT = 20
 
 /** Open folder: the system picker, device folders picked before, and the projects folder's own folders. */
 @Composable

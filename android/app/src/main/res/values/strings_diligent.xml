@@ -112,6 +112,22 @@
     <string name="diligent_projects_device_folders">Device folders</string>
     <string name="diligent_projects_in_projects_folder">In your projects folder</string>
     <string name="diligent_projects_no_folders">No folders here yet.</string>
+    <string name="diligent_projects_clone_title">Clone from Git</string>
+    <string name="diligent_projects_clone_body">Copy a project from GitHub, GitLab or any Git server into your projects folder.</string>
+    <string name="diligent_projects_clone_url">Repository address</string>
+    <string name="diligent_projects_clone_url_example" translatable="false">https://github.com/user/project.git</string>
+    <string name="diligent_projects_clone_url_invalid">That does not look like a Git address. It usually starts with https:// or git@.</string>
+    <string name="diligent_projects_clone_paste">Paste</string>
+    <string name="diligent_projects_clone_folder">Folder name</string>
+    <string name="diligent_projects_clone_start">Clone</string>
+    <string name="diligent_projects_cloning">Cloning into %1$s</string>
+    <string name="diligent_projects_clone_starting">Connecting</string>
+    <string name="diligent_projects_clone_progress">%1$s: %2$d%%</string>
+    <string name="diligent_projects_clone_stop">Stop</string>
+    <string name="diligent_projects_clone_failed">Could not clone</string>
+    <string name="diligent_projects_clone_failed_hint">Check the address and your connection. A private repository needs a sign-in: clone it from the Terminal tab instead.</string>
+    <string name="diligent_projects_clone_edit">Edit</string>
+    <string name="diligent_projects_clone_retry">Try again</string>
 
     <!-- First launch: choose a view -->
     <string name="diligent_choose_view_title">How do you want to code?</string>
