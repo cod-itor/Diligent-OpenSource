@@ -1568,6 +1568,41 @@ class AndroidBridge(
         diligent?.updateTasks(json)
     }
 
+    /**
+     * A message from the kit engine (diligent-kit) about a Setup run started
+     * with `diligent.kit.add`: the step it is on, its latest output line, and
+     * how it ended. [json] is described in docs/05-API_SPEC.md. The Setup
+     * screen shows it live. JSON it cannot read is ignored.
+     */
+    @JavascriptInterface
+    fun diligentKitProgress(authToken: String, json: String) {
+        if (!security.validateToken(authToken)) return
+        diligent?.kitProgress(json)
+    }
+
+    /**
+     * The Health screen's checks as JSON, for `kit doctor`:
+     * `{"checks":[{"id","title","state":"pass|fail|unknown","detail"}]}`.
+     * Answered here, on the JavaBridge thread. A refused token, or a bridge
+     * without Diligent, answers the empty string.
+     */
+    @JavascriptInterface
+    fun diligentGetHealth(authToken: String): String {
+        if (!security.validateToken(authToken)) return ""
+        return diligent?.getHealth() ?: ""
+    }
+
+    /**
+     * [installToolchain] with the token first, so the kit engine reaches it
+     * through the relay's one Diligent branch (`installToolchain` itself is
+     * not on the relay). Same behaviour: starts the install and returns.
+     */
+    @JavascriptInterface
+    fun diligentInstallToolchain(authToken: String, name: String) {
+        if (!security.validateToken(authToken)) return
+        installToolchain(name, authToken)
+    }
+
     private fun getVersionName(): String {
         return try {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown"

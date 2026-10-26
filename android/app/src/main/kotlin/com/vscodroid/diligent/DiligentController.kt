@@ -30,6 +30,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
+import com.vscodroid.diligent.health.HealthReport
+import com.vscodroid.diligent.kit.KitProgress
+import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.projects.RecentProjects
 import com.vscodroid.diligent.preview.PreviewActivity
 import com.vscodroid.diligent.run.ProjectRunner
@@ -105,6 +108,11 @@ class DiligentController(
         )
     }
     // -- end Run --
+
+    /** The Setup screen's run (diligent/kit), kept here so it outlives the screen. */
+    val kit by lazy {
+        KitSession(activity.lifecycleScope, send = { command, args -> editor.run(command, *args) })
+    }
 
     private var topBar: View? = null
     private var nativeScreens: View? = null
@@ -364,6 +372,16 @@ class DiligentController(
             val update = TaskUpdate.parse(json) ?: return
             activity.runOnUiThread { onTasks(update) }
         }
+
+        override fun kitProgress(json: String) {
+            val progress = KitProgress.parse(json) ?: return
+            activity.runOnUiThread { kit.onProgress(progress) }
+        }
+
+        // Answered on the JavaBridge thread, which the relay waits on: the
+        // reads are guarded system service calls and string resources, all
+        // safe off the UI thread, and quick.
+        override fun getHealth(): String = HealthReport.read(activity)
     }
 
     /** The supervisor's tasks changed: the notification, the wake lock and Health follow. */
