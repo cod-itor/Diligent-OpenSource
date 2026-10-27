@@ -167,6 +167,7 @@ and the base APK for the table above.
 | [Oniguruma](https://github.com/kkos/oniguruma) | BSD-2-Clause | PHP |
 | [HTML Tidy](https://www.html-tidy.org) | HTMLTIDY | PHP |
 | [libzip](https://libzip.org) | BSD-3-Clause | PHP |
+| [Perl](https://www.perl.org) | Artistic-1.0-Perl OR GPL-1.0-or-later | Perl |
 
 GMP, libgcrypt and libgpg-error are copyleft; their source offers are in `docs/LEGAL_NOTICES.md` beside the rest,
 and the LGPL-3.0 text it requires ships in the base app, which is the only
@@ -192,6 +193,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | PHP | PHP License 3.01 | https://www.php.net |
 | Composer | MIT | https://getcomposer.org |
 | Lua | MIT | https://www.lua.org |
+| Perl | Artistic License or GPL v1+ | https://www.perl.org |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 

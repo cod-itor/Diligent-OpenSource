@@ -367,6 +367,7 @@
     <string name="toolchain_cpp_description">C a C++ (clang, lld). Vyžaduje zachytávač exec v terminálu: nefunguje, když je LD_PRELOAD nastaven na null.</string>
     <string name="toolchain_php_description">PHP s nástrojem Composer</string>
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl s nástroji cpan, perldoc, prove</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

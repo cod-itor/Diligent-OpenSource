@@ -174,6 +174,21 @@ object ToolchainRegistry {
             downloadSize = 200_000,
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_lua.zip",
         ),
+        ToolchainInfo(
+            packName = "toolchain_perl",
+            displayName = "Perl",
+            shortLabel = "Perl",
+            descriptionRes = R.string.toolchain_perl_description,
+            // 63,664 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (65,191,936 bytes in 4 KiB blocks, 1,908 files) after running
+            // scripts/download-perl.sh against perl 5.44.0. The library tree is
+            // most of it; libperl.so is 3.8 MB and ships twice, once in usr/lib
+            // and once in CORE/ for linking an XS module. 68,000,000 leaves 2.8
+            // MB for a point release. The ZIP measured 17,003,407 bytes.
+            estimatedSize = 68_000_000,
+            downloadSize = 18_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_perl.zip",
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

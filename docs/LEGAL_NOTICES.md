@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -673,6 +673,7 @@ VSCodroid bundles binaries licensed under the GNU General Public License (GPL). 
 - **Zstandard** (GPL-2.0 as packaged by Termux; dual-licensed BSD-3-Clause upstream): Source available at https://github.com/termux/termux-packages (package: `zstd`), linked by Python's `zstd` module
 - **GMP** (LGPL-3.0): Source available at https://github.com/termux/termux-packages (package: `libgmp`). Shipped inside the Ruby and PHP toolchain packs, not the base app, so it reaches only devices where one of them was installed
 - **libgcrypt** (LGPL-2.1): Source available at https://github.com/termux/termux-packages (package: `libgcrypt`). Shipped inside the PHP toolchain pack, not the base app, linked by libxslt
+- **Perl** (GPL-1.0-or-later or the Artistic License, at the recipient's choice): Source available at https://github.com/termux/termux-packages (package: `perl`), built from https://www.cpan.org/src/. Shipped inside the Perl toolchain pack, not the base app
 - **libgpg-error** (LGPL-2.1): Source available at https://github.com/termux/termux-packages (package: `libgpg-error`). Shipped inside the PHP toolchain pack, not the base app, linked by libgcrypt
 - **OpenJDK 21** (GPL-2.0 with the Classpath Exception): Source available at https://github.com/termux/termux-packages (package: `openjdk-21`), built from https://github.com/openjdk/jdk21u. Shipped inside the Java toolchain pack, not the base app, so it reaches only devices where Java was installed. The Classpath Exception grants an additional permission and removes none of the obligations above.
 - **Linux kernel interface headers** (GPL-2.0 WITH Linux-syscall-note): the sanitized copies of the kernel's UAPI headers that the C/C++ toolchain pack installs as `ndk-sysroot`'s `usr/include/linux`, `asm-generic`, `drm`, `sound` and the other kernel header directories. They are plain header files and nothing is compiled from them into the pack, so the source is the files themselves. Android generates them from the kernel with the tool at https://android.googlesource.com/platform/bionic/+/refs/heads/main/libc/kernel/, and Termux repackages them (https://github.com/termux/termux-packages, package: `ndk-sysroot`). The Linux-syscall-note exception states that programs which use the kernel through its system call interface are not derived works of it, which is the only use these headers are installed for. Shipped inside the C/C++ toolchain pack, not the base app.
@@ -751,8 +752,10 @@ nothing and report success.
 | HTML Tidy | HTMLTIDY | PHP | https://github.com/termux/termux-packages (package: `tidy`), built from https://github.com/htacg/tidy-html5 |
 | libzip | BSD-3-Clause | PHP | https://github.com/termux/termux-packages (package: `libzip`) |
 | ICU | ICU | PHP (`libicuio.so.78` only; the rest of ICU is in the base app) | https://github.com/termux/termux-packages (package: `libicu`) |
+| Perl | Artistic-1.0-Perl OR GPL-1.0-or-later | Perl | https://github.com/termux/termux-packages (package: `perl`), built from https://www.cpan.org/src/ |
 
-GMP, libgcrypt and libgpg-error are the copyleft libraries here. Their written
+GMP, libgcrypt and libgpg-error are the copyleft libraries here, and Perl may be
+taken under the GPL as one of its two licences. Their written
 source offers sit with the others under **GPL Source Code Availability** above,
 and the LGPL texts they require are bundled in the base app under **GPL and LGPL
 License Texts**.
@@ -828,6 +831,13 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: MIT
 - **Copyright**: Copyright (c) Lua.org, PUC-Rio
 - **Full license**: ships inside the pack at `usr/share/doc/lua54/copyright`, and https://www.lua.org/license.html
+
+### Perl
+
+- **Project**: https://www.perl.org (Perl 5, packaged by Termux)
+- **License**: the Artistic License or the GNU General Public License, version 1 or later, at the recipient's choice (Artistic-1.0-Perl OR GPL-1.0-or-later)
+- **Copyright**: Copyright (c) Larry Wall and others
+- **Full license**: ships inside the pack at `usr/share/doc/perl/copyright`, and https://dev.perl.org/licenses/
 
 ---
 

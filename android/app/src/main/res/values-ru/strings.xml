@@ -367,6 +367,7 @@
     <string name="toolchain_cpp_description">C и C++ (clang, lld). Нужен перехватчик exec терминала: не работает, если LD_PRELOAD установлен в null.</string>
     <string name="toolchain_php_description">PHP с Composer</string>
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl с cpan, perldoc, prove</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

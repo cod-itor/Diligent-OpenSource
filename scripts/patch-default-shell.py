@@ -128,6 +128,10 @@ file in it is answered for. These are:
   * the PHP asset pack, swept by download-php.sh once it has placed the pack.
     php carries the path once, as the C constant behind exec() and proc_open(),
     and is rewritten before the sweep; nothing else in the pack names it.
+  * the Perl asset pack, swept by download-perl.sh once it has placed the pack.
+    Both copies of libperl.so are rewritten here; Config_heavy.pl and
+    CORE/config.h, which name the path in shapes this script does not know, are
+    rewritten by the download script itself, and the sweep holds it to that.
 
 The Python stdlib is deliberately not one of them. Three files under it name the
 path in a `#!` line rather than as a default they hand to execve, none of them

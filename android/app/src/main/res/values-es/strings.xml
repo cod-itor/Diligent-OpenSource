@@ -364,6 +364,7 @@
     <string name="toolchain_cpp_description">C y C++ (clang, lld). Necesita el interceptor de exec del terminal: no funciona con LD_PRELOAD establecido en null.</string>
     <string name="toolchain_php_description">PHP con Composer</string>
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl con cpan, perldoc, prove</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

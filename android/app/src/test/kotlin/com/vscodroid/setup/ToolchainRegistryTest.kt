@@ -24,8 +24,8 @@ class ToolchainRegistryTest {
     inner class CatalogTest {
 
         @Test
-        fun `has exactly 5 toolchains`() {
-            assertEquals(5, ToolchainRegistry.available.size)
+        fun `has exactly 6 toolchains`() {
+            assertEquals(6, ToolchainRegistry.available.size)
         }
 
         @Test
@@ -269,6 +269,17 @@ class ToolchainRegistryTest {
             )
         }
 
+        @Test
+        fun `contains Perl toolchain, fetched from Diligent's releases`() {
+            val perl = ToolchainRegistry.available.find { it.shortLabel == "Perl" }
+            assertNotNull(perl)
+            assertEquals("toolchain_perl", perl!!.packName)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_perl.zip",
+                perl.downloadUrl,
+            )
+        }
+
         /**
          * The card is the one place the user is told what this toolchain needs.
          *
@@ -304,7 +315,7 @@ class ToolchainRegistryTest {
     inner class FindTest {
 
         @ParameterizedTest(name = "find by full pack name: {0}")
-        @ValueSource(strings = ["toolchain_ruby", "toolchain_java", "toolchain_cpp", "toolchain_php", "toolchain_lua"])
+        @ValueSource(strings = ["toolchain_ruby", "toolchain_java", "toolchain_cpp", "toolchain_php", "toolchain_lua", "toolchain_perl"])
         fun `finds by full pack name`(packName: String) {
             val result = ToolchainRegistry.find(packName)
             assertNotNull(result, "Should find toolchain by pack name: $packName")
@@ -312,7 +323,7 @@ class ToolchainRegistryTest {
         }
 
         @ParameterizedTest(name = "find by short name: {0} → toolchain_{0}")
-        @CsvSource("ruby,toolchain_ruby", "java,toolchain_java", "cpp,toolchain_cpp", "php,toolchain_php", "lua,toolchain_lua")
+        @CsvSource("ruby,toolchain_ruby", "java,toolchain_java", "cpp,toolchain_cpp", "php,toolchain_php", "lua,toolchain_lua", "perl,toolchain_perl")
         fun `finds by short name`(shortName: String, expectedPack: String) {
             val result = ToolchainRegistry.find(shortName)
             assertNotNull(result, "Should find toolchain by short name: $shortName")

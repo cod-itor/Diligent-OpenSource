@@ -287,6 +287,8 @@ TOOLCHAIN_LIBRARIES = {
     "libtidy.so": ("HTML Tidy", "HTMLTIDY"),
     "libzip.so": ("libzip", "BSD-3-Clause"),
     "libicuio.so.78": ("ICU", "ICU"),
+    # Diligent: the Perl pack.
+    "libperl.so": ("Perl", "Artistic-1.0-Perl OR GPL-1.0-or-later"),
 }
 
 # Where each component's own notice reaches the device, as a path under
@@ -382,6 +384,7 @@ NOTICE_DIRS = {
     "Oniguruma": "usr/share/doc/oniguruma",
     "HTML Tidy": "usr/share/doc/tidy",
     "libzip": "usr/share/doc/libzip",
+    "Perl": "usr/share/doc/perl",
 }
 
 # The smallest thing that can be a notice, in bytes.

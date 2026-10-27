@@ -358,6 +358,7 @@
     <string name="toolchain_cpp_description">C 및 C++ (clang, lld). 터미널의 exec 인터셉터가 필요하며 LD_PRELOAD를 null로 설정하면 동작하지 않습니다.</string>
     <string name="toolchain_php_description">PHP와 Composer</string>
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl과 cpan, perldoc, prove</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->
