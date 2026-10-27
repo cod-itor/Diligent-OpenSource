@@ -193,6 +193,9 @@
     <string name="toolchain_failed_digest">Il download non corrisponde a quanto pubblicato nella release. Riprova.</string>
     <string name="toolchain_failed_corrupt">Il download è incompleto. Riprova.</string>
     <string name="toolchain_failed_play">Play distribuisce questa toolchain solo alle app che ha installato. Installa dal Play Store e riprova.</string>
+    <string name="toolchain_failed_needs_java">Questa toolchain funziona su Java 21. Installa prima Java 21, poi riprova.</string>
+    <string name="toolchain_failed_needs_cpp">Questa toolchain effettua il link con C/C++. Installa prima C/C++, poi riprova.</string>
+    <string name="toolchain_failed_needs_erlang">Questa toolchain funziona su Erlang/OTP. Installa prima Erlang/OTP, poi riprova.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -362,6 +365,20 @@
     <string name="toolchain_ruby_description">Ruby con irb, gem, bundler</string>
     <string name="toolchain_java_description">OpenJDK 21 (javac, jar, jshell)</string>
     <string name="toolchain_cpp_description">C e C++ (clang, lld). Richiede l\'interceptor exec del terminale: non funziona con LD_PRELOAD impostato su null.</string>
+    <string name="toolchain_php_description">PHP con Composer</string>
+    <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl con cpan, perldoc, prove</string>
+    <string name="toolchain_kotlin_description">Compilatore Kotlin (kotlinc, kotlin). Funziona su Java 21: installa anche Java 21.</string>
+    <string name="toolchain_rust_description">Rust (rustc, cargo). Effettua il link con C/C++, quindi installa anche C/C++. Richiede l\'interceptor exec del terminale: non funziona con LD_PRELOAD impostato su null.</string>
+    <string name="toolchain_tcl_description">Tcl 8.6 (tclsh), con Itcl, Thread e TDBC.</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Funziona su Java 21: installa anche Java 21.</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Funziona su Java 21: installa anche Java 21.</string>
+    <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), senza wx e ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Funziona su Erlang/OTP: installa anche Erlang/OTP.</string>
+    <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp), con ASDF.</string>
+    <string name="toolchain_deno_description">Deno, un runtime JavaScript e TypeScript con formattatore, linter ed esecutore di test propri.</string>
+    <string name="toolchain_gleam_description">Compilatore Gleam. Funziona su Erlang/OTP: installa anche Erlang/OTP.</string>
+    <string name="toolchain_nasm_description">Assembler x86 NASM (nasm, ndisasm). Genera codice per PC, non per questo telefono.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

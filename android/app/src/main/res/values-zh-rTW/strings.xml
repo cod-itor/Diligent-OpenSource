@@ -193,6 +193,9 @@
     <string name="toolchain_failed_digest">下載內容與發行版本公布的內容不符。請再試一次。</string>
     <string name="toolchain_failed_corrupt">下載並不完整。請再試一次。</string>
     <string name="toolchain_failed_play">Play 只會將這個工具鏈提供給由它安裝的應用程式。請從 Play Store 安裝後再試一次。</string>
+    <string name="toolchain_failed_needs_java">此工具鏈在 Java 21 上執行。請先安裝 Java 21，然後再試一次。</string>
+    <string name="toolchain_failed_needs_cpp">此工具鏈使用 C/C++ 進行連結。請先安裝 C/C++，然後再試一次。</string>
+    <string name="toolchain_failed_needs_erlang">此工具鏈在 Erlang/OTP 上執行。請先安裝 Erlang/OTP，然後再試一次。</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -356,6 +359,20 @@
     <string name="toolchain_ruby_description">Ruby，含 irb、gem、bundler</string>
     <string name="toolchain_java_description">OpenJDK 21（javac、jar、jshell）</string>
     <string name="toolchain_cpp_description">C 與 C++（clang、lld）。需要終端機的 exec 攔截器，LD_PRELOAD 設為 null 時無法使用。</string>
+    <string name="toolchain_php_description">PHP，含 Composer</string>
+    <string name="toolchain_lua_description">Lua 5.4（lua、luac）</string>
+    <string name="toolchain_perl_description">Perl，含 cpan、perldoc、prove</string>
+    <string name="toolchain_kotlin_description">Kotlin 編譯器（kotlinc、kotlin）。在 Java 21 上執行，請同時安裝 Java 21。</string>
+    <string name="toolchain_rust_description">Rust（rustc、cargo）。使用 C/C++ 進行連結，請同時安裝 C/C++。需要終端機的 exec 攔截器，LD_PRELOAD 設為 null 時無法使用。</string>
+    <string name="toolchain_tcl_description">Tcl 8.6（tclsh），附帶 Itcl、Thread 和 TDBC。</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh)。在 Java 21 上執行，請同時安裝 Java 21。</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc)。在 Java 21 上執行，請同時安裝 Java 21。</string>
+    <string name="toolchain_erlang_description">Erlang/OTP（erl、erlc、escript），不含 wx 和 ODBC。</string>
+    <string name="toolchain_elixir_description">Elixir（elixir、iex、mix）。在 Erlang/OTP 上執行，請同時安裝 Erlang/OTP。</string>
+    <string name="toolchain_sbcl_description">Common Lisp：SBCL（Steel Bank Common Lisp），附帶 ASDF。</string>
+    <string name="toolchain_deno_description">Deno，內建格式化、程式碼檢查與測試執行器的 JavaScript 與 TypeScript 執行環境。</string>
+    <string name="toolchain_gleam_description">Gleam 編譯器。在 Erlang/OTP 上執行，請同時安裝 Erlang/OTP。</string>
+    <string name="toolchain_nasm_description">NASM x86 組譯器（nasm、ndisasm）。產生的是 PC 程式碼，無法在這支手機上執行。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

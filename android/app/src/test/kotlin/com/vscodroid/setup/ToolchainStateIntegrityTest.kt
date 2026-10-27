@@ -187,8 +187,9 @@ class ToolchainStateIntegrityTest {
      */
     @Test
     fun `an unknown name is passed through untouched`() {
-        assertEquals("rust", toolchainShortName("rust"))
-        assertEquals("toolchain_rust", toolchainShortName("toolchain_rust"))
+        // Diligent: Rust is a registered pack now, so the unknown name is Swift.
+        assertEquals("swift", toolchainShortName("swift"))
+        assertEquals("toolchain_swift", toolchainShortName("toolchain_swift"))
     }
 
     /** Every state a removal reported, in order, with the reason each carried. */

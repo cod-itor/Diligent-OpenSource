@@ -345,7 +345,7 @@ android {
     }
 
     // On-demand toolchain asset packs (Play Asset Delivery)
-    assetPacks += listOf(":toolchain_ruby", ":toolchain_java", ":toolchain_cpp")
+    assetPacks += listOf(":toolchain_ruby", ":toolchain_java", ":toolchain_cpp", ":toolchain_php", ":toolchain_lua", ":toolchain_perl", ":toolchain_kotlin", ":toolchain_rust", ":toolchain_tcl", ":toolchain_groovy", ":toolchain_scala", ":toolchain_erlang", ":toolchain_elixir", ":toolchain_sbcl", ":toolchain_deno", ":toolchain_gleam", ":toolchain_nasm")
 
     bundle {
         language {
@@ -689,6 +689,20 @@ tasks.withType<Test> {
         rootProject.projectDir.parentFile.resolve("scripts/download-ruby.sh"),
         rootProject.projectDir.parentFile.resolve("scripts/download-java.sh"),
         rootProject.projectDir.parentFile.resolve("scripts/download-cpp.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-php.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-lua.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-perl.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-kotlin.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-rust.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-tcl.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-groovy.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-scala.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-erlang.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-elixir.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-sbcl.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-deno.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-gleam.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-nasm.sh"),
     )
         .withPropertyName("toolchainDownloadScripts")
         .withPathSensitivity(PathSensitivity.RELATIVE)

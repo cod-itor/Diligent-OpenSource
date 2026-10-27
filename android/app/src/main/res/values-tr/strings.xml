@@ -193,6 +193,9 @@
     <string name="toolchain_failed_digest">İndirilen dosya, sürümde yayımlananla eşleşmedi. Yeniden deneyin.</string>
     <string name="toolchain_failed_corrupt">İndirme tamamlanmadı. Yeniden deneyin.</string>
     <string name="toolchain_failed_play">Play, bu araç zincirini yalnızca kendi yüklediği uygulamalara sunar. Play Store\'dan yükleyip yeniden deneyin.</string>
+    <string name="toolchain_failed_needs_java">Bu araç zinciri Java 21 üzerinde çalışır. Önce Java 21\'i yükleyin, sonra yeniden deneyin.</string>
+    <string name="toolchain_failed_needs_cpp">Bu araç zinciri bağlama için C/C++ kullanır. Önce C/C++\'ı yükleyin, sonra yeniden deneyin.</string>
+    <string name="toolchain_failed_needs_erlang">Bu araç zinciri Erlang/OTP üzerinde çalışır. Önce Erlang/OTP\'yi yükleyin, sonra yeniden deneyin.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -359,6 +362,20 @@
     <string name="toolchain_ruby_description">Ruby (irb, gem, bundler)</string>
     <string name="toolchain_java_description">OpenJDK 21 (javac, jar, jshell)</string>
     <string name="toolchain_cpp_description">C ve C++ (clang, lld). Terminalin exec yakalayıcısını gerektirir: LD_PRELOAD null olarak ayarlıysa çalışmaz.</string>
+    <string name="toolchain_php_description">PHP (Composer)</string>
+    <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl (cpan, perldoc, prove)</string>
+    <string name="toolchain_kotlin_description">Kotlin derleyicisi (kotlinc, kotlin). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
+    <string name="toolchain_rust_description">Rust (rustc, cargo). Bağlama için C/C++ kullanır, bu yüzden C/C++\'ı da yükleyin. Terminalin exec yakalayıcısını gerektirir: LD_PRELOAD null olarak ayarlıysa çalışmaz.</string>
+    <string name="toolchain_tcl_description">Tcl 8.6 (tclsh); Itcl, Thread ve TDBC ile.</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
+    <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript); wx ve ODBC hariç.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Erlang/OTP üzerinde çalışır: Erlang/OTP\'yi de yükleyin.</string>
+    <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp), ASDF ile.</string>
+    <string name="toolchain_deno_description">Deno; kendi biçimlendiricisi, linter\'ı ve test çalıştırıcısı olan bir JavaScript ve TypeScript çalışma zamanı.</string>
+    <string name="toolchain_gleam_description">Gleam derleyicisi. Erlang/OTP üzerinde çalışır: Erlang/OTP\'yi de yükleyin.</string>
+    <string name="toolchain_nasm_description">NASM x86 derleyicisi (nasm, ndisasm). Bu telefon için değil, PC\'ler için kod üretir.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -12,6 +12,20 @@ set -euo pipefail
 #     ./scripts/download-ruby.sh
 #     ./scripts/download-java.sh
 #     ./scripts/download-cpp.sh
+#     ./scripts/download-php.sh
+#     ./scripts/download-lua.sh
+#     ./scripts/download-perl.sh
+#     ./scripts/download-kotlin.sh
+#     ./scripts/download-rust.sh
+#     ./scripts/download-tcl.sh
+#     ./scripts/download-groovy.sh
+#     ./scripts/download-scala.sh
+#     ./scripts/download-erlang.sh
+#     ./scripts/download-elixir.sh
+#     ./scripts/download-sbcl.sh
+#     ./scripts/download-deno.sh
+#     ./scripts/download-gleam.sh
+#     ./scripts/download-nasm.sh
 #
 # Usage:
 #   ./scripts/package-toolchains.sh              # Package all toolchains
@@ -22,6 +36,20 @@ set -euo pipefail
 #   toolchain-zips/toolchain_ruby.zip  (~11 MB)
 #   toolchain-zips/toolchain_java.zip  (~64 MB)
 #   toolchain-zips/toolchain_cpp.zip   (~74 MB)
+#   toolchain-zips/toolchain_php.zip   (~10 MB)
+#   toolchain-zips/toolchain_lua.zip   (~0.2 MB)
+#   toolchain-zips/toolchain_perl.zip  (~17 MB)
+#   toolchain-zips/toolchain_kotlin.zip(~90 MB)
+#   toolchain-zips/toolchain_rust.zip  (~97 MB)
+#   toolchain-zips/toolchain_tcl.zip   (~1.6 MB)
+#   toolchain-zips/toolchain_groovy.zip(~39 MB)
+#   toolchain-zips/toolchain_scala.zip (~169 MB)
+#   toolchain-zips/toolchain_erlang.zip(~38 MB)
+#   toolchain-zips/toolchain_elixir.zip(~8.3 MB)
+#   toolchain-zips/toolchain_sbcl.zip  (~13 MB)
+#   toolchain-zips/toolchain_deno.zip  (~39 MB)
+#   toolchain-zips/toolchain_gleam.zip (~8 MB)
+#   toolchain-zips/toolchain_nasm.zip  (~0.6 MB)
 #
 # The ZIPs are intended to be attached to GitHub Releases so that sideloaded
 # APK users (not from Play Store) can download toolchains manually. The app's

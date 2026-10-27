@@ -211,12 +211,17 @@ class ToolchainDigestTest {
         // The reason the URL is derived rather than written down twice. If two
         // toolchains ever resolved to different manifests, one release could
         // vouch for one of them and not the other with nothing failing.
-        val manifests = ToolchainRegistry.available
+        //
+        // Diligent: per repository. VSCodroid's three packs still come from its
+        // releases and Diligent's own from Diligent's, and each release vouches
+        // for the ZIPs it publishes, so the rule is one manifest per repository.
+        val byRepo = ToolchainRegistry.available
             .mapNotNull { it.downloadUrl }
-            .map { manifestUrlFor(it) }
-            .toSet()
-
-        assertEquals(1, manifests.size, "registered toolchains disagree about the manifest: $manifests")
+            .groupBy { it.substringBefore("/releases/") }
+        for ((repo, urls) in byRepo) {
+            val manifests = urls.map { manifestUrlFor(it) }.toSet()
+            assertEquals(1, manifests.size, "toolchains from $repo disagree about the manifest: $manifests")
+        }
     }
 }
 
@@ -327,11 +332,14 @@ class LatestReleasePinningTest {
             .map { pinnedAssetUrl(it, "v1.1.0") }
 
         assertEquals(emptyList<String?>(), pinned.filter { it == null }, "a registered toolchain could not be pinned")
-        assertEquals(
-            1,
-            pinned.filterNotNull().map { manifestUrlFor(it) }.toSet().size,
-            "pinned toolchains disagree about the manifest",
-        )
+        // Diligent: one manifest per repository, as above.
+        for ((repo, urls) in pinned.filterNotNull().groupBy { it.substringBefore("/releases/") }) {
+            assertEquals(
+                1,
+                urls.map { manifestUrlFor(it) }.toSet().size,
+                "pinned toolchains from $repo disagree about the manifest",
+            )
+        }
     }
 
     // -- appReleaseTag ----------------------------------------------------

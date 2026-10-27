@@ -275,6 +275,21 @@ TOOLCHAIN_LIBRARIES = {
     "libpthread.so": ("ndk-sysroot", "NCSA"),
     "librt.so": ("ndk-sysroot", "NCSA"),
     "libutil.so": ("ndk-sysroot", "NCSA"),
+    # Diligent: the PHP pack. libgmp and libxml2 are the same components the
+    # Ruby and C/C++ packs already ship, under the same names. libicuio is the
+    # one ICU library the base APK does not carry.
+    "libcapstone.so": ("Capstone", "BSD-3-Clause"),
+    "libxslt.so": ("libxslt", "MIT"),
+    "libexslt.so": ("libxslt", "MIT"),
+    "libgcrypt.so": ("libgcrypt", "LGPL-2.1"),
+    "libgpg-error.so": ("libgpg-error", "LGPL-2.1"),
+    "libonig.so": ("Oniguruma", "BSD-2-Clause"),
+    "libtidy.so": ("HTML Tidy", "HTMLTIDY"),
+    "libzip.so": ("libzip", "BSD-3-Clause"),
+    "libicuio.so.78": ("ICU", "ICU"),
+    # Diligent: the Perl pack.
+    "libperl.so": ("Perl", "Artistic-1.0-Perl OR GPL-1.0-or-later"),
+    "libtcl8.6.so": ("Tcl", "TCL"),
 }
 
 # Where each component's own notice reaches the device, as a path under
@@ -362,6 +377,16 @@ NOTICE_DIRS = {
     "LLVM": "usr/share/doc/libllvm",
     "libxml2": "usr/share/doc/libxml2",
     "ndk-sysroot": "usr/share/doc/ndk-sysroot",
+    # Diligent: the PHP pack.
+    "Capstone": "usr/share/doc/capstone",
+    "libxslt": "usr/share/doc/libxslt",
+    "libgcrypt": "usr/share/doc/libgcrypt",
+    "libgpg-error": "usr/share/doc/libgpg-error",
+    "Oniguruma": "usr/share/doc/oniguruma",
+    "HTML Tidy": "usr/share/doc/tidy",
+    "libzip": "usr/share/doc/libzip",
+    "Perl": "usr/share/doc/perl",
+    "Tcl": "usr/share/doc/tcl",
 }
 
 # The smallest thing that can be a notice, in bytes.
@@ -670,7 +695,12 @@ def toolchain_notices():
             if path.is_symlink() or not path.is_file():
                 continue
             name = path.name.lower()
-            if name.startswith(("license", "licence", "copying", "notice")) or \
+            # `copyright` too: it is the name a Termux package gives its notice
+            # (Debian's convention), and the one file termux_copy_notices
+            # places for a package that ships nothing else. Diligent's Lua pack
+            # carries exactly that one, and read without it the pack reported
+            # no notice while carrying Lua's.
+            if name.startswith(("license", "licence", "copying", "notice", "copyright")) or \
                     name.endswith((".md", ".txt")) and "licen" in name:
                 found = True
                 break

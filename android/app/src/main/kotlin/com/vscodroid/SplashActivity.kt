@@ -1255,7 +1255,11 @@ internal fun notYetInstalled(
     installed: Collection<String>,
 ): List<String> {
     val onDisk = installed.mapNotNull { ToolchainRegistry.find(it)?.packName }.toSet()
-    return selected.filterNot { ToolchainRegistry.find(it)?.packName in onDisk }
+    // Diligent: a pack another one runs on goes first, so Kotlin picked with Java
+    // finds Java installed when the queue reaches it.
+    return ToolchainRegistry.inInstallOrder(
+        selected.filterNot { ToolchainRegistry.find(it)?.packName in onDisk },
+    )
 }
 
 /**
