@@ -27,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -37,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.pluralStringResource
@@ -55,6 +57,8 @@ import com.vscodroid.diligent.files.FileIndex
 import com.vscodroid.diligent.files.FileMatches
 import com.vscodroid.diligent.files.FileSearch
 import com.vscodroid.diligent.files.IndexedFile
+import com.vscodroid.diligent.files.RecentFileList
+import com.vscodroid.diligent.files.RecentFiles
 import com.vscodroid.diligent.files.fileKind
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 
@@ -82,19 +86,19 @@ fun rememberFileIndex(root: String): IndexLoad {
  * Every file of the project in one list, with a search on top: the way to
  * reach any file without opening folders one at a time.
  *
- * The query lives here and survives a rotation. [recent] is the project's
- * recently opened files, newest first, as paths. [autoFocus] puts the cursor
+ * The query lives here and survives a rotation. With no query, the files
+ * opened recently in this project come first (see [RecentFiles]). [autoFocus] puts the cursor
  * in the search and brings up the keyboard, for the file switcher.
  */
 @Composable
 fun AllFilesList(
     root: String,
-    recent: List<String>,
     onOpen: (IndexedFile) -> Unit,
     modifier: Modifier = Modifier,
     autoFocus: Boolean = false,
 ) {
     val load = rememberFileIndex(root)
+    val recent = rememberRecentFiles(root)
     var query by rememberSaveable(root) { mutableStateOf("") }
     AllFilesContent(
         load = load,
@@ -105,6 +109,16 @@ fun AllFilesList(
         modifier = modifier,
         autoFocus = autoFocus,
     )
+}
+
+/** The files opened recently in [project], newest first, as paths. */
+@Composable
+fun rememberRecentFiles(project: String): List<String> {
+    val context = LocalContext.current
+    val store = remember { RecentFiles.of(context) }
+    LaunchedEffect(store) { store.load() }
+    val all by store.files.collectAsState()
+    return remember(all, project) { all?.let { RecentFileList.of(it, project) }.orEmpty() }
 }
 
 /** What [AllFilesList] draws, from plain values, so previews can show every state. */

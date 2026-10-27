@@ -213,6 +213,9 @@
     <string name="diligent_files_no_match_body">Check the spelling, or type part of the file name or its folder.</string>
     <string name="diligent_files_no_files_body">There are no files here yet. Switch to Folders and tap New to add one.</string>
     <string name="diligent_files_list_unreadable">The files of this project could not be read.</string>
+    <string name="diligent_files_switcher_title">Go to a file</string>
+    <string name="diligent_files_switcher_close">Close</string>
+    <string name="diligent_files_switcher_no_project_body">Open a project first. Then you can jump to any of its files from here.</string>
     <plurals name="diligent_files_capped">
         <item quantity="one">This project is very big, so only the first %1$d file is listed. Use Folders to reach the rest.</item>
         <item quantity="other">This project is very big, so only the first %1$d files are listed. Use Folders to reach the rest.</item>

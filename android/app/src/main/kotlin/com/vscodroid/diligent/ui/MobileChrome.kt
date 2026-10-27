@@ -25,6 +25,7 @@ import com.vscodroid.diligent.ui.components.MenuAction
 import com.vscodroid.diligent.ui.components.standardEditorActions
 import com.vscodroid.diligent.ui.components.suggestionActions
 import com.vscodroid.diligent.ui.navigation.MobileTab
+import com.vscodroid.diligent.ui.screens.FileSwitcherSheet
 import com.vscodroid.diligent.ui.screens.FilesMode
 import com.vscodroid.diligent.ui.screens.FilesScreen
 import com.vscodroid.diligent.ui.screens.MoreScreen
@@ -60,12 +61,15 @@ fun TopChrome(shell: MobileShell, actions: MobileActions) {
     )
 }
 
-/** Over the editor, on the tabs that are not the editor. */
+/** Over the editor, on the tabs that are not the editor; and the file switcher on any tab. */
 @Composable
 fun NativeScreens(shell: MobileShell, actions: MobileActions) {
     // Held here rather than in the Files tab, which leaves composition when
     // another tab is in front: Folders stays chosen across a trip to the editor.
     var filesMode by rememberSaveable { mutableStateOf(FilesMode.AllFiles) }
+    // The switcher is a sheet in a window of its own, so it shows over the
+    // editor too, while this layer itself is GONE.
+    if (shell.view == AppView.Mobile && shell.fileSwitcherOpen) FileSwitcherSheet(shell, actions)
     if (!shell.chrome.nativeScreen) return
     when (shell.tab) {
         MobileTab.Projects -> ProjectsScreen(shell, actions)

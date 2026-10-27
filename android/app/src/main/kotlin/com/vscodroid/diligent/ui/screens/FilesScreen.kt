@@ -119,7 +119,6 @@ fun FilesScreen(
                     when (mode) {
                         FilesMode.AllFiles -> AllFilesList(
                             root = folder,
-                            recent = emptyList(),
                             onOpen = { actions.openFile(it.path) },
                             modifier = Modifier.weight(1f),
                         )
