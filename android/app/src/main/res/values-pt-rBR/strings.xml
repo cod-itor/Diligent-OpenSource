@@ -377,6 +377,7 @@
     <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Roda no Erlang/OTP: instale também o Erlang/OTP.</string>
     <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp), com ASDF.</string>
     <string name="toolchain_deno_description">Deno, um runtime de JavaScript e TypeScript com formatador, linter e executor de testes próprios.</string>
+    <string name="toolchain_gleam_description">Compilador Gleam. Roda no Erlang/OTP: instale também o Erlang/OTP.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -24,6 +24,7 @@ set -euo pipefail
 #     ./scripts/download-elixir.sh
 #     ./scripts/download-sbcl.sh
 #     ./scripts/download-deno.sh
+#     ./scripts/download-gleam.sh
 #
 # Usage:
 #   ./scripts/package-toolchains.sh              # Package all toolchains
@@ -46,6 +47,7 @@ set -euo pipefail
 #   toolchain-zips/toolchain_elixir.zip(~8.3 MB)
 #   toolchain-zips/toolchain_sbcl.zip  (~13 MB)
 #   toolchain-zips/toolchain_deno.zip  (~39 MB)
+#   toolchain-zips/toolchain_gleam.zip (~8 MB)
 #
 # The ZIPs are intended to be attached to GitHub Releases so that sideloaded
 # APK users (not from Play Store) can download toolchains manually. The app's

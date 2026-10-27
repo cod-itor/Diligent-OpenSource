@@ -366,6 +366,23 @@ object ToolchainRegistry {
             downloadSize = 41_000_000,
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_deno.zip",
         ),
+        ToolchainInfo(
+            packName = "toolchain_gleam",
+            displayName = "Gleam",
+            shortLabel = "Gleam",
+            descriptionRes = R.string.toolchain_gleam_description,
+            // 19,824 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (20,299,776 bytes in 4 KiB blocks, 2 files) after running
+            // scripts/download-gleam.sh against gleam 1.19.2. It is one binary.
+            // 21,000,000 leaves 0.7 MB for a point release. The ZIP measured
+            // 8,404,911 bytes.
+            //
+            // The Erlang pack is not counted here: `requires` makes it come first.
+            estimatedSize = 21_000_000,
+            downloadSize = 9_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_gleam.zip",
+            requires = listOf("toolchain_erlang"),
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

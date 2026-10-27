@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy, Scala, Erlang/OTP, Elixir, Common Lisp, Deno) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy, Scala, Erlang/OTP, Elixir, Common Lisp, Deno, Gleam) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -903,6 +903,13 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: MIT
 - **Copyright**: Copyright (c) the Deno authors
 - **Full license**: ships inside the pack at `usr/share/doc/deno/copyright`, and https://github.com/denoland/deno/blob/main/LICENSE.md
+
+### Gleam
+
+- **Project**: https://gleam.run (the Gleam compiler, packaged by Termux)
+- **License**: Apache License 2.0
+- **Copyright**: Copyright (c) Louis Pilfold and the Gleam contributors
+- **Full license**: ships inside the pack at `usr/share/doc/gleam/copyright`
 
 ---
 

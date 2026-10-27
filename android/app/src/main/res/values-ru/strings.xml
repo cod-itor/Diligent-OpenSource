@@ -380,6 +380,7 @@
     <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Работает на Erlang/OTP: установите и Erlang/OTP.</string>
     <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp) с ASDF.</string>
     <string name="toolchain_deno_description">Deno, среда выполнения JavaScript и TypeScript со встроенными форматировщиком, линтером и средством запуска тестов.</string>
+    <string name="toolchain_gleam_description">Компилятор Gleam. Работает на Erlang/OTP: установите и Erlang/OTP.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

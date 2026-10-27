@@ -371,6 +371,7 @@
     <string name="toolchain_elixir_description">Elixir (elixir、iex、mix)。Erlang/OTP 上で動作するため、Erlang/OTP もインストールしてください。</string>
     <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp)。ASDF 付き。</string>
     <string name="toolchain_deno_description">Deno。フォーマッター、リンター、テストランナーを備えた JavaScript と TypeScript のランタイムです。</string>
+    <string name="toolchain_gleam_description">Gleam コンパイラー。Erlang/OTP 上で動作するため、Erlang/OTP もインストールしてください。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

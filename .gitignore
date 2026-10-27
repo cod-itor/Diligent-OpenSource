@@ -91,6 +91,8 @@ yarn-error.log*
 /android/toolchain_sbcl/src/main/assets/toolchain_sbcl.json
 /android/toolchain_deno/src/main/assets/usr/
 /android/toolchain_deno/src/main/assets/toolchain_deno.json
+/android/toolchain_gleam/src/main/assets/usr/
+/android/toolchain_gleam/src/main/assets/toolchain_gleam.json
 
 # ===== Toolchain Asset Pack build intermediates =====
 /android/toolchain_ruby/build/
@@ -108,6 +110,7 @@ yarn-error.log*
 /android/toolchain_elixir/build/
 /android/toolchain_sbcl/build/
 /android/toolchain_deno/build/
+/android/toolchain_gleam/build/
 
 # ===== Bundletool (local AAB testing only) =====
 bundletool.jar
