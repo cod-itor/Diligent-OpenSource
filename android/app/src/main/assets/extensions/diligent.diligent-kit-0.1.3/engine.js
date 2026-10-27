@@ -42,15 +42,20 @@ const PACKS = Object.freeze({
     toolchain_ruby: { label: 'Ruby', sizeMB: 41 },
     toolchain_java: { label: 'Java 21', sizeMB: 186 },
     toolchain_cpp: { label: 'C/C++', sizeMB: 260 },
-    // Packs that are being added to ToolchainRegistry.kt. Until a Diligent
-    // release publishes them, an install fails and the recipe says so. The
-    // sizes are generous guesses, which only make the space check ask for
-    // more; the self-check holds each to at least the registry's figure.
-    toolchain_php: { label: 'PHP', sizeMB: 80 },
-    toolchain_lua: { label: 'Lua', sizeMB: 5 },
-    toolchain_perl: { label: 'Perl', sizeMB: 70 },
-    toolchain_kotlin: { label: 'Kotlin', sizeMB: 120 },
-    toolchain_rust: { label: 'Rust', sizeMB: 600 },
+    toolchain_php: { label: 'PHP', sizeMB: 45 },
+    toolchain_lua: { label: 'Lua', sizeMB: 1 },
+    toolchain_perl: { label: 'Perl', sizeMB: 68 },
+    toolchain_kotlin: { label: 'Kotlin', sizeMB: 101 },
+    toolchain_rust: { label: 'Rust', sizeMB: 296 },
+    toolchain_tcl: { label: 'Tcl', sizeMB: 6 },
+    toolchain_groovy: { label: 'Groovy', sizeMB: 48 },
+    toolchain_scala: { label: 'Scala', sizeMB: 193 },
+    toolchain_erlang: { label: 'Erlang', sizeMB: 60 },
+    toolchain_elixir: { label: 'Elixir', sizeMB: 18 },
+    toolchain_sbcl: { label: 'Common Lisp', sizeMB: 46 },
+    toolchain_deno: { label: 'Deno', sizeMB: 102 },
+    toolchain_gleam: { label: 'Gleam', sizeMB: 21 },
+    toolchain_nasm: { label: 'NASM', sizeMB: 4 },
 });
 
 const PACK_BUFFER_MB = 50;

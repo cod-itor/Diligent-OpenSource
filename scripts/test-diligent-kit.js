@@ -34,11 +34,6 @@ const ONCE_IDS = ['react-vite', 'nextjs', 'node-api', 'python-data', 'vue-vite',
     'vite-ts', 'typescript', 'socketio-chat', 'coffeescript', 'assemblyscript', 'flask', 'fastapi', 'django', 'sinatra'];
 const PACK_IDS = ['java', 'c-cpp', 'c', 'ruby', 'php', 'php-web', 'lua', 'perl', 'kotlin', 'rust'];
 const RECIPE_IDS = [...OFFLINE_IDS, ...ONCE_IDS, ...PACK_IDS];
-/**
- * Packs the kit knows before ToolchainRegistry.kt lists them: their entries
- * land there separately. Once one does, the size check below covers it.
- */
-const PENDING_PACKS = ['toolchain_php', 'toolchain_lua', 'toolchain_perl', 'toolchain_kotlin', 'toolchain_rust'];
 
 // ---- recipes ---------------------------------------------------------------
 
@@ -88,9 +83,7 @@ function checkRecipes() {
     // The pack ids are the app's: ToolchainRegistry.kt lists the same set.
     const registry = fs.readFileSync(path.join(ROOT, 'android/app/src/main/kotlin/com/vscodroid/setup/ToolchainRegistry.kt'), 'utf8');
     const packs = [...registry.matchAll(/packName = "(toolchain_\w+)"/g)].map((m) => m[1]).sort();
-    for (const p of packs) assert.ok(p in engine.PACKS, p + ' is one the kit knows');
-    assert.deepStrictEqual(Object.keys(engine.PACKS).filter((p) => !packs.includes(p)).sort(),
-        PENDING_PACKS.filter((p) => !packs.includes(p)).sort(), 'only the pending packs are missing from the registry');
+    assert.deepStrictEqual(Object.keys(engine.PACKS).sort(), packs, 'the kit knows exactly the registry\'s packs');
     for (const m of registry.matchAll(/packName = "(toolchain_\w+)",[\s\S]*?estimatedSize = ([\d_]+)/g)) {
         const bytes = Number(m[2].replace(/_/g, ''));
         assert.ok(engine.PACKS[m[1]].sizeMB * 1e6 >= bytes, m[1] + ' size is not understated');
