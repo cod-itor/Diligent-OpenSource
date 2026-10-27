@@ -55,4 +55,13 @@ class ProjectNamesTest {
         assertEquals(NameProblem.Exists, ProjectNames.problemIn(dir, "taken"))
         assertNull(ProjectNames.problemIn(dir, "free"))
     }
+
+    @Test
+    fun `a free name is kept, a taken one gets the first free suffix`() {
+        assertEquals("site", ProjectNames.free("site", nothingTaken))
+        val taken = setOf("site", "site-2", "site-3")
+        assertEquals("site-4", ProjectNames.free("site", taken::contains))
+        assertEquals("site-2", ProjectNames.free(" site ", setOf("site")::contains))
+        assertEquals(ProjectNames.FALLBACK_NAME, ProjectNames.free("  ", nothingTaken))
+    }
 }

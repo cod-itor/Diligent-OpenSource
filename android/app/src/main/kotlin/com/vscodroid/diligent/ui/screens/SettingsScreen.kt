@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PhoneAndroid
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material3.HorizontalDivider
@@ -56,7 +57,7 @@ private const val OPEN_EDITOR_SETTINGS = "workbench.action.openSettings"
 
 /**
  * Settings (More, then Settings). Diligent's own settings only: the view, the
- * big screen suggestion, and About. Everything about the editor itself (font,
+ * big screen suggestion, beginner mode, and About. Everything about the editor itself (font,
  * theme, keys) stays in VS Code's settings, which one row opens, so there is
  * never a second copy of a setting that could disagree with the first.
  *
@@ -102,6 +103,21 @@ fun SettingsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
             ) {
                 // The whole row toggles; the switch only shows the state.
                 Switch(checked = shell.suggestDesktop, onCheckedChange = null)
+            }
+
+            SectionDivider()
+            SectionHeader(stringResource(R.string.diligent_settings_section_help))
+            SettingRow(
+                title = stringResource(R.string.diligent_settings_beginner),
+                body = stringResource(R.string.diligent_settings_beginner_body),
+                icon = Icons.Outlined.School,
+                modifier = Modifier.toggleable(
+                    value = shell.beginnerMode,
+                    role = Role.Switch,
+                    onValueChange = actions::setBeginnerMode,
+                ),
+            ) {
+                Switch(checked = shell.beginnerMode, onCheckedChange = null)
             }
 
             SectionDivider()

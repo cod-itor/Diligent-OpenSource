@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.vscodroid.diligent.devices.DeviceLink
 import com.vscodroid.diligent.devices.IdleDeviceLink
+import com.vscodroid.diligent.guide.NextStep
+import com.vscodroid.diligent.guide.Tip
 import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.ui.components.TopBarStatus
@@ -111,6 +113,21 @@ class MobileShell(view: AppView?) {
     /** The top bar's Sync needs the user to pick a device (or learn there is none); the sheet clears it. */
     var syncPickerOpen by mutableStateOf(false)
 
+    /**
+     * Set to open the guided start over the Projects tab (after the first
+     * view choice); the Projects tab clears it.
+     */
+    var guidedStartRequested by mutableStateOf(false)
+
+    /** The "Next step" card a guided start leaves above the bars, or null when there is none. */
+    var nextStep by mutableStateOf<NextStep?>(null)
+
+    /** Settings: beginner mode, with a tip on each native screen and fewer entries in More. */
+    var beginnerMode by mutableStateOf(false)
+
+    /** The beginner tips the user closed. */
+    var dismissedTips by mutableStateOf<Set<Tip>>(emptySet())
+
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
 
@@ -155,6 +172,15 @@ interface MobileActions {
 
     /** Settings: whether a big screen may suggest Desktop view (stored per device). */
     fun setSuggestDesktop(on: Boolean)
+
+    /**
+     * Settings, and the guided start's "I'm new to coding": beginner mode
+     * (stored per device). Turning it on brings closed tips back.
+     */
+    fun setBeginnerMode(on: Boolean) = Unit
+
+    /** Closes one beginner tip for good (stored per device). */
+    fun dismissTip(tip: Tip) = Unit
 
     /** The folder new projects and clones go in. */
     val projectsDir: String

@@ -731,6 +731,74 @@
     <string name="diligent_incoming_receive">Receive</string>
     <string name="diligent_incoming_not_now">Not now</string>
 
+    <!-- Guided start (after the first view choice, and New project, then Guide me) -->
+    <string name="diligent_projects_guided">Guide me</string>
+    <string name="diligent_projects_guided_body">Three quick questions, then a project that runs. Best if you are new.</string>
+    <string name="diligent_guide_header">Guided start</string>
+    <string name="diligent_guide_step_1">Step 1 of 3</string>
+    <string name="diligent_guide_step_2">Step 2 of 3</string>
+    <string name="diligent_guide_step_3">Step 3 of 3</string>
+    <string name="diligent_guide_goal_title">What do you want to make?</string>
+    <string name="diligent_guide_goal_website">Website</string>
+    <string name="diligent_guide_goal_website_body">A web page with HTML, CSS and JavaScript.</string>
+    <string name="diligent_guide_goal_react">React app</string>
+    <string name="diligent_guide_goal_react_body">An app built with React, that updates as you type.</string>
+    <string name="diligent_guide_goal_python">Python</string>
+    <string name="diligent_guide_goal_python_body">A Python script you can run and change.</string>
+    <string name="diligent_guide_goal_new">I\'m new to coding</string>
+    <string name="diligent_guide_goal_new_body">A simple web page to start with, and tips on every screen.</string>
+    <string name="diligent_guide_name_title">Name your project</string>
+    <string name="diligent_guide_name_body">This is the name of its folder. You can keep the one we picked.</string>
+    <string name="diligent_guide_next">Next</string>
+    <string name="diligent_guide_confirm_title">Ready to make it?</string>
+    <string name="diligent_guide_confirm_body">%1$s, called %2$s.</string>
+    <string name="diligent_guide_wait_offline">This takes a few seconds and works without internet.</string>
+    <string name="diligent_guide_wait_online">This takes a minute or two and needs internet once, to download packages.</string>
+    <string name="diligent_guide_confirm_beginner">Beginner mode turns on: short tips on each screen, and fewer choices. Switch it off any time in Settings.</string>
+    <string name="diligent_guide_kit_busy">Another project is still being made. Wait for it to finish in Setup.</string>
+    <string name="diligent_guide_start">Make it</string>
+    <string name="diligent_next_step_title">Next step</string>
+    <string name="diligent_next_step_run_page">Tap Run to see your page.</string>
+    <string name="diligent_next_step_run_app">Tap Run, wait for the app to start, then tap Preview.</string>
+    <string name="diligent_next_step_run_script">Tap Run to start main.py, then change it and run it again.</string>
+    <string name="diligent_next_step_dismiss">Dismiss</string>
+
+    <!-- Beginner mode: Settings, More, then Advanced, and the tip on each screen -->
+    <string name="diligent_settings_section_help">Help</string>
+    <string name="diligent_settings_beginner">Beginner mode</string>
+    <string name="diligent_settings_beginner_body">A short tip on each screen, and the advanced tools moved under More, then Advanced. Turning it on shows closed tips again.</string>
+    <string name="diligent_more_advanced">Advanced</string>
+    <string name="diligent_more_advanced_body">Laptop, AI, Devices, Share and Health</string>
+    <string name="diligent_tip_dismiss">Close tip</string>
+    <string name="diligent_tip_projects">Your projects. Tap one to open it, or New project to make one.</string>
+    <string name="diligent_tip_files">The files of your project. Tap a file to edit it.</string>
+    <string name="diligent_tip_more">Run your project, add a new one in Setup, or change Settings.</string>
+    <string name="diligent_tip_run">Run starts your project. Preview shows the page it serves.</string>
+    <string name="diligent_tip_setup">Pick what to build, and Diligent makes a project that runs.</string>
+    <string name="diligent_tip_laptop">Run a project on your own computer when the phone is too slow.</string>
+    <string name="diligent_tip_ai">Code together with an AI helper. It needs an account with a provider.</string>
+    <string name="diligent_tip_devices">Pair your laptop or another phone to sync projects between them.</string>
+    <string name="diligent_tip_share">Open the editor or your page in a browser on another device.</string>
+    <string name="diligent_tip_health">Checks that everything works, and why Android stopped a program.</string>
+    <string name="diligent_tip_settings">Beginner mode is on. Switch it off below when you want everything.</string>
+    <string name="diligent_tip_advanced">Tools for later. Nothing here is needed to make your first project.</string>
+
+    <!-- Share a project as a zip (a card's menu), and import one (New project) -->
+    <string name="diligent_projects_share_zip">Share as zip</string>
+    <string name="diligent_projects_share_title">Share %1$s</string>
+    <string name="diligent_projects_share_busy">Packing the project. Installed packages and build output are left out.</string>
+    <string name="diligent_projects_share_failed">Could not pack this project. Check that the phone has free space.</string>
+    <string name="diligent_projects_share_no_app">No app on this phone can receive a zip.</string>
+    <string name="diligent_projects_import_zip">Import a zip</string>
+    <string name="diligent_projects_import_zip_body">A project someone shared with you, from Files, Downloads or a chat.</string>
+    <string name="diligent_projects_import_busy">Unpacking the zip</string>
+    <string name="diligent_projects_import_links">Imported. Links inside the zip were left out.</string>
+    <string name="diligent_projects_import_unsafe">This zip has files that would land outside the project, so nothing was unpacked.</string>
+    <string name="diligent_projects_import_not_zip">This file is not a zip Diligent can read.</string>
+    <string name="diligent_projects_import_empty">This zip has no files in it.</string>
+    <string name="diligent_projects_import_too_big">This zip is too big to unpack on the phone.</string>
+    <string name="diligent_projects_import_failed">Could not unpack the zip. Check that the phone has free space.</string>
+
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>

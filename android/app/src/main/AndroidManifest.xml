@@ -199,6 +199,18 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
             android:theme="@style/Theme.VSCodroid" />
 
+        <!-- Diligent: hands a project's zip to the share sheet (diligent/projects/ProjectShare.kt).
+             Not exported; each share grants read access to that one file. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.diligent.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/diligent_file_paths" />
+        </provider>
+
         <!-- Node.js server service: runs the Code - OSS server locally -->
         <service
             android:name=".service.NodeService"

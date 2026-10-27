@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Diligent's FileProvider: only the zip a project is shared as (diligent/projects/ProjectShare.kt). -->
+<paths>
+    <cache-path name="shared_projects" path="diligent-share/" />
+</paths>

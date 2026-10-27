@@ -34,6 +34,22 @@ object ProjectNames {
         }
     }
 
+    /**
+     * [base] when no folder has that name, else the first free `base-2`,
+     * `base-3`, and so on. For names Diligent picks itself (the guided start's
+     * suggestion, an imported zip), where asking the user would be a chore.
+     */
+    fun free(base: String, taken: (String) -> Boolean): String {
+        val name = clean(base).ifEmpty { FALLBACK_NAME }
+        if (!taken(name)) return name
+        var n = 2
+        while (taken("$name-$n")) n++
+        return "$name-$n"
+    }
+
+    /** What [free] calls a project whose own name is empty. */
+    const val FALLBACK_NAME = "project"
+
     /** [problem] against a real folder. Touches the disk: call it off the main thread. */
     fun problemIn(parent: File, input: String): NameProblem? = problem(input) { File(parent, it).exists() }
 }
