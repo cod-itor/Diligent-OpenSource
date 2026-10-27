@@ -103,7 +103,10 @@ fun GuidedStartScreen(shell: MobileShell, actions: MobileActions, onClose: () ->
                 run != null -> SetupContent(
                     recipes = null,
                     run = run,
+                    // Only a run is shown here, never the recipe list these two are for.
+                    offline = emptySet(),
                     onPick = {},
+                    onPrepare = {},
                     onCancel = kit::cancel,
                     // A finished run opens by itself (above); these are never reached for it.
                     onOpen = {},
