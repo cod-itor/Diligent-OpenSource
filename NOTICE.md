@@ -203,6 +203,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | Erlang/OTP | Apache 2.0 | https://www.erlang.org |
 | Elixir | Apache 2.0 | https://elixir-lang.org |
 | SBCL (Steel Bank Common Lisp) | Public domain, with BSD-style and MIT parts | https://www.sbcl.org |
+| Deno | MIT | https://deno.com |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 

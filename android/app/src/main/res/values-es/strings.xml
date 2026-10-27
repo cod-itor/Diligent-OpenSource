@@ -376,6 +376,7 @@
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), sin wx ni ODBC.</string>
     <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Funciona con Erlang/OTP: instala también Erlang/OTP.</string>
     <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp), con ASDF.</string>
+    <string name="toolchain_deno_description">Deno, un entorno de ejecución de JavaScript y TypeScript con su propio formateador, linter y ejecutor de pruebas.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

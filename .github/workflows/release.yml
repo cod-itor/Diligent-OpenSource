@@ -722,6 +722,7 @@ jobs:
           bash scripts/download-erlang.sh
           bash scripts/download-elixir.sh
           bash scripts/download-sbcl.sh
+          bash scripts/download-deno.sh
 
       # The unit suite ran on every pull request and on no tag, which put the
       # published build on the wrong side of it. Before the signing keystore is

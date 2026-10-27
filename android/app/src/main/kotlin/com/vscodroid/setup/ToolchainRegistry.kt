@@ -348,6 +348,24 @@ object ToolchainRegistry {
             downloadSize = 14_000_000,
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_sbcl.zip",
         ),
+        ToolchainInfo(
+            packName = "toolchain_deno",
+            displayName = "Deno",
+            shortLabel = "Deno",
+            descriptionRes = R.string.toolchain_deno_description,
+            // 96,152 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (98,459,648 bytes in 4 KiB blocks, 2 files) after running
+            // scripts/download-deno.sh against deno 2.9.8. It is one binary.
+            // 102,000,000 leaves 3.5 MB for a point release. The ZIP measured
+            // 40,936,906 bytes.
+            //
+            // Its subprocesses are fork and execvp through libc, which the exec
+            // interceptor wraps; `deno compile` reads /proc/self/exe, which is
+            // the linker under a shell function, and is not covered.
+            estimatedSize = 102_000_000,
+            downloadSize = 41_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_deno.zip",
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */
