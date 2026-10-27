@@ -7,6 +7,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,6 +27,7 @@ import com.vscodroid.diligent.ui.components.DiligentTopBar
 import com.vscodroid.diligent.ui.components.EditorActionBar
 import com.vscodroid.diligent.ui.components.FileNameChipBar
 import com.vscodroid.diligent.ui.components.MenuAction
+import com.vscodroid.diligent.ui.components.NextStepCard
 import com.vscodroid.diligent.ui.components.standardEditorActions
 import com.vscodroid.diligent.ui.components.suggestionActions
 import com.vscodroid.diligent.ui.navigation.MobileTab
@@ -135,8 +137,11 @@ private fun DevicePrompts(shell: MobileShell, actions: MobileActions) {
 @Composable
 fun BottomChrome(shell: MobileShell, actions: MobileActions) {
     val chrome = shell.chrome
+    // A guided start's card has done its job once the project runs.
+    LaunchedEffect(shell.running) { if (shell.running) shell.nextStep = null }
     if (!chrome.actionBar && !chrome.tabBar) return
     Column {
+        shell.nextStep?.let { NextStepCard(it, onDismiss = { shell.nextStep = null }) }
         if (chrome.actionBar) {
             WatchRun(actions.run, withLog = false)
             EditorActionBar(

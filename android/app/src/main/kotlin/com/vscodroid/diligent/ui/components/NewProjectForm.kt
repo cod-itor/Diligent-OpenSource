@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -41,6 +43,7 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
  *
  * With [onTemplate], the form first offers "Start from a template" (the
  * Setup screen), and the name field below makes an empty folder as before.
+ * With [onGuided], "Guide me" (the guided start) comes first of all.
  */
 @Composable
 fun NewProjectForm(
@@ -55,6 +58,7 @@ fun NewProjectForm(
     modifier: Modifier = Modifier,
     autoFocus: Boolean = true,
     onTemplate: (() -> Unit)? = null,
+    onGuided: (() -> Unit)? = null,
 ) {
     val focus = remember { FocusRequester() }
     if (autoFocus) LaunchedEffect(focus) { focus.requestFocus() }
@@ -76,8 +80,11 @@ fun NewProjectForm(
             style = DiligentTheme.type.material.titleLarge,
             color = DiligentTheme.colors.onSurface,
         )
+        onGuided?.let {
+            StartChoice(R.string.diligent_projects_guided, R.string.diligent_projects_guided_body, Icons.Outlined.School, it)
+        }
         onTemplate?.let {
-            TemplateChoice(it)
+            StartChoice(R.string.diligent_projects_template, R.string.diligent_projects_template_body, Icons.Outlined.AutoAwesome, it)
             Text(
                 stringResource(R.string.diligent_projects_empty_choice),
                 style = DiligentTheme.type.material.titleSmall,
@@ -117,9 +124,9 @@ fun NewProjectForm(
     }
 }
 
-/** "Start from a template": one tap to the Setup screen, above the empty folder's name field. */
+/** "Guide me" or "Start from a template": one tap to that screen, above the empty folder's name field. */
 @Composable
-private fun TemplateChoice(onClick: () -> Unit) {
+private fun StartChoice(@StringRes title: Int, @StringRes body: Int, icon: ImageVector, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().heightIn(min = DiligentTheme.sizes.touchTarget),
@@ -131,15 +138,15 @@ private fun TemplateChoice(onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m),
         ) {
-            Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = DiligentTheme.colors.onPrimaryContainer)
+            Icon(icon, contentDescription = null, tint = DiligentTheme.colors.onPrimaryContainer)
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.xs)) {
                 Text(
-                    stringResource(R.string.diligent_projects_template),
+                    stringResource(title),
                     style = DiligentTheme.type.material.titleMedium,
                     color = DiligentTheme.colors.onPrimaryContainer,
                 )
                 Text(
-                    stringResource(R.string.diligent_projects_template_body),
+                    stringResource(body),
                     style = DiligentTheme.type.material.bodyMedium,
                     color = DiligentTheme.colors.onPrimaryContainer,
                 )
@@ -197,6 +204,7 @@ private fun FormSample(name: String, problem: NameProblem?, withTemplate: Boolea
             createFailed = false, busy = false, onCreate = {}, onCancel = {},
             modifier = Modifier.padding(top = DiligentTheme.spacing.l), autoFocus = false,
             onTemplate = if (withTemplate) ({}) else null,
+            onGuided = if (withTemplate) ({}) else null,
         )
     }
 }

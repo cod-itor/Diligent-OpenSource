@@ -109,11 +109,29 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
     var sheet by rememberSaveable { mutableStateOf<ProjectsSheet?>(null) }
     // New project, then Start from a template: the Setup screen in this tab's place.
     var setupOpen by rememberSaveable { mutableStateOf(false) }
+    // New project, then Guide me (or the first view choice): the guided start in this tab's place.
+    var guideOpen by rememberSaveable { mutableStateOf(false) }
     // Read once per change of the list: "2 hours ago" does not need to tick
     // while someone is looking at it.
     val now = remember(projects) { System.currentTimeMillis() }
 
     LaunchedEffect(recent) { recent.refresh() }
+    LaunchedEffect(shell.guidedStartRequested) {
+        if (shell.guidedStartRequested) {
+            guideOpen = true
+            shell.guidedStartRequested = false
+        }
+    }
+
+    if (guideOpen) {
+        GuidedStartScreen(
+            shell,
+            actions,
+            onClose = { guideOpen = false },
+            modifier = modifier.background(DiligentTheme.colors.background),
+        )
+        return
+    }
 
     if (setupOpen) {
         BackHandler { setupOpen = false }
@@ -147,6 +165,7 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
             onDismiss = close,
             onCreated = { path -> actions.openFolder(path) },
             onTemplate = { setupOpen = true },
+            onGuided = { guideOpen = true },
         )
         ProjectsSheet.Open -> OpenFolderSheet(actions, now, onDismiss = close)
         ProjectsSheet.Clone -> CloneSheet(
@@ -364,10 +383,17 @@ internal fun DiligentSheet(
 
 /**
  * New project: a name, then an empty folder in the projects folder, then the
- * editor opens it. Or [onTemplate], the Setup screen's recipes.
+ * editor opens it. Or [onGuided], the guided start, or [onTemplate], the
+ * Setup screen's recipes.
  */
 @Composable
-private fun NewProjectSheet(projectsDir: String, onDismiss: () -> Unit, onCreated: (String) -> Unit, onTemplate: () -> Unit) {
+private fun NewProjectSheet(
+    projectsDir: String,
+    onDismiss: () -> Unit,
+    onCreated: (String) -> Unit,
+    onTemplate: () -> Unit,
+    onGuided: () -> Unit,
+) {
     var name by rememberSaveable { mutableStateOf("") }
     var problem by remember { mutableStateOf<NameProblem?>(NameProblem.Empty) }
     var showEmpty by remember { mutableStateOf(false) }
@@ -414,6 +440,7 @@ private fun NewProjectSheet(projectsDir: String, onDismiss: () -> Unit, onCreate
             // The keyboard waits for a tap on the name, so the template choice above it shows.
             autoFocus = false,
             onTemplate = { hide(onTemplate) },
+            onGuided = { hide(onGuided) },
         )
     }
 }

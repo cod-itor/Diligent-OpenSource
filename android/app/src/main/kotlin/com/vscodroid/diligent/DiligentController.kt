@@ -40,6 +40,7 @@ import com.vscodroid.diligent.health.HealthReport
 import com.vscodroid.diligent.kit.KitProgress
 import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.files.RecentFiles
+import com.vscodroid.diligent.guide.GuideSettings
 import com.vscodroid.diligent.projects.RecentProjects
 import com.vscodroid.diligent.preview.PreviewActivity
 import com.vscodroid.diligent.run.ProjectRunner
@@ -96,6 +97,11 @@ class DiligentController(
 
     /** Projects the editor opened, for the Projects tab. Shared with the tab through [RecentProjects.of]. */
     private val recentProjects by lazy { RecentProjects.of(activity) }
+
+    /** Whether the guided start was offered after the first view choice. */
+    private val guide by lazy {
+        GuideSettings(activity.getSharedPreferences(ViewSettings.PREFS_NAME, Context.MODE_PRIVATE))
+    }
 
     /** Mobile view's state; the bars and screens draw from it. */
     val shell by lazy {
@@ -289,6 +295,7 @@ class DiligentController(
                 BackHandler { activity.moveTaskToBack(true) }
                 ChooseViewScreen(onChoose = { view ->
                     switchView(view)
+                    offerGuidedStart(view)
                     behind.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
                     (chooser.parent as? ViewGroup)?.removeView(chooser)
                 })
@@ -298,6 +305,18 @@ class DiligentController(
             chooser,
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
         )
+    }
+
+    /**
+     * Once, right after the first view choice: the guided start over the
+     * Projects tab. Mobile view only, since Desktop view has no native
+     * screens to show it in; New project offers it there any time later.
+     */
+    private fun offerGuidedStart(view: AppView) {
+        if (view != AppView.Mobile || guide.offered) return
+        guide.offered = true
+        actions.openTab(MobileTab.Projects)
+        shell.guidedStartRequested = true
     }
 
     /**
