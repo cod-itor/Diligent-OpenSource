@@ -33,4 +33,10 @@ interface DiligentBridgeHost {
      * on the calling thread: the reads it makes are safe off the UI thread.
      */
     fun getHealth(): String
+
+    /**
+     * The editor's active file, as JSON (see `diligentActiveFile` in
+     * docs/05-API_SPEC.md). Text that does not parse is ignored.
+     */
+    fun activeFile(json: String)
 }

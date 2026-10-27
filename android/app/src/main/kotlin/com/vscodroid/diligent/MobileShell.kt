@@ -25,13 +25,19 @@ data class Chrome(
     val actionBar: Boolean,
     /** The five tabs, at the bottom. */
     val tabBar: Boolean,
+    /**
+     * The top strip is the file name chip instead of the project bar: on the
+     * Editor tab, where nothing but the file's name sits above the code.
+     */
+    val fileChip: Boolean = false,
 )
 
 /**
  * The rules:
  * - Desktop view, or no view chosen yet: none of it. The screen is VSCodroid's.
  * - Mobile view: top bar and tab bar, the action bar on the Editor tab only, and
- *   a native screen over the editor on the tabs that are not the editor.
+ *   a native screen over the editor on the tabs that are not the editor. On the
+ *   Editor tab the top bar is only the file name chip.
  * - While the soft keyboard is up, the bars step aside so the editor keeps the
  *   height (the extra key row takes their place). A native screen stays, since
  *   the keyboard is then typing into it.
@@ -44,6 +50,7 @@ fun chromeFor(view: AppView?, tab: MobileTab, imeVisible: Boolean): Chrome {
         nativeScreen = !tab.showsEditor,
         actionBar = bars && tab == MobileTab.Editor,
         tabBar = bars,
+        fileChip = bars && tab == MobileTab.Editor,
     )
 }
 
@@ -65,6 +72,12 @@ class MobileShell(view: AppView?) {
 
     /** What the top bar says about the running task, or null when nothing runs. */
     var runStatus by mutableStateOf<TopBarStatus?>(null)
+
+    /** The file in front in the editor, for the file name chip, or null when none is. */
+    var activeFile by mutableStateOf<ActiveFile?>(null)
+
+    /** Set by the file name chip: the all-files switcher opens. */
+    var fileSwitcherOpen by mutableStateOf(false)
 
     /** Whether a task of the open project is running (the action bar shows Stop). */
     var running by mutableStateOf(false)

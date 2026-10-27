@@ -386,6 +386,13 @@ class DiligentController(
             activity.runOnUiThread { kit.onProgress(progress) }
         }
 
+        override fun activeFile(json: String) {
+            val result = ActiveFile.parse(json) ?: return
+            activity.runOnUiThread {
+                shell.activeFile = (result as? ActiveFile.Result.File)?.file
+            }
+        }
+
         // Answered on the JavaBridge thread, which the relay waits on: the
         // reads are guarded system service calls and string resources, all
         // safe off the UI thread, and quick.

@@ -20,9 +20,9 @@ class MobileShellTest {
     }
 
     @Test
-    fun `the editor tab has the action bar and no native screen`() {
+    fun `the editor tab has the file name chip, the action bar and no native screen`() {
         assertEquals(
-            Chrome(topBar = true, nativeScreen = false, actionBar = true, tabBar = true),
+            Chrome(topBar = true, nativeScreen = false, actionBar = true, tabBar = true, fileChip = true),
             chromeFor(AppView.Mobile, MobileTab.Editor, imeVisible = false),
         )
     }
@@ -49,7 +49,7 @@ class MobileShellTest {
     @Test
     fun `the bars step aside for the keyboard and a native screen stays`() {
         val typing = chromeFor(AppView.Mobile, MobileTab.Editor, imeVisible = true)
-        assertFalse(typing.topBar || typing.actionBar || typing.tabBar)
+        assertFalse(typing.topBar || typing.actionBar || typing.tabBar || typing.fileChip)
         assertTrue(chromeFor(AppView.Mobile, MobileTab.Files, imeVisible = true).nativeScreen)
     }
 
@@ -74,5 +74,17 @@ class MobileShellTest {
         assertEquals("hello-next", shell.projectName)
         shell.folder = "/storage/emulated/0/work/team.code-workspace"
         assertEquals("team", shell.projectName)
+    }
+
+    @Test
+    fun `only the editor tab trades the project bar for the file name chip`() {
+        for (tab in MobileTab.entries) {
+            assertEquals(tab == MobileTab.Editor, chromeFor(AppView.Mobile, tab, imeVisible = false).fileChip, tab.name)
+        }
+    }
+
+    @Test
+    fun `the file switcher starts closed`() {
+        assertFalse(MobileShell(AppView.Mobile).fileSwitcherOpen)
     }
 }

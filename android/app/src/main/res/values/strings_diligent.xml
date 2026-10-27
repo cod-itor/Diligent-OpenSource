@@ -23,6 +23,12 @@
     <string name="diligent_menu">Menu</string>
     <string name="diligent_no_project">No project open</string>
 
+    <!-- File name chip (Editor tab's top strip) -->
+    <string name="diligent_file_none">No file open</string>
+    <string name="diligent_file_unsaved">%1$s, unsaved changes</string>
+    <string name="diligent_file_show_all">Show all files</string>
+    <string name="diligent_file_menu">Project menu</string>
+
     <!-- Editor action bar -->
     <string name="diligent_action_run">Run</string>
     <string name="diligent_action_stop">Stop</string>

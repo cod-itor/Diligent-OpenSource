@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.vscodroid.R
+import com.vscodroid.diligent.ActiveFile
 import com.vscodroid.diligent.AppView
 import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.MobileShell
@@ -17,6 +18,7 @@ import com.vscodroid.diligent.run.WatchRun
 import com.vscodroid.diligent.ui.components.DiligentTabBar
 import com.vscodroid.diligent.ui.components.DiligentTopBar
 import com.vscodroid.diligent.ui.components.EditorActionBar
+import com.vscodroid.diligent.ui.components.FileNameChipBar
 import com.vscodroid.diligent.ui.components.MenuAction
 import com.vscodroid.diligent.ui.components.standardEditorActions
 import com.vscodroid.diligent.ui.components.suggestionActions
@@ -35,24 +37,29 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
  * zero height in the column and Desktop view exactly as VSCodroid lays it out.
  */
 
-/** Above the editor: project name, run status and the menu. */
+/**
+ * Above the editor: project name, run status and the menu; on the Editor tab
+ * only the file name chip, whose long press holds the same menu.
+ */
 @Composable
 fun TopChrome(shell: MobileShell, actions: MobileActions) {
-    if (!shell.chrome.topBar) return
-    DiligentTopBar(
-        projectName = shell.projectName,
-        status = shell.runStatus,
-        menu = listOf(
-            MenuAction(stringResource(R.string.diligent_menu_desktop_view), Icons.Outlined.DesktopWindows) {
-                actions.switchView(AppView.Desktop)
-            },
-            MenuAction(stringResource(R.string.diligent_menu_share), Icons.Outlined.Share) {
-                shell.shareRequested = true
-                actions.openTab(MobileTab.More)
-            },
-            MenuAction(stringResource(R.string.diligent_menu_settings), Icons.Outlined.Settings) { actions.openTab(MobileTab.More) },
-        ),
+    val chrome = shell.chrome
+    if (!chrome.topBar) return
+    val menu = listOf(
+        MenuAction(stringResource(R.string.diligent_menu_desktop_view), Icons.Outlined.DesktopWindows) {
+            actions.switchView(AppView.Desktop)
+        },
+        MenuAction(stringResource(R.string.diligent_menu_share), Icons.Outlined.Share) {
+            shell.shareRequested = true
+            actions.openTab(MobileTab.More)
+        },
+        MenuAction(stringResource(R.string.diligent_menu_settings), Icons.Outlined.Settings) { actions.openTab(MobileTab.More) },
     )
+    if (chrome.fileChip) {
+        FileNameChipBar(file = shell.activeFile, onOpenSwitcher = { shell.fileSwitcherOpen = true }, menu = menu)
+    } else {
+        DiligentTopBar(projectName = shell.projectName, status = shell.runStatus, menu = menu)
+    }
 }
 
 /** Over the editor, on the tabs that are not the editor. */
@@ -125,6 +132,7 @@ fun BottomChrome(shell: MobileShell, actions: MobileActions) {
 private fun ShellSample(tab: MobileTab) {
     val shell = MobileShell(AppView.Mobile).apply {
         folder = "/home/projects/hello-next"
+        activeFile = ActiveFile("/home/projects/hello-next/app/page.tsx", "page.tsx", dirty = true)
         open(tab)
     }
     Column(Modifier) {
@@ -136,6 +144,10 @@ private fun ShellSample(tab: MobileTab) {
 @Preview(name = "Chrome on Editor, light", widthDp = 360)
 @Composable
 private fun ChromeEditorLightPreview() = DiligentTheme(darkTheme = false) { ShellSample(MobileTab.Editor) }
+
+@Preview(name = "Chrome on Editor, dark", widthDp = 360)
+@Composable
+private fun ChromeEditorDarkPreview() = DiligentTheme(darkTheme = true) { ShellSample(MobileTab.Editor) }
 
 @Preview(name = "Chrome on Files, dark", widthDp = 360)
 @Composable
