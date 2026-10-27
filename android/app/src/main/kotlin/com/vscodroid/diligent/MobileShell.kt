@@ -3,6 +3,8 @@ package com.vscodroid.diligent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.vscodroid.diligent.devices.DeviceLink
+import com.vscodroid.diligent.devices.IdleDeviceLink
 import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.ui.components.TopBarStatus
@@ -103,6 +105,12 @@ class MobileShell(view: AppView?) {
      */
     var shareRequested by mutableStateOf(false)
 
+    /** Set to open the More tab on its Devices screen; the More tab clears it. */
+    var devicesRequested by mutableStateOf(false)
+
+    /** The top bar's Sync needs the user to pick a device (or learn there is none); the sheet clears it. */
+    var syncPickerOpen by mutableStateOf(false)
+
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
 
@@ -159,4 +167,7 @@ interface MobileActions {
 
     /** The editor server's loopback port, for the Share screen, or null while it is not loaded. */
     fun editorPort(): Int? = null
+
+    /** diligent-link: devices, pairing and sync, for the Devices screen and the Sync button. */
+    val devices: DeviceLink get() = IdleDeviceLink
 }

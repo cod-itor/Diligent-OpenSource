@@ -75,6 +75,8 @@ resolve them by keeping both sides' intent:
 | `scripts/verify-server-tree.py`, `scripts/test-server-bootstrap.js` | Expect the name Diligent |
 | `LICENSE` | Diligent's copyright line under VSCodroid's |
 | `android/gradle/libs.versions.toml`, `android/build.gradle.kts`, `android/app/build.gradle.kts` | Compose, Material 3, `androidx.window`, and ZXing core (`com.google.zxing:core`, the Share screen's QR code) |
+| `android/settings.gradle.kts`, `android/gradle.properties`, `android/gradle/libs.versions.toml`, `android/app/build.gradle.kts` | diligent-link: `includeBuild("diligent-sync-core/sync-core")` (the `android/diligent-sync-core` submodule), `kotlin.native.ignoreDisabledTargets=true`, and the `sync-core` and Bouncy Castle (`bcprov`) dependencies |
+| `.github/workflows/build.yml`, `lint.yml`, `r8.yml`, `release.yml` | `submodules: true` on the checkouts that build Android, for `android/diligent-sync-core` |
 | `android/app/src/main/kotlin/com/vscodroid/setup/FirstRunSetup.kt` | `isOwnExtension()`: `diligent.diligent-*` extensions count as the app's own |
 | `.gitignore`, `scripts/check-extension-updates.py` | `diligent.diligent-*` extensions are committed and need a version bump on change |
 | `android/app/src/main/kotlin/com/vscodroid/setup/FirstRunSetup.kt`, `SplashActivity.kt` | `KIT_BLOCK` (the `kit` shell function) in the new `.bashrc`, and `ensureKitFunction()` run at every launch to append it to an existing one |
@@ -90,10 +92,10 @@ Do not reset or offset it without reading those migrations first;
 | `android/app/src/main/kotlin/com/vscodroid/bridge/AndroidBridge.kt` | `diligent` constructor parameter and the `diligentEditorReady`, `diligentSetView`, `diligentUpdateTasks`, `diligentKitProgress`, `diligentGetHealth`, `diligentInstallToolchain`, `diligentRemoveToolchain`, `diligentNetworkType` and `diligentActiveFile` methods (the toolchain two delegate to `installToolchain` and `removeToolchain` with the token first; `diligentNetworkType` asks `diligent/ai/NetworkType.kt`) The body of `generateSshKey` moved unchanged into the top-level `generateSshKeyIn(context, comment)`, which the method calls after its token check, so the Laptop screen creates or reuses the same key from Kotlin |
 | `android/app/src/test/.../bridge/BridgeTokenUniformityTest.kt` | Watches the `diligent` collaborator |
 | `docs/05-API_SPEC.md` | The Diligent relay branch and methods |
-| `docs/PRIVACY_POLICY.md` | Names Diligent's `WAKE_LOCK` and `ACCESS_NETWORK_STATE` permissions and what AI suggestions send |
+| `docs/PRIVACY_POLICY.md` | Names Diligent's `WAKE_LOCK` and `ACCESS_NETWORK_STATE` permissions and what AI suggestions send; "Your Other Devices" describes diligent-link's listening, pairing and sync |
 | `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js`, `scripts/test-diligent-core.js`, `scripts/test-diligent-kit.js` and `scripts/test-diligent-ai.js` |
 | `android/app/src/main/res/layout/activity_main.xml` | The WebView sits in an `editorFrame` FrameLayout, so Mobile view's native screens can cover it without resizing it |
 | `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app, the `WAKE_LOCK` permission `diligent/TaskKeeper.kt` holds while a task runs, and `ACCESS_NETWORK_STATE` for `diligent/ai/NetworkType.kt` |
 | `android/app/src/main/kotlin/com/vscodroid/service/NodeService.kt` | Three one-line calls into `diligent/TaskKeeper.kt`: `attach` in `onCreate`, `detach` in `onDestroy`, and `decorate` in `createNotification`, which lists the running tasks with a Stop each on the running card |
-| `NOTICE.md` | A ZXing row under Core Components, for the QR code on the Share screen |
+| `NOTICE.md` | A ZXing row under Core Components, for the QR code on the Share screen; Bouncy Castle and kotlinx.serialization rows for diligent-link |
 | `scripts/build-termux-exec.sh` | Fetches Chromium's LICENSE from chromium.googlesource.com (base64, decoded, same pin): raw.githubusercontent.com keeps answering 429 for that mirror |

@@ -30,8 +30,12 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
+import com.vscodroid.diligent.devices.DeviceLink
+import com.vscodroid.diligent.devices.DeviceLinks
 import com.vscodroid.diligent.health.HealthReport
 import com.vscodroid.diligent.kit.KitProgress
 import com.vscodroid.diligent.kit.KitSession
@@ -112,6 +116,9 @@ class DiligentController(
     }
     // -- end Run --
 
+    /** diligent-link (Phase 5): one per process, so it can stay reachable after this activity. */
+    val devices by lazy { DeviceLinks.of(activity) }
+
     /** The Setup screen's run (diligent/kit), kept here so it outlives the screen. */
     val kit by lazy {
         KitSession(activity.lifecycleScope, send = { command, args -> editor.run(command, *args) })
@@ -129,11 +136,31 @@ class DiligentController(
      */
     fun onLayoutReady() {
         ShareKeeper.forgetStale(activity)
+        attachDevices()
         attachChrome()
         attachSuggestion()
         if (!views.hasChosen) showViewChooser()
         // After the first layout, when the window has its real size.
         activity.window.decorView.post { checkScreen() }
+    }
+
+    /**
+     * diligent-link listens while this activity is started (SPEC A.3), saves
+     * open editors through this page before a sync builds its manifest, and
+     * lets go of the page when the activity ends.
+     */
+    private fun attachDevices() {
+        DeviceLinks.saveAll = { editor.run(COMMAND_SAVE_ALL) }
+        activity.lifecycle.addObserver(
+            LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_START -> devices.setAppOpen(true)
+                    Lifecycle.Event.ON_STOP -> devices.setAppOpen(false)
+                    Lifecycle.Event.ON_DESTROY -> DeviceLinks.saveAll = null
+                    else -> Unit
+                }
+            },
+        )
     }
 
     /** The window changed: size, density, display or DeX. May suggest a view. */
@@ -379,6 +406,8 @@ class DiligentController(
 
         // The editor page is http://127.0.0.1:<port>/..., so the WebView's own
         // address names the port without asking the activity.
+        override val devices: DeviceLink get() = this@DiligentController.devices
+
         override fun editorPort(): Int? =
             webView()?.url?.toUri()?.takeIf { it.scheme == "http" && it.host == "127.0.0.1" }?.port?.takeIf { it > 0 }
     }
@@ -425,7 +454,10 @@ class DiligentController(
     }
 
     /** The supervisor's tasks changed: the notification, the wake lock and Health follow. */
-    private fun onTasks(update: TaskUpdate) = TaskKeeper.update(activity, update)
+    private fun onTasks(update: TaskUpdate) {
+        TaskKeeper.update(activity, update)
+        devices.setTaskRunning(update.active.isNotEmpty()) // diligent-link stays reachable while a task runs
+    }
 
     /**
      * An intent reached the activity (launch or `onNewIntent`): a Stop tapped
@@ -488,5 +520,8 @@ class DiligentController(
         const val COMMAND_APPLY_VIEW = "diligent.view.apply"
         const val COMMAND_SHOW_EDITOR = "diligent.mobile.showEditor"
         const val COMMAND_SHOW_TERMINAL = "diligent.mobile.showTerminal"
+
+        /** Saves every open editor before a sync builds its manifest (Phase 5 Part D). */
+        const val COMMAND_SAVE_ALL = "workbench.action.files.saveAll"
     }
 }

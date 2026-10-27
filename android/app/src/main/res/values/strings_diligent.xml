@@ -44,6 +44,7 @@
     <string name="diligent_menu_desktop_view">Switch to Desktop view</string>
     <string name="diligent_menu_settings">Settings</string>
     <string name="diligent_menu_share">Share to other devices</string>
+    <string name="diligent_menu_sync">Sync with another device</string>
 
     <!-- Placeholder while a screen is being built -->
     <string name="diligent_screen_projects">Your projects</string>
@@ -539,6 +540,196 @@
     <string name="diligent_laptop_form_save">Save</string>
     <string name="diligent_laptop_save_failed">Could not write ~/.diligent/machines.json.</string>
     <string name="diligent_laptop_how_to_run">To run a project there, set \"where\": \"laptop:NAME\" in its .diligent/run.json, or tap Run on NAME instead on the Run screen when Diligent offers it.</string>
+
+    <!-- diligent-link (devices/DeviceLinkService.kt): why a pairing or sync could not go ahead. %1$s is the other device's name. -->
+    <string name="diligent_link_not_on_network">This phone is not on Wi-Fi or a hotspot. Join the same network as %1$s, or turn on Tailscale on both.</string>
+    <string name="diligent_link_not_found">%1$s was not found on this network. Check that both are on the same Wi-Fi and Diligent is open on it. Public Wi-Fi often stops devices from seeing each other: try a phone hotspot instead.</string>
+    <string name="diligent_link_unreachable">%1$s did not answer. Open Diligent on it and try again.</string>
+    <string name="diligent_link_no_tailscale_here">Tailscale is off on this phone. Turn it on, or choose Automatic or Wi-Fi in Connections.</string>
+    <string name="diligent_link_no_tailscale_address">Diligent does not know the Tailscale address of %1$s yet. Add it once by its Tailscale IP address.</string>
+    <string name="diligent_link_phone_to_phone_unavailable">Phone to phone is not available yet. Choose Automatic or Wi-Fi in Connections.</string>
+    <string name="diligent_link_identity_changed">This device\'s identity changed. Pair again only if you reinstalled it.</string>
+    <string name="diligent_link_not_accepting">%1$s is not accepting new devices. Open Devices on it, or set Visible to nearby devices to On.</string>
+    <string name="diligent_link_refused">%1$s did not accept the request.</string>
+    <string name="diligent_link_wrong_device">The device that answered is not %1$s.</string>
+    <string name="diligent_link_connection_lost">The connection to %1$s was lost.</string>
+    <string name="diligent_link_declined">%1$s declined the sync.</string>
+    <string name="diligent_link_busy">Another sync is running. Try again when it finishes.</string>
+    <string name="diligent_link_snapshot_failed">A snapshot could not be taken first, so nothing was changed.</string>
+    <string name="diligent_link_sync_failed">The sync with %1$s stopped. Files already received stay, and the snapshot before the sync can undo them.</string>
+    <string name="diligent_link_not_paired">%1$s is not paired with this device.</string>
+    <string name="diligent_link_not_a_project">That folder could not be opened as a project.</string>
+    <!-- Subtext on the editor's foreground notification while "Stay reachable in the background" keeps diligent-link listening -->
+    <string name="diligent_link_reachable_background">Reachable by your devices</string>
+
+    <!-- Devices screen (More, then Devices) -->
+    <string name="diligent_devices_intro">Pair this phone with your laptop or another phone, then sync a project between them. Files only move when you press Sync.</string>
+    <string name="diligent_devices_mine">My devices</string>
+    <string name="diligent_devices_mine_empty">No paired devices yet. Open Diligent on the other device on the same Wi-Fi, then tap Connect below, or add it by QR code or IP address.</string>
+    <string name="diligent_devices_nearby">Nearby now</string>
+    <string name="diligent_devices_nearby_body">Devices on the same network with Diligent open and visible.</string>
+    <string name="diligent_devices_nearby_empty">Nobody nearby right now. Public Wi-Fi often hides devices from each other: a phone hotspot usually works.</string>
+    <string name="diligent_devices_connect">Connect</string>
+    <string name="diligent_devices_connect_to">Connect to %1$s</string>
+    <string name="diligent_devices_sync">Sync</string>
+    <string name="diligent_devices_sync_with">Sync with %1$s</string>
+    <string name="diligent_devices_online_wifi">Online, Wi-Fi</string>
+    <string name="diligent_devices_online_tailscale">Online, Tailscale</string>
+    <string name="diligent_devices_online_phone">Online, phone to phone</string>
+    <string name="diligent_devices_offline">Offline</string>
+    <string name="diligent_devices_via_wifi">Connected via Wi-Fi</string>
+    <string name="diligent_devices_via_tailscale">Connected via Tailscale</string>
+    <string name="diligent_devices_via_phone">Connected phone to phone</string>
+    <string name="diligent_devices_last_sync">Last sync: %1$s</string>
+    <string name="diligent_devices_never_synced">Not synced yet</string>
+    <string name="diligent_devices_blocked">Blocked</string>
+    <string name="diligent_devices_identity_changed">This device\'s identity changed. Pair again only if you reinstalled it.</string>
+    <string name="diligent_devices_no_project">Open a project to sync it.</string>
+    <string name="diligent_devices_add">Add by QR code or IP address</string>
+    <string name="diligent_devices_this_phone">This phone: %1$s</string>
+    <string name="diligent_devices_this_id">Device ID: %1$s</string>
+    <string name="diligent_devices_section_settings">How other devices find this phone</string>
+    <string name="diligent_devices_visibility">Visible to nearby devices</string>
+    <string name="diligent_devices_visibility_on">On</string>
+    <string name="diligent_devices_visibility_on_body">Other devices on the network can see this phone and ask to pair.</string>
+    <string name="diligent_devices_visibility_off">Off</string>
+    <string name="diligent_devices_visibility_off_body">Hidden. Paired devices can still sync.</string>
+    <string name="diligent_devices_visibility_screen">Only while this screen is open</string>
+    <string name="diligent_devices_visibility_screen_body">Visible while you look at Devices, hidden the rest of the time.</string>
+    <string name="diligent_devices_stay_reachable">Stay reachable in the background</string>
+    <string name="diligent_devices_stay_reachable_body">Paired devices can sync with this phone while Diligent is closed. Shows a notification and uses a little battery.</string>
+    <string name="diligent_devices_connections">Connections</string>
+    <string name="diligent_devices_conn_auto">Automatic</string>
+    <string name="diligent_devices_conn_auto_body">Same Wi-Fi first, then phone to phone, then Tailscale.</string>
+    <string name="diligent_devices_conn_wifi">Wi-Fi or hotspot only</string>
+    <string name="diligent_devices_conn_wifi_body">Both devices on the same network or phone hotspot.</string>
+    <string name="diligent_devices_conn_tailscale">Tailscale only</string>
+    <string name="diligent_devices_conn_tailscale_body">Works across networks when both devices use Tailscale.</string>
+    <string name="diligent_devices_conn_phone">Phone to phone</string>
+    <string name="diligent_devices_conn_phone_body">A direct link between two Android phones, without Wi-Fi.</string>
+    <!-- One device's sheet -->
+    <string name="diligent_devices_rename">Rename</string>
+    <string name="diligent_devices_rename_label">Name</string>
+    <string name="diligent_devices_save">Save</string>
+    <string name="diligent_devices_forget">Forget</string>
+    <string name="diligent_devices_forget_title">Forget %1$s?</string>
+    <string name="diligent_devices_forget_body">You will need to pair again before you can sync with it. Your files stay where they are on both devices.</string>
+    <string name="diligent_devices_cancel">Cancel</string>
+    <string name="diligent_devices_close">Close</string>
+    <string name="diligent_devices_approval">When it wants to sync</string>
+    <string name="diligent_devices_approval_always">Always allow</string>
+    <string name="diligent_devices_approval_ask">Ask each time</string>
+    <string name="diligent_devices_auto_sync">Automatic sync for %1$s</string>
+    <string name="diligent_devices_auto_sync_body">Syncs after you save and every 10 minutes while both devices are reachable. Pauses when a file changed on both.</string>
+    <string name="diligent_devices_auto_sync_none">Automatic sync</string>
+    <!-- Add by QR code or IP address -->
+    <string name="diligent_devices_add_title">Add a device</string>
+    <string name="diligent_devices_add_qr_body">On the other device, open Devices, choose Add by QR code or IP address, and scan this code.</string>
+    <string name="diligent_devices_add_qr">QR code to pair with this phone</string>
+    <string name="diligent_devices_add_qr_none">The code shows while this phone is visible. Turn Visible to nearby devices on, or keep this screen open.</string>
+    <string name="diligent_devices_add_address">Or type the other device\'s address</string>
+    <string name="diligent_devices_add_address_body">The other device shows its address under its own QR code. You can also paste a diligent:// code here.</string>
+    <string name="diligent_devices_add_host">IP address or name</string>
+    <string name="diligent_devices_add_port">Port</string>
+    <string name="diligent_devices_add_id">Device ID (optional)</string>
+    <string name="diligent_devices_add_host_empty">Type the other device\'s IP address, like 192.168.1.20.</string>
+    <string name="diligent_devices_add_host_bad">That does not look like an IP address or device name.</string>
+    <string name="diligent_devices_add_port_bad">The port is a number from 1 to 65535.</string>
+    <string name="diligent_devices_add_id_bad">A device ID has 32 letters and digits, shown in groups of 4. Leave it empty if you do not have it.</string>
+
+    <!-- Pairing, both sides -->
+    <string name="diligent_pair_requesting_title">Connecting to %1$s</string>
+    <string name="diligent_pair_requesting_body">Waiting for %1$s to show a 6-digit code. Keep both devices open.</string>
+    <string name="diligent_pair_enter_title">Type the code from %1$s</string>
+    <string name="diligent_pair_enter_body">%1$s now shows a 6-digit code. Type it here to pair.</string>
+    <string name="diligent_pair_code_label">6-digit code</string>
+    <string name="diligent_pair_wrong">That code is not right. Check the code on %1$s.</string>
+    <plurals name="diligent_pair_tries_left">
+        <item quantity="one">%d try left</item>
+        <item quantity="other">%d tries left</item>
+    </plurals>
+    <string name="diligent_pair_pair">Pair</string>
+    <string name="diligent_pair_show_title">%1$s wants to connect</string>
+    <string name="diligent_pair_show_body">Type this code on %1$s. If you did not start this, tap Decline.</string>
+    <string name="diligent_pair_code_spoken">Code: %1$s</string>
+    <string name="diligent_pair_expires">The code works for %1$s more</string>
+    <string name="diligent_pair_decline">Decline</string>
+    <string name="diligent_pair_paired_title">Paired with %1$s</string>
+    <string name="diligent_pair_paired_body">You can now sync projects with %1$s. It shows under My devices.</string>
+    <string name="diligent_pair_expired_title">The code expired</string>
+    <string name="diligent_pair_expired_body">A code works for 2 minutes. Tap Connect on %1$s again for a new one.</string>
+    <string name="diligent_pair_locked_title">Pairing is paused</string>
+    <string name="diligent_pair_locked_body">Too many wrong codes for %1$s. Wait 5 minutes, then try again.</string>
+    <string name="diligent_pair_identity_title">%1$s looks like a different device</string>
+    <string name="diligent_pair_failed_title">Could not pair with %1$s</string>
+    <string name="diligent_pair_done">Done</string>
+
+    <!-- Sync -->
+    <string name="diligent_sync_planning_title">Comparing with %1$s</string>
+    <string name="diligent_sync_planning_body">Saving your open files and checking what changed on each device.</string>
+    <string name="diligent_sync_plan_title">Sync with %1$s</string>
+    <string name="diligent_sync_plan_separator">", "</string>
+    <plurals name="diligent_sync_newer_here">
+        <item quantity="one">%1$d file newer here</item>
+        <item quantity="other">%1$d files newer here</item>
+    </plurals>
+    <plurals name="diligent_sync_newer_there">
+        <item quantity="one">%1$d file newer on %2$s</item>
+        <item quantity="other">%1$d files newer on %2$s</item>
+    </plurals>
+    <plurals name="diligent_sync_changed_both">
+        <item quantity="one">%1$d file changed on both</item>
+        <item quantity="other">%1$d files changed on both</item>
+    </plurals>
+    <string name="diligent_sync_plan_same">Everything is already the same on both devices.</string>
+    <string name="diligent_sync_plan_safety">Both devices save a snapshot first, so you can undo this sync. Files changed on both are not overwritten: you choose.</string>
+    <string name="diligent_sync_show_files">Show files</string>
+    <string name="diligent_sync_hide_files">Hide files</string>
+    <string name="diligent_sync_start">Sync</string>
+    <string name="diligent_sync_transferring_title">Syncing with %1$s</string>
+    <plurals name="diligent_sync_transferring_count">
+        <item quantity="one">%1$d of %2$d file</item>
+        <item quantity="other">%1$d of %2$d files</item>
+    </plurals>
+    <string name="diligent_sync_stop">Stop sync</string>
+    <string name="diligent_sync_done_title">Sync finished</string>
+    <plurals name="diligent_sync_done_sent">
+        <item quantity="one">%1$d file sent to %2$s</item>
+        <item quantity="other">%1$d files sent to %2$s</item>
+    </plurals>
+    <plurals name="diligent_sync_done_received">
+        <item quantity="one">%1$d file received from %2$s</item>
+        <item quantity="other">%1$d files received from %2$s</item>
+    </plurals>
+    <string name="diligent_sync_install_title">Packages changed</string>
+    <string name="diligent_sync_install_body">A package list or lock file changed. If the project does not start, update its packages with %1$s. This is optional: you can do it now or later.</string>
+    <string name="diligent_sync_install_button">Run %1$s?</string>
+    <string name="diligent_sync_install_how">Opens the Terminal. Type the command there and press Enter. Nothing runs by itself.</string>
+    <string name="diligent_sync_failed_title">Sync did not finish</string>
+    <!-- Conflicts: side-by-side compare -->
+    <string name="diligent_sync_conflict_title">Changed on both devices</string>
+    <plurals name="diligent_sync_conflicts_left">
+        <item quantity="one">%d file left to choose</item>
+        <item quantity="other">%d files left to choose</item>
+    </plurals>
+    <string name="diligent_sync_conflict_body">Your copy and the copy from %1$s are different. Choose which to keep. Keep both saves theirs next to yours with (from %1$s) in its name.</string>
+    <string name="diligent_sync_conflict_mine">On this phone</string>
+    <string name="diligent_sync_conflict_theirs">On %1$s</string>
+    <string name="diligent_sync_conflict_binary">This file is not text, so it cannot be shown here.</string>
+    <string name="diligent_sync_conflict_empty">(empty file)</string>
+    <string name="diligent_sync_keep_mine">Keep mine</string>
+    <string name="diligent_sync_keep_theirs">Keep theirs</string>
+    <string name="diligent_sync_keep_both">Keep both</string>
+
+    <!-- Sync from the top bar, and a project sent from another device -->
+    <string name="diligent_sync_pick_title">Sync %1$s with</string>
+    <string name="diligent_sync_pick_no_project">Open a project first, then sync it.</string>
+    <string name="diligent_sync_pick_none">No paired device is reachable right now. Open Devices to pair one, or check that both are on the same Wi-Fi.</string>
+    <string name="diligent_sync_open_devices">Open Devices</string>
+    <string name="diligent_incoming_title">Receive project %1$s into %2$s?</string>
+    <string name="diligent_incoming_body">%1$s wants to send you the project %2$s. Nothing is copied unless you tap Receive.</string>
+    <string name="diligent_incoming_receive">Receive</string>
+    <string name="diligent_incoming_not_now">Not now</string>
 
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
