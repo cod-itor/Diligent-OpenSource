@@ -9,7 +9,7 @@ class MoreItemTest {
     @Test
     fun `the list follows the guide's order`() {
         assertEquals(
-            listOf(MoreItem.Run, MoreItem.Setup, MoreItem.Laptop, MoreItem.AI, MoreItem.Devices, MoreItem.Share, MoreItem.Health, MoreItem.Settings),
+            listOf(MoreItem.Run, MoreItem.Setup, MoreItem.Laptop, MoreItem.AI, MoreItem.Devices, MoreItem.Share, MoreItem.Health, MoreItem.Storage, MoreItem.Settings),
             MoreItem.ordered,
         )
     }

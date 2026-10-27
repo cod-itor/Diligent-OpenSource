@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,7 +60,7 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /**
  * Mobile view's More tab: a list of everything that is not one of the four
- * main tabs, and the screens it opens (Run, Setup, Laptop, AI, Devices, Share, Health, Settings) in its own place.
+ * main tabs, and the screens it opens (Run, Setup, Laptop, AI, Devices, Share, Health, Storage, Settings) in its own place.
  *
  * Which entry is open is the tab's own small back stack, one level deep:
  * the list, or one detail with a back arrow. It is saved across recreation
@@ -140,6 +141,7 @@ private fun MoreContent(
                         MoreDetail.Devices -> DevicesScreen(shell, actions)
                         MoreDetail.Share -> ShareScreen(shell, actions)
                         MoreDetail.Health -> HealthScreen(onOpenRun = { onOpen(MoreDetail.Run) })
+                        MoreDetail.Storage -> StorageScreen()
                         MoreDetail.Settings -> SettingsScreen(shell, actions)
                     }
                 }
@@ -232,6 +234,7 @@ private val MoreItem.title: Int
         MoreItem.Devices -> R.string.diligent_more_devices
         MoreItem.Share -> R.string.diligent_more_share
         MoreItem.Health -> R.string.diligent_more_health
+        MoreItem.Storage -> R.string.diligent_more_storage
         MoreItem.Settings -> R.string.diligent_more_settings
     }
 
@@ -245,6 +248,7 @@ private val MoreItem.subtitle: Int
         MoreItem.Devices -> R.string.diligent_more_devices_body
         MoreItem.Share -> R.string.diligent_more_share_body
         MoreItem.Health -> R.string.diligent_more_health_body
+        MoreItem.Storage -> R.string.diligent_more_storage_body
         MoreItem.Settings -> R.string.diligent_more_settings_body
     }
 
@@ -262,6 +266,7 @@ private val MoreItem.icon: ImageVector
         MoreItem.Devices -> Icons.Outlined.Devices
         MoreItem.Share -> Icons.Outlined.Share
         MoreItem.Health -> Icons.Outlined.MonitorHeart
+        MoreItem.Storage -> Icons.Outlined.Storage
         MoreItem.Settings -> Icons.Outlined.Settings
     }
 
