@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.FolderZip
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -43,7 +46,8 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
  *
  * With [onTemplate], the form first offers "Start from a template" (the
  * Setup screen), and the name field below makes an empty folder as before.
- * With [onGuided], "Guide me" (the guided start) comes first of all.
+ * With [onGuided], "Guide me" (the guided start) comes first of all, and
+ * with [onImport], "Import a zip" after the template.
  */
 @Composable
 fun NewProjectForm(
@@ -59,6 +63,7 @@ fun NewProjectForm(
     autoFocus: Boolean = true,
     onTemplate: (() -> Unit)? = null,
     onGuided: (() -> Unit)? = null,
+    onImport: (() -> Unit)? = null,
 ) {
     val focus = remember { FocusRequester() }
     if (autoFocus) LaunchedEffect(focus) { focus.requestFocus() }
@@ -71,6 +76,7 @@ fun NewProjectForm(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = DiligentTheme.spacing.l)
             .padding(bottom = DiligentTheme.spacing.l),
         verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m),
@@ -85,6 +91,11 @@ fun NewProjectForm(
         }
         onTemplate?.let {
             StartChoice(R.string.diligent_projects_template, R.string.diligent_projects_template_body, Icons.Outlined.AutoAwesome, it)
+        }
+        onImport?.let {
+            StartChoice(R.string.diligent_projects_import_zip, R.string.diligent_projects_import_zip_body, Icons.Outlined.FolderZip, it)
+        }
+        if (onTemplate != null || onGuided != null || onImport != null) {
             Text(
                 stringResource(R.string.diligent_projects_empty_choice),
                 style = DiligentTheme.type.material.titleSmall,
@@ -205,6 +216,7 @@ private fun FormSample(name: String, problem: NameProblem?, withTemplate: Boolea
             modifier = Modifier.padding(top = DiligentTheme.spacing.l), autoFocus = false,
             onTemplate = if (withTemplate) ({}) else null,
             onGuided = if (withTemplate) ({}) else null,
+            onImport = if (withTemplate) ({}) else null,
         )
     }
 }

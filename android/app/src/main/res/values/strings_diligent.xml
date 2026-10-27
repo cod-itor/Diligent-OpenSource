@@ -783,6 +783,22 @@
     <string name="diligent_tip_settings">Beginner mode is on. Switch it off below when you want everything.</string>
     <string name="diligent_tip_advanced">Tools for later. Nothing here is needed to make your first project.</string>
 
+    <!-- Share a project as a zip (a card's menu), and import one (New project) -->
+    <string name="diligent_projects_share_zip">Share as zip</string>
+    <string name="diligent_projects_share_title">Share %1$s</string>
+    <string name="diligent_projects_share_busy">Packing the project. Installed packages and build output are left out.</string>
+    <string name="diligent_projects_share_failed">Could not pack this project. Check that the phone has free space.</string>
+    <string name="diligent_projects_share_no_app">No app on this phone can receive a zip.</string>
+    <string name="diligent_projects_import_zip">Import a zip</string>
+    <string name="diligent_projects_import_zip_body">A project someone shared with you, from Files, Downloads or a chat.</string>
+    <string name="diligent_projects_import_busy">Unpacking the zip</string>
+    <string name="diligent_projects_import_links">Imported. Links inside the zip were left out.</string>
+    <string name="diligent_projects_import_unsafe">This zip has files that would land outside the project, so nothing was unpacked.</string>
+    <string name="diligent_projects_import_not_zip">This file is not a zip Diligent can read.</string>
+    <string name="diligent_projects_import_empty">This zip has no files in it.</string>
+    <string name="diligent_projects_import_too_big">This zip is too big to unpack on the phone.</string>
+    <string name="diligent_projects_import_failed">Could not unpack the zip. Check that the phone has free space.</string>
+
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>

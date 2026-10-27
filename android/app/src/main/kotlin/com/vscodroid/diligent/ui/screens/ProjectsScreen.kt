@@ -1,6 +1,11 @@
 package com.vscodroid.diligent.ui.screens
 
+import android.content.Context
 import android.content.res.Configuration
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -70,6 +75,8 @@ import com.vscodroid.diligent.projects.ProjectFramework
 import com.vscodroid.diligent.projects.ProjectKind
 import com.vscodroid.diligent.projects.ProjectLanguage
 import com.vscodroid.diligent.projects.ProjectNames
+import com.vscodroid.diligent.projects.ProjectShare
+import com.vscodroid.diligent.projects.ZipImport
 import com.vscodroid.diligent.projects.ProjectsFolder
 import com.vscodroid.diligent.projects.RecentProject
 import com.vscodroid.diligent.projects.RecentProjects
@@ -101,6 +108,10 @@ private enum class ProjectsSheet { New, Clone, Open }
  * The recent list comes from [RecentProjects], which the controller feeds
  * every time the editor opens a folder. Opening the tab prunes entries whose
  * folder has gone, so a card never leads nowhere.
+ *
+ * Sharing: a card's menu sends the project as a zip through the share sheet,
+ * and New project, then Import a zip, unpacks one into a new project
+ * ([ProjectShare], [com.vscodroid.diligent.projects.ProjectZip]).
  */
 @Composable
 fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = Modifier) {
@@ -118,6 +129,26 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
     val now = remember(projects) { System.currentTimeMillis() }
 
     LaunchedEffect(recent) { recent.refresh() }
+    // Import a zip: the system picker, then unpacked into a new project folder, which opens.
+    val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                toast(context, R.string.diligent_projects_import_busy)
+                val result = withContext(Dispatchers.IO) { ProjectShare.importZip(context, uri, File(actions.projectsDir)) }
+                when (result) {
+                    is ZipImport.Imported -> {
+                        if (result.skippedLinks > 0) toast(context, R.string.diligent_projects_import_links)
+                        actions.openFolder(result.folder.path)
+                    }
+                    is ZipImport.Unsafe -> toast(context, R.string.diligent_projects_import_unsafe)
+                    ZipImport.NotAZip -> toast(context, R.string.diligent_projects_import_not_zip)
+                    ZipImport.Empty -> toast(context, R.string.diligent_projects_import_empty)
+                    ZipImport.TooBig -> toast(context, R.string.diligent_projects_import_too_big)
+                    ZipImport.Failed -> toast(context, R.string.diligent_projects_import_failed)
+                }
+            }
+        }
+    }
     LaunchedEffect(shell.guidedStartRequested) {
         if (shell.guidedStartRequested) {
             guideOpen = true
@@ -155,6 +186,7 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
             if (project.path == shell.folder) actions.openTab(MobileTab.Files) else actions.openFolder(project.path)
         },
         onRemove = { project -> scope.launch { recent.remove(project.path) } },
+        onShare = { project -> scope.launch { shareProject(context, File(project.path)) } },
         onNew = { sheet = ProjectsSheet.New },
         onClone = { sheet = ProjectsSheet.Clone },
         onOpenFolder = { sheet = ProjectsSheet.Open },
@@ -169,6 +201,7 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
             onCreated = { path -> actions.openFolder(path) },
             onTemplate = { setupOpen = true },
             onGuided = { guideOpen = true },
+            onImport = { importPicker.launch(ProjectShare.PICK_TYPES) },
         )
         ProjectsSheet.Open -> OpenFolderSheet(actions, now, onDismiss = close)
         ProjectsSheet.Clone -> CloneSheet(
@@ -192,6 +225,7 @@ internal fun ProjectsContent(
     now: Long,
     onOpen: (RecentProject) -> Unit,
     onRemove: (RecentProject) -> Unit,
+    onShare: (RecentProject) -> Unit,
     onNew: () -> Unit,
     onClone: () -> Unit,
     onOpenFolder: () -> Unit,
@@ -209,7 +243,7 @@ internal fun ProjectsContent(
                 when {
                     projects == null -> Unit
                     projects.isEmpty() -> WelcomeState(Modifier.fillMaxSize())
-                    else -> RecentGrid(projects, currentPath, now, onOpen, onRemove)
+                    else -> RecentGrid(projects, currentPath, now, onOpen, onRemove, onShare)
                 }
             }
             ProjectActions(onNew = onNew, onClone = onClone, onOpenFolder = onOpenFolder)
@@ -225,6 +259,7 @@ private fun RecentGrid(
     now: Long,
     onOpen: (RecentProject) -> Unit,
     onRemove: (RecentProject) -> Unit,
+    onShare: (RecentProject) -> Unit,
 ) {
     val spacing = DiligentTheme.spacing
     LazyVerticalGrid(
@@ -251,6 +286,12 @@ private fun RecentGrid(
                 isCurrent = project.path == currentPath,
                 onOpen = { onOpen(project) },
                 onRemove = { onRemove(project) },
+                // A folder on this phone; a workspace file or a device folder has no one folder to zip.
+                onShare = if (project.path.startsWith("/") && !project.path.endsWith(".code-workspace")) {
+                    { onShare(project) }
+                } else {
+                    null
+                },
             )
         }
     }
@@ -398,6 +439,7 @@ private fun NewProjectSheet(
     onCreated: (String) -> Unit,
     onTemplate: () -> Unit,
     onGuided: () -> Unit,
+    onImport: () -> Unit,
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var problem by remember { mutableStateOf<NameProblem?>(NameProblem.Empty) }
@@ -446,6 +488,7 @@ private fun NewProjectSheet(
             autoFocus = false,
             onTemplate = { hide(onTemplate) },
             onGuided = { hide(onGuided) },
+            onImport = { hide(onImport) },
         )
     }
 }
@@ -550,6 +593,22 @@ private class OutputTail(private val keep: Int) {
     }
 }
 
+/**
+ * Share as zip: packs [folder] off the main thread (without node_modules
+ * and the like, see ProjectZip) and opens the share sheet.
+ */
+private suspend fun shareProject(context: Context, folder: File) {
+    toast(context, R.string.diligent_projects_share_busy)
+    val zip = withContext(Dispatchers.IO) { ProjectShare.exportZip(context, folder) }
+    if (zip == null) {
+        toast(context, R.string.diligent_projects_share_failed)
+    } else if (!ProjectShare.share(context, zip, context.getString(R.string.diligent_projects_share_title, folder.name))) {
+        toast(context, R.string.diligent_projects_share_no_app)
+    }
+}
+
+private fun toast(context: Context, @StringRes message: Int) = Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+
 /** How much of git's output the sheet holds on to. */
 private const val OUTPUT_KEPT = 20
 
@@ -592,7 +651,7 @@ private fun PreviewContent(projects: List<RecentProject>) = ProjectsContent(
     projects = projects,
     currentPath = projects.firstOrNull()?.path,
     now = PREVIEW_NOW,
-    onOpen = {}, onRemove = {}, onNew = {}, onClone = {}, onOpenFolder = {},
+    onOpen = {}, onRemove = {}, onShare = {}, onNew = {}, onClone = {}, onOpenFolder = {},
 )
 
 @Preview(name = "Projects, light", widthDp = 360, heightDp = 640)
