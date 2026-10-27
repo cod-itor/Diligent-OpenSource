@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">Play liefert diese Toolchain nur an Apps aus, die es selbst installiert hat. Installieren Sie die App aus dem Play Store und versuchen Sie es erneut.</string>
     <string name="toolchain_failed_needs_java">Diese Toolchain läuft auf Java 21. Installieren Sie zuerst Java 21 und versuchen Sie es dann erneut.</string>
     <string name="toolchain_failed_needs_cpp">Diese Toolchain linkt mit C/C++. Installieren Sie zuerst C/C++ und versuchen Sie es dann erneut.</string>
+    <string name="toolchain_failed_needs_erlang">Diese Toolchain läuft auf Erlang/OTP. Installieren Sie zuerst Erlang/OTP und versuchen Sie es dann erneut.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -370,6 +371,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Läuft auf Java 21: Installieren Sie auch Java 21.</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Läuft auf Java 21: Installieren Sie auch Java 21.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), ohne wx und ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Läuft auf Erlang/OTP: Installieren Sie auch Erlang/OTP.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

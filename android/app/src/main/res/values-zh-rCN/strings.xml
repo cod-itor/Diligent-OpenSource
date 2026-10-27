@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">Play 只向由它安装的应用提供此工具链。请从 Play Store 安装后重试。</string>
     <string name="toolchain_failed_needs_java">此工具链运行在 Java 21 上。请先安装 Java 21，然后重试。</string>
     <string name="toolchain_failed_needs_cpp">此工具链使用 C/C++ 进行链接。请先安装 C/C++，然后重试。</string>
+    <string name="toolchain_failed_needs_erlang">此工具链运行在 Erlang/OTP 上。请先安装 Erlang/OTP，然后重试。</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -367,6 +368,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh)。运行在 Java 21 上，请同时安装 Java 21。</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc)。运行在 Java 21 上，请同时安装 Java 21。</string>
     <string name="toolchain_erlang_description">Erlang/OTP（erl、erlc、escript），不含 wx 和 ODBC。</string>
+    <string name="toolchain_elixir_description">Elixir（elixir、iex、mix）。运行在 Erlang/OTP 上，请同时安装 Erlang/OTP。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">이 툴체인은 Play Store로 설치한 앱에만 제공됩니다. Play Store에서 설치한 뒤 다시 시도하세요.</string>
     <string name="toolchain_failed_needs_java">이 도구 모음은 Java 21에서 실행됩니다. 먼저 Java 21을 설치한 다음 다시 시도하세요.</string>
     <string name="toolchain_failed_needs_cpp">이 도구 모음은 C/C++로 링크합니다. 먼저 C/C++를 설치한 다음 다시 시도하세요.</string>
+    <string name="toolchain_failed_needs_erlang">이 도구 모음은 Erlang/OTP에서 실행됩니다. 먼저 Erlang/OTP를 설치한 다음 다시 시도하세요.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -367,6 +368,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Java 21에서 실행되므로 Java 21도 설치하세요.</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Java 21에서 실행되므로 Java 21도 설치하세요.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript). wx와 ODBC는 포함되지 않습니다.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Erlang/OTP에서 실행되므로 Erlang/OTP도 설치하세요.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

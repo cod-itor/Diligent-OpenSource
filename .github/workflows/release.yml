@@ -720,6 +720,7 @@ jobs:
           bash scripts/download-groovy.sh
           bash scripts/download-scala.sh
           bash scripts/download-erlang.sh
+          bash scripts/download-elixir.sh
 
       # The unit suite ran on every pull request and on no tag, which put the
       # published build on the wrong side of it. Before the signing keystore is

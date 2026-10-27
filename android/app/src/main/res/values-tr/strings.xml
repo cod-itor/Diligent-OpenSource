@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">Play, bu araç zincirini yalnızca kendi yüklediği uygulamalara sunar. Play Store\'dan yükleyip yeniden deneyin.</string>
     <string name="toolchain_failed_needs_java">Bu araç zinciri Java 21 üzerinde çalışır. Önce Java 21\'i yükleyin, sonra yeniden deneyin.</string>
     <string name="toolchain_failed_needs_cpp">Bu araç zinciri bağlama için C/C++ kullanır. Önce C/C++\'ı yükleyin, sonra yeniden deneyin.</string>
+    <string name="toolchain_failed_needs_erlang">Bu araç zinciri Erlang/OTP üzerinde çalışır. Önce Erlang/OTP\'yi yükleyin, sonra yeniden deneyin.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -370,6 +371,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript); wx ve ODBC hariç.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Erlang/OTP üzerinde çalışır: Erlang/OTP\'yi de yükleyin.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

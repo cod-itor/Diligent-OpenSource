@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">Play doručuje tuto sadu nástrojů jen aplikacím, které sám nainstaloval. Nainstalujte aplikaci z Obchodu Play a zkuste to znovu.</string>
     <string name="toolchain_failed_needs_java">Tato sada nástrojů běží na Javě 21. Nejprve nainstalujte Java 21 a pak to zkuste znovu.</string>
     <string name="toolchain_failed_needs_cpp">Tato sada nástrojů linkuje pomocí C/C++. Nejprve nainstalujte C/C++ a pak to zkuste znovu.</string>
+    <string name="toolchain_failed_needs_erlang">Tato sada nástrojů běží na Erlangu/OTP. Nejprve nainstalujte Erlang/OTP a pak to zkuste znovu.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -376,6 +377,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Běží na Javě 21: nainstalujte také Java 21.</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Běží na Javě 21: nainstalujte také Java 21.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), bez wx a ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Běží na Erlangu/OTP: nainstalujte také Erlang/OTP.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -201,6 +201,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | Apache Groovy | Apache 2.0 | https://groovy-lang.org |
 | Scala 3 (with scala-cli) | Apache 2.0 | https://www.scala-lang.org |
 | Erlang/OTP | Apache 2.0 | https://www.erlang.org |
+| Elixir | Apache 2.0 | https://elixir-lang.org |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 

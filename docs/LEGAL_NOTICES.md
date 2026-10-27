@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy, Scala, Erlang/OTP) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy, Scala, Erlang/OTP, Elixir) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -882,6 +882,13 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: Apache License 2.0
 - **Copyright**: Copyright (c) Ericsson AB and the Erlang/OTP contributors
 - **Full license**: ships inside the pack at `usr/share/doc/erlang/copyright`, and https://github.com/erlang/otp/blob/master/LICENSE.txt
+
+### Elixir
+
+- **Project**: https://elixir-lang.org (Elixir with IEx and Mix, packaged by Termux)
+- **License**: Apache License 2.0
+- **Copyright**: Copyright (c) The Elixir Team and Plataformatec
+- **Full license**: ships inside the pack at `usr/opt/elixir/LICENSE` and `usr/share/doc/elixir/copyright`
 
 ---
 

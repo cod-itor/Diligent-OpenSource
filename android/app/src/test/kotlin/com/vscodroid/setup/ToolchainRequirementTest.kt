@@ -119,6 +119,14 @@ class ToolchainRequirementTest {
     }
 
     @Test
+    fun `Elixir without Erlang is refused, naming that pack`() {
+        manager().install("toolchain_elixir")
+
+        assertEquals(listOf(AssetPackStatus.FAILED to ToolchainFailure.NEEDS_ERLANG), events)
+        verify(exactly = 0) { packManager.fetch(any()) }
+    }
+
+    @Test
     fun `a requirement picked with its dependant is queued first`() {
         assertEquals(
             listOf("toolchain_ruby", "toolchain_java", "toolchain_kotlin", "toolchain_php"),

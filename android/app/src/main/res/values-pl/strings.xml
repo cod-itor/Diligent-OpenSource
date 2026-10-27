@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">Play dostarcza ten zestaw narzędzi tylko aplikacjom, które sam zainstalował. Zainstaluj aplikację ze Sklepu Play i spróbuj ponownie.</string>
     <string name="toolchain_failed_needs_java">Ten zestaw narzędzi działa na Javie 21. Najpierw zainstaluj Java 21, a potem spróbuj ponownie.</string>
     <string name="toolchain_failed_needs_cpp">Ten zestaw narzędzi linkuje za pomocą C/C++. Najpierw zainstaluj C/C++, a potem spróbuj ponownie.</string>
+    <string name="toolchain_failed_needs_erlang">Ten zestaw narzędzi działa na Erlangu/OTP. Najpierw zainstaluj Erlang/OTP, a potem spróbuj ponownie.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -376,6 +377,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Działa na Javie 21: zainstaluj też Java 21.</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Działa na Javie 21: zainstaluj też Java 21.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), bez wx i ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Działa na Erlangu/OTP: zainstaluj też Erlang/OTP.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">Play entrega esta cadena de herramientas solo a las aplicaciones que instaló. Instala Diligent desde Play Store y vuelve a intentarlo.</string>
     <string name="toolchain_failed_needs_java">Esta cadena de herramientas funciona con Java 21. Instala primero Java 21 y vuelve a intentarlo.</string>
     <string name="toolchain_failed_needs_cpp">Esta cadena de herramientas enlaza con C/C++. Instala primero C/C++ y vuelve a intentarlo.</string>
+    <string name="toolchain_failed_needs_erlang">Esta cadena de herramientas funciona con Erlang/OTP. Instala primero Erlang/OTP y vuelve a intentarlo.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -373,6 +374,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Funciona con Java 21: instala también Java 21.</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Funciona con Java 21: instala también Java 21.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), sin wx ni ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Funciona con Erlang/OTP: instala también Erlang/OTP.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

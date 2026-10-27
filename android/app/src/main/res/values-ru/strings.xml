@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">Play доставляет этот набор инструментов только приложениям, которые установил сам. Установите приложение из Play Store и повторите попытку.</string>
     <string name="toolchain_failed_needs_java">Этот набор инструментов работает на Java 21. Сначала установите Java 21, затем повторите попытку.</string>
     <string name="toolchain_failed_needs_cpp">Этот набор инструментов компонует программы через C/C++. Сначала установите C/C++, затем повторите попытку.</string>
+    <string name="toolchain_failed_needs_erlang">Этот набор инструментов работает на Erlang/OTP. Сначала установите Erlang/OTP, затем повторите попытку.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -376,6 +377,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Работает на Java 21: установите и Java 21.</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Работает на Java 21: установите и Java 21.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), без wx и ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Работает на Erlang/OTP: установите и Erlang/OTP.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

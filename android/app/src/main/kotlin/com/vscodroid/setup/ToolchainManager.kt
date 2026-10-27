@@ -4824,6 +4824,7 @@ enum class ToolchainFailure(@param:StringRes val message: Int) {
     // installed. One entry per requirement, so the message can name it.
     NEEDS_JAVA(R.string.toolchain_failed_needs_java),
     NEEDS_CPP(R.string.toolchain_failed_needs_cpp),
+    NEEDS_ERLANG(R.string.toolchain_failed_needs_erlang),
     INTERNAL(R.string.toolchain_failed_internal),
 }
 
@@ -4836,6 +4837,7 @@ internal fun missingRequirementFailure(missing: ToolchainRegistry.ToolchainInfo)
     when (missing.packName) {
         "toolchain_java" -> ToolchainFailure.NEEDS_JAVA
         "toolchain_cpp" -> ToolchainFailure.NEEDS_CPP
+        "toolchain_erlang" -> ToolchainFailure.NEEDS_ERLANG
         else -> ToolchainFailure.INTERNAL
     }
 

@@ -21,6 +21,7 @@ set -euo pipefail
 #     ./scripts/download-groovy.sh
 #     ./scripts/download-scala.sh
 #     ./scripts/download-erlang.sh
+#     ./scripts/download-elixir.sh
 #
 # Usage:
 #   ./scripts/package-toolchains.sh              # Package all toolchains
@@ -40,6 +41,7 @@ set -euo pipefail
 #   toolchain-zips/toolchain_groovy.zip(~39 MB)
 #   toolchain-zips/toolchain_scala.zip (~169 MB)
 #   toolchain-zips/toolchain_erlang.zip(~38 MB)
+#   toolchain-zips/toolchain_elixir.zip(~8.3 MB)
 #
 # The ZIPs are intended to be attached to GitHub Releases so that sideloaded
 # APK users (not from Play Store) can download toolchains manually. The app's

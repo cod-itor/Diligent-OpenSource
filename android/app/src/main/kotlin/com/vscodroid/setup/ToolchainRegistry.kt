@@ -317,6 +317,23 @@ object ToolchainRegistry {
             downloadSize = 41_000_000,
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_erlang.zip",
         ),
+        ToolchainInfo(
+            packName = "toolchain_elixir",
+            displayName = "Elixir",
+            shortLabel = "Elixir",
+            descriptionRes = R.string.toolchain_elixir_description,
+            // 16,668 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (17,068,032 bytes in 4 KiB blocks, 711 files) after running
+            // scripts/download-elixir.sh against elixir 1.20.4. BEAM bytecode and
+            // four sh scripts; there is no native code. 18,000,000 leaves 1 MB
+            // for a point release. The ZIP measured 8,658,404 bytes.
+            //
+            // The Erlang pack is not counted here: `requires` makes it come first.
+            estimatedSize = 18_000_000,
+            downloadSize = 9_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_elixir.zip",
+            requires = listOf("toolchain_erlang"),
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

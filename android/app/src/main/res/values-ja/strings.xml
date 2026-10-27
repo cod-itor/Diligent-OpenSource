@@ -195,6 +195,7 @@
     <string name="toolchain_failed_play">Play はこのツールチェーンを、Play がインストールしたアプリにのみ配信します。Play Store からインストールして、もう一度お試しください。</string>
     <string name="toolchain_failed_needs_java">このツールチェーンは Java 21 上で動作します。先に Java 21 をインストールしてから、もう一度お試しください。</string>
     <string name="toolchain_failed_needs_cpp">このツールチェーンはリンクに C/C++ を使います。先に C/C++ をインストールしてから、もう一度お試しください。</string>
+    <string name="toolchain_failed_needs_erlang">このツールチェーンは Erlang/OTP 上で動作します。先に Erlang/OTP をインストールしてから、もう一度お試しください。</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -367,6 +368,7 @@
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh)。Java 21 上で動作するため、Java 21 もインストールしてください。</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc)。Java 21 上で動作するため、Java 21 もインストールしてください。</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl、erlc、escript)。wx と ODBC は含みません。</string>
+    <string name="toolchain_elixir_description">Elixir (elixir、iex、mix)。Erlang/OTP 上で動作するため、Erlang/OTP もインストールしてください。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->
