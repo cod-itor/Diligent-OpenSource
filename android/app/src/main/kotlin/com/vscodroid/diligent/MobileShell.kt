@@ -8,6 +8,7 @@ import com.vscodroid.diligent.devices.IdleDeviceLink
 import com.vscodroid.diligent.guide.NextStep
 import com.vscodroid.diligent.guide.Tip
 import com.vscodroid.diligent.kit.KitSession
+import com.vscodroid.diligent.kit.PackInstallQueue
 import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.ui.components.TopBarStatus
 import com.vscodroid.diligent.ui.navigation.MobileTab
@@ -190,6 +191,9 @@ interface MobileActions {
 
     /** The Setup screen's run: a recipe through the kit engine. */
     val kit: KitSession
+
+    /** Setup's Languages list: language packs installed one after another. */
+    val packs: PackInstallQueue
 
     /** The editor server's loopback port, for the Share screen, or null while it is not loaded. */
     fun editorPort(): Int? = null

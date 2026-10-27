@@ -105,6 +105,12 @@ fun GuidedStartScreen(shell: MobileShell, actions: MobileActions, onClose: () ->
                     run = run,
                     // Only a run is shown here, never the recipe list these two are for.
                     offline = emptySet(),
+                    languages = LanguagesUi(emptyList(), emptySet(), null, null),
+                    showLanguages = false,
+                    onShowLanguages = {},
+                    onInstallPacks = {},
+                    onStopPacks = {},
+                    onDismissPacks = {},
                     onPick = {},
                     onPrepare = {},
                     onCancel = kit::cancel,

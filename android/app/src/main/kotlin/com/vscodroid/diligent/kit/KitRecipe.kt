@@ -16,6 +16,8 @@ enum class KitInternet { No, Once, PackDownload }
  * the titles of its steps that have one, and [minFreeMB] the free space it
  * asks for before it starts. [tested] is the versions it was last tested
  * with, which a prepared recipe must still match to be ready offline.
+ * [language] is the name the Setup screen groups it under, such as Python;
+ * null puts it under Other.
  */
 data class KitRecipe(
     val id: String,
@@ -27,7 +29,11 @@ data class KitRecipe(
     val internet: KitInternet,
     val steps: List<String>,
     val tested: Map<String, String> = emptyMap(),
+    val language: String? = null,
 )
+
+/** The recipes of one language, as the Setup screen lists them. [language] null is Other. */
+data class KitRecipeGroup(val language: String?, val recipes: List<KitRecipe>)
 
 /**
  * Reads the recipes the kit engine ships, from
@@ -44,6 +50,33 @@ object KitRecipes {
     private val ORDER = listOf(
         "web-basic", "python-script", "python-data", "react-vite", "nextjs", "node-api", "java", "c-cpp", "ruby",
     )
+
+    /**
+     * The order of the language groups: the web and the two languages the app
+     * ships first, then the packs, roughly by how often people ask for them.
+     * A language not named here comes after these, by name.
+     */
+    private val LANGUAGE_ORDER = listOf(
+        "HTML and CSS", "JavaScript", "TypeScript", "Python", "Shell",
+        "Java", "Kotlin", "C", "C++", "Ruby", "PHP", "Lua", "Perl", "Rust",
+    )
+
+    /**
+     * [recipes] in groups by language, in [LANGUAGE_ORDER], keeping their
+     * order inside each group. Recipes with no language come last.
+     */
+    fun groups(recipes: List<KitRecipe>): List<KitRecipeGroup> {
+        val byLanguage = recipes.groupBy { it.language }
+        val rank = { language: String? ->
+            when (val i = LANGUAGE_ORDER.indexOf(language)) {
+                -1 -> if (language == null) LANGUAGE_ORDER.size + 1 else LANGUAGE_ORDER.size
+                else -> i
+            }
+        }
+        return byLanguage.keys
+            .sortedWith(compareBy<String?>(rank).thenBy { it.orEmpty().lowercase() })
+            .map { KitRecipeGroup(it, byLanguage.getValue(it)) }
+    }
 
     /**
      * One recipe, or null when it has no `id` or `title`. Every other field
@@ -70,6 +103,7 @@ object KitRecipes {
             internet = internet(needs?.opt("internet")),
             steps = root.optJSONArray("steps")?.let(::stepTitles).orEmpty(),
             tested = root.optJSONObject("tested")?.let(::textMap).orEmpty(),
+            language = root.optText("language"),
         )
     }
 
