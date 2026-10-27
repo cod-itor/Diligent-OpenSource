@@ -92,6 +92,12 @@ class MobileShell(view: AppView?) {
      */
     var shareRequested by mutableStateOf(false)
 
+    /** Set to open the More tab on its Devices screen; the More tab clears it. */
+    var devicesRequested by mutableStateOf(false)
+
+    /** The top bar's Sync needs the user to pick a device (or learn there is none); the sheet clears it. */
+    var syncPickerOpen by mutableStateOf(false)
+
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
 
