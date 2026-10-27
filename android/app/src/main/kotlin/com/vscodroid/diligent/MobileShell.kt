@@ -3,6 +3,8 @@ package com.vscodroid.diligent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.vscodroid.diligent.devices.DeviceLink
+import com.vscodroid.diligent.devices.IdleDeviceLink
 import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.ui.components.TopBarStatus
@@ -146,4 +148,7 @@ interface MobileActions {
 
     /** The editor server's loopback port, for the Share screen, or null while it is not loaded. */
     fun editorPort(): Int? = null
+
+    /** diligent-link: devices, pairing and sync, for the Devices screen and the Sync button. */
+    val devices: DeviceLink get() = IdleDeviceLink
 }

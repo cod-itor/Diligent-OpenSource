@@ -36,6 +36,12 @@ composeBom = "2026.08.00"
 window = "1.5.1"
 # Diligent: the QR code on the Share screen. ZXing core only (pure Java, Apache-2.0).
 zxing = "3.5.4"
+# Diligent: diligent-link (Phase 5). Bouncy Castle (bcprov only) for SRP-6a and
+# the ASN.1 of the device certificate, which the platform does not offer.
+# Pinned on purpose: a crypto library moves by a reviewed bump, not by lint's
+# newest-version notice.
+#noinspection NewerVersionAvailable
+bouncycastle = "1.85.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -75,6 +81,9 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "window" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+bouncycastle-bcprov = { group = "org.bouncycastle", name = "bcprov-jdk18on", version.ref = "bouncycastle" }
+# Diligent: diligent-link's shared library, built from the android/diligent-sync-core submodule.
+diligent-sync-core = { group = "com.ditarector.diligent", name = "sync-core", version = "0.1.0" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinCompose" }

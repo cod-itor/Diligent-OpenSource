@@ -136,4 +136,10 @@ sealed interface SyncUi {
 /** One conflict, with both texts for the side-by-side compare (null for a binary file). */
 data class SyncConflict(val path: String, val mine: String?, val theirs: String?)
 
-data class IncomingProject(val name: String, val fromDevice: String, val targetPath: String)
+/**
+ * A paired device wants to sync a project here. [isNew]: "Receive project
+ * <name> into <targetPath>?"; otherwise the project exists at [targetPath]
+ * and the device's approval is "Ask each time": "<fromDevice> wants to sync
+ * <name>. Allow?" (SPEC A.7 Approval).
+ */
+data class IncomingProject(val name: String, val fromDevice: String, val targetPath: String, val isNew: Boolean = true)

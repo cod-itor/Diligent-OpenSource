@@ -28,3 +28,6 @@ class PreviewDeviceLink(initial: DevicesState = DevicesState()) : DeviceLink {
     override fun answerIncomingProject(accept: Boolean) { flow.value = flow.value.copy(incomingProject = null) }
     override fun dismiss() { flow.value = flow.value.copy(pairing = null, sync = null) }
 }
+
+/** What [com.vscodroid.diligent.MobileActions.devices] answers where no real link exists (previews, tests). */
+val IdleDeviceLink: DeviceLink by lazy { PreviewDeviceLink() }
