@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo/diligent.svg" alt="Diligent logo" width="120" height="120">
+</p>
+
 <h1 align="center">Diligent</h1>
 
 <p align="center">
