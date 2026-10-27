@@ -122,7 +122,7 @@ fun iconFor(entry: FileEntry, expanded: Boolean = false): ImageVector = when {
     else -> iconFor(fileKind(entry.name))
 }
 
-private fun iconFor(kind: FileKind): ImageVector = when (kind) {
+internal fun iconFor(kind: FileKind): ImageVector = when (kind) {
     FileKind.Folder -> Icons.Outlined.Folder
     FileKind.Code -> Icons.Outlined.Code
     FileKind.Script -> Icons.Outlined.Terminal

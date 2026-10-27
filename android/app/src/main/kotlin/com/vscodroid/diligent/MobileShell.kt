@@ -103,6 +103,9 @@ class MobileShell(view: AppView?) {
      */
     var shareRequested by mutableStateOf(false)
 
+    /** Set by the file name chip: the all-files switcher opens. */
+    var fileSwitcherOpen by mutableStateOf(false)
+
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
 

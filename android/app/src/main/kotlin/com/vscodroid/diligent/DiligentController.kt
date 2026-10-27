@@ -35,6 +35,7 @@ import com.vscodroid.R
 import com.vscodroid.diligent.health.HealthReport
 import com.vscodroid.diligent.kit.KitProgress
 import com.vscodroid.diligent.kit.KitSession
+import com.vscodroid.diligent.files.RecentFiles
 import com.vscodroid.diligent.projects.RecentProjects
 import com.vscodroid.diligent.preview.PreviewActivity
 import com.vscodroid.diligent.run.ProjectRunner
@@ -348,6 +349,9 @@ class DiligentController(
         }
 
         override fun openFile(path: String) {
+            // The one place every way of opening a file passes: the all-files
+            // list and switcher, the Files tree, and Run's own files.
+            RecentFiles.of(activity).opened(shell.folder, path)
             editor.run("vscode.open", EditorPath(path))
             openTab(MobileTab.Editor)
         }
