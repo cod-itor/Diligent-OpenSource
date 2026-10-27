@@ -194,6 +194,7 @@
     <string name="toolchain_failed_corrupt">Der Download war unvollständig. Versuchen Sie es erneut.</string>
     <string name="toolchain_failed_play">Play liefert diese Toolchain nur an Apps aus, die es selbst installiert hat. Installieren Sie die App aus dem Play Store und versuchen Sie es erneut.</string>
     <string name="toolchain_failed_needs_java">Diese Toolchain läuft auf Java 21. Installieren Sie zuerst Java 21 und versuchen Sie es dann erneut.</string>
+    <string name="toolchain_failed_needs_cpp">Diese Toolchain linkt mit C/C++. Installieren Sie zuerst C/C++ und versuchen Sie es dann erneut.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -364,6 +365,7 @@
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
     <string name="toolchain_perl_description">Perl mit cpan, perldoc, prove</string>
     <string name="toolchain_kotlin_description">Kotlin-Compiler (kotlinc, kotlin). Läuft auf Java 21: Installieren Sie auch Java 21.</string>
+    <string name="toolchain_rust_description">Rust (rustc, cargo). Linkt mit C/C++, installieren Sie also auch C/C++. Benötigt den exec-Interceptor des Terminals: Mit LD_PRELOAD auf null funktioniert es nicht.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -154,7 +154,7 @@ and the base APK for the table above.
 | [GMP](https://gmplib.org) | LGPL-3.0 | Ruby, PHP |
 | [libyaml](https://pyyaml.org/wiki/LibYAML) | MIT | Ruby |
 | [libruby](https://www.ruby-lang.org) | BSD-2-Clause | Ruby |
-| [libandroid-execinfo](https://github.com/termux/libandroid-execinfo) | BSD-2-Clause | Ruby |
+| [libandroid-execinfo](https://github.com/termux/libandroid-execinfo) | BSD-2-Clause | Ruby, Rust |
 | [libandroid-shmem](https://github.com/termux/libandroid-shmem) | BSD-3-Clause | Java |
 | [libandroid-spawn](https://github.com/termux/libandroid-spawn) | BSD-2-Clause | Java |
 | [LLVM](https://llvm.org) | Apache-2.0 WITH LLVM-exception, NCSA | C/C++ |
@@ -195,6 +195,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | Lua | MIT | https://www.lua.org |
 | Perl | Artistic License or GPL v1+ | https://www.perl.org |
 | Kotlin | Apache 2.0 | https://kotlinlang.org |
+| Rust (rustc, cargo, rustdoc, rustfmt) | MIT or Apache 2.0 | https://www.rust-lang.org |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 

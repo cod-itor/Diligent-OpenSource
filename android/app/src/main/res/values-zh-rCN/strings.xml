@@ -194,6 +194,7 @@
     <string name="toolchain_failed_corrupt">下载未完成。请重试。</string>
     <string name="toolchain_failed_play">Play 只向由它安装的应用提供此工具链。请从 Play Store 安装后重试。</string>
     <string name="toolchain_failed_needs_java">此工具链运行在 Java 21 上。请先安装 Java 21，然后重试。</string>
+    <string name="toolchain_failed_needs_cpp">此工具链使用 C/C++ 进行链接。请先安装 C/C++，然后重试。</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -361,6 +362,7 @@
     <string name="toolchain_lua_description">Lua 5.4（lua、luac）</string>
     <string name="toolchain_perl_description">Perl，含 cpan、perldoc、prove</string>
     <string name="toolchain_kotlin_description">Kotlin 编译器（kotlinc、kotlin）。运行在 Java 21 上，请同时安装 Java 21。</string>
+    <string name="toolchain_rust_description">Rust（rustc、cargo）。使用 C/C++ 进行链接，请同时安装 C/C++。需要终端的 exec 拦截器，LD_PRELOAD 设为 null 时无法使用。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

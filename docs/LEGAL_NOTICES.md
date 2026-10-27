@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -738,7 +738,7 @@ nothing and report success.
 | GMP | LGPL-3.0 | Ruby, PHP | https://github.com/termux/termux-packages (package: `libgmp`) |
 | libyaml | MIT | Ruby | https://pyyaml.org/wiki/LibYAML |
 | libruby | BSD-2-Clause | Ruby | https://www.ruby-lang.org |
-| libandroid-execinfo | BSD-2-Clause | Ruby | https://github.com/termux/libandroid-execinfo |
+| libandroid-execinfo | BSD-2-Clause | Ruby, Rust | https://github.com/termux/libandroid-execinfo |
 | libandroid-shmem | BSD-3-Clause | Java | https://github.com/termux/libandroid-shmem |
 | libandroid-spawn | BSD-2-Clause | Java | https://github.com/termux/libandroid-spawn |
 | LLVM | Apache-2.0 WITH LLVM-exception, NCSA | C/C++ | https://github.com/termux/termux-packages (package: `libllvm`), built from https://github.com/llvm/llvm-project |
@@ -845,6 +845,13 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: Apache License 2.0
 - **Copyright**: Copyright (c) JetBrains s.r.o. and Kotlin Programming Language contributors
 - **Full license**: ships inside the pack at `usr/opt/kotlin/license/LICENSE.txt`, with the compiler's third-party notices beside it in `usr/opt/kotlin/license/third_party`
+
+### Rust
+
+- **Project**: https://www.rust-lang.org (rustc, cargo, rustdoc and rustfmt, with the standard library for aarch64-linux-android, packaged by Termux)
+- **License**: MIT or Apache License 2.0, at the recipient's choice; the third-party crates compiled into the tools carry their own permissive licences, listed in the files below
+- **Copyright**: Copyright (c) The Rust Project Developers
+- **Full license**: ships inside the pack at `usr/share/doc/rust` (`LICENSE-MIT`, `LICENSE-APACHE`, `COPYRIGHT.html`, `COPYRIGHT-library.html`, `LICENSE-THIRD-PARTY` and the `licenses` directory)
 
 ---
 

@@ -24,8 +24,8 @@ class ToolchainRegistryTest {
     inner class CatalogTest {
 
         @Test
-        fun `has exactly 7 toolchains`() {
-            assertEquals(7, ToolchainRegistry.available.size)
+        fun `has exactly 8 toolchains`() {
+            assertEquals(8, ToolchainRegistry.available.size)
         }
 
         @Test
@@ -293,6 +293,18 @@ class ToolchainRegistryTest {
         }
 
         @Test
+        fun `contains Rust toolchain, which links with C and C++`() {
+            val rust = ToolchainRegistry.available.find { it.shortLabel == "Rust" }
+            assertNotNull(rust)
+            assertEquals("toolchain_rust", rust!!.packName)
+            assertEquals(listOf("toolchain_cpp"), rust.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_rust.zip",
+                rust.downloadUrl,
+            )
+        }
+
+        @Test
         fun `every requirement is a pack the registry offers`() {
             for (tc in ToolchainRegistry.available) {
                 for (required in tc.requires) {
@@ -337,7 +349,7 @@ class ToolchainRegistryTest {
     inner class FindTest {
 
         @ParameterizedTest(name = "find by full pack name: {0}")
-        @ValueSource(strings = ["toolchain_ruby", "toolchain_java", "toolchain_cpp", "toolchain_php", "toolchain_lua", "toolchain_perl", "toolchain_kotlin"])
+        @ValueSource(strings = ["toolchain_ruby", "toolchain_java", "toolchain_cpp", "toolchain_php", "toolchain_lua", "toolchain_perl", "toolchain_kotlin", "toolchain_rust"])
         fun `finds by full pack name`(packName: String) {
             val result = ToolchainRegistry.find(packName)
             assertNotNull(result, "Should find toolchain by pack name: $packName")
@@ -345,7 +357,7 @@ class ToolchainRegistryTest {
         }
 
         @ParameterizedTest(name = "find by short name: {0} → toolchain_{0}")
-        @CsvSource("ruby,toolchain_ruby", "java,toolchain_java", "cpp,toolchain_cpp", "php,toolchain_php", "lua,toolchain_lua", "perl,toolchain_perl", "kotlin,toolchain_kotlin")
+        @CsvSource("ruby,toolchain_ruby", "java,toolchain_java", "cpp,toolchain_cpp", "php,toolchain_php", "lua,toolchain_lua", "perl,toolchain_perl", "kotlin,toolchain_kotlin", "rust,toolchain_rust")
         fun `finds by short name`(shortName: String, expectedPack: String) {
             val result = ToolchainRegistry.find(shortName)
             assertNotNull(result, "Should find toolchain by short name: $shortName")
@@ -353,7 +365,7 @@ class ToolchainRegistryTest {
         }
 
         @ParameterizedTest(name = "find returns null for unknown: {0}")
-        @ValueSource(strings = ["rust", "clang", "python", "toolchain_rust", ""])
+        @ValueSource(strings = ["swift", "clang", "python", "toolchain_swift", ""])
         fun `returns null for unknown toolchains`(name: String) {
             assertNull(ToolchainRegistry.find(name), "Should return null for unknown: $name")
         }

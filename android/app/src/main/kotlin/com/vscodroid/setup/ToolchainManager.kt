@@ -4823,6 +4823,7 @@ enum class ToolchainFailure(@param:StringRes val message: Int) {
     // Diligent: a pack that runs on another, asked for before that one is
     // installed. One entry per requirement, so the message can name it.
     NEEDS_JAVA(R.string.toolchain_failed_needs_java),
+    NEEDS_CPP(R.string.toolchain_failed_needs_cpp),
     INTERNAL(R.string.toolchain_failed_internal),
 }
 
@@ -4834,6 +4835,7 @@ enum class ToolchainFailure(@param:StringRes val message: Int) {
 internal fun missingRequirementFailure(missing: ToolchainRegistry.ToolchainInfo): ToolchainFailure =
     when (missing.packName) {
         "toolchain_java" -> ToolchainFailure.NEEDS_JAVA
+        "toolchain_cpp" -> ToolchainFailure.NEEDS_CPP
         else -> ToolchainFailure.INTERNAL
     }
 

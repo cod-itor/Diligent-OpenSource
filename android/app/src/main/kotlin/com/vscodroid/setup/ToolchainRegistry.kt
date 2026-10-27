@@ -94,6 +94,17 @@ object ToolchainRegistry {
      * placed there and marked executable is refused too, and `-toolexec`, the
      * one idea that looked like a way round it, never reaches the problem.
      *
+     * Diligent: Rust is offered where Go is not because its spawns go through
+     * libc. cargo and librustc_driver import `fork` and `execvp` (no
+     * `posix_spawn`), which the terminal's exec interceptor wraps and starts
+     * through /system/bin/linker64; Go issues the execve system call itself,
+     * which nothing in the process can wrap. rustc finds its sysroot with
+     * `dladdr` on librustc_driver rather than /proc/self/exe, so starting it
+     * through the linker does not lose it. It links through `cc`, so it requires
+     * the C/C++ pack, whose libLLVM.so it also loads. Clippy is left out:
+     * cargo-clippy finds clippy-driver beside its own current_exe, which under
+     * the linker is /system/bin.
+     *
      * Removing an entry here is not the whole job. See
      * [ToolchainManager.removeRetiredToolchainsSync]: installs that already
      * have it lose their Remove button along with the entry, so they are swept.
@@ -219,6 +230,26 @@ object ToolchainRegistry {
             downloadSize = 90_000_000,
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_kotlin.zip",
             requires = listOf("toolchain_java"),
+        ),
+        ToolchainInfo(
+            packName = "toolchain_rust",
+            displayName = "Rust",
+            shortLabel = "Rust",
+            descriptionRes = R.string.toolchain_rust_description,
+            // 283,376 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (290,177,024 bytes in 4 KiB blocks, 102 files) after running
+            // scripts/download-rust.sh. Only the aarch64-linux-android target
+            // library tree is kept. librustc_driver is most of it. 296,000,000
+            // leaves 5.8 MB for a point release. The ZIP measured 101,307,210
+            // bytes.
+            //
+            // libLLVM.so is not counted: librustc_driver loads the one the C/C++
+            // pack ships (symbol version LLVM_21.1), and `requires` makes that
+            // pack come first. It is also the linker driver rustc calls as `cc`.
+            estimatedSize = 296_000_000,
+            downloadSize = 102_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_rust.zip",
+            requires = listOf("toolchain_cpp"),
         ),
     )
 

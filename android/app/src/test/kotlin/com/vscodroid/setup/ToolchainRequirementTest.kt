@@ -110,6 +110,15 @@ class ToolchainRequirementTest {
     }
 
     @Test
+    fun `Rust without C and C++ is refused, naming that pack`() {
+        assertEquals("toolchain_cpp", ToolchainRegistry.missingRequirement("rust", listOf("java"))?.packName)
+        manager().install("toolchain_rust")
+
+        assertEquals(listOf(AssetPackStatus.FAILED to ToolchainFailure.NEEDS_CPP), events)
+        verify(exactly = 0) { packManager.fetch(any()) }
+    }
+
+    @Test
     fun `a requirement picked with its dependant is queued first`() {
         assertEquals(
             listOf("toolchain_ruby", "toolchain_java", "toolchain_kotlin", "toolchain_php"),

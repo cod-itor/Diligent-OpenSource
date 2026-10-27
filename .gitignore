@@ -75,6 +75,8 @@ yarn-error.log*
 /android/toolchain_perl/src/main/assets/toolchain_perl.json
 /android/toolchain_kotlin/src/main/assets/usr/
 /android/toolchain_kotlin/src/main/assets/toolchain_kotlin.json
+/android/toolchain_rust/src/main/assets/usr/
+/android/toolchain_rust/src/main/assets/toolchain_rust.json
 
 # ===== Toolchain Asset Pack build intermediates =====
 /android/toolchain_ruby/build/
@@ -84,6 +86,7 @@ yarn-error.log*
 /android/toolchain_lua/build/
 /android/toolchain_perl/build/
 /android/toolchain_kotlin/build/
+/android/toolchain_rust/build/
 
 # ===== Bundletool (local AAB testing only) =====
 bundletool.jar

@@ -194,6 +194,7 @@
     <string name="toolchain_failed_corrupt">다운로드가 완료되지 않았습니다. 다시 시도하세요.</string>
     <string name="toolchain_failed_play">이 툴체인은 Play Store로 설치한 앱에만 제공됩니다. Play Store에서 설치한 뒤 다시 시도하세요.</string>
     <string name="toolchain_failed_needs_java">이 도구 모음은 Java 21에서 실행됩니다. 먼저 Java 21을 설치한 다음 다시 시도하세요.</string>
+    <string name="toolchain_failed_needs_cpp">이 도구 모음은 C/C++로 링크합니다. 먼저 C/C++를 설치한 다음 다시 시도하세요.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -361,6 +362,7 @@
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
     <string name="toolchain_perl_description">Perl과 cpan, perldoc, prove</string>
     <string name="toolchain_kotlin_description">Kotlin 컴파일러 (kotlinc, kotlin). Java 21에서 실행되므로 Java 21도 설치하세요.</string>
+    <string name="toolchain_rust_description">Rust (rustc, cargo). C/C++로 링크하므로 C/C++도 설치하세요. 터미널의 exec 인터셉터가 필요하며 LD_PRELOAD를 null로 설정하면 동작하지 않습니다.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

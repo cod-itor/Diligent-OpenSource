@@ -153,6 +153,7 @@ RENAMED = {
 # is where it gets made.
 SONAME_SCRIPTS = ("download-cpp.sh", "download-java.sh", "download-perl.sh",
                   "download-php.sh", "download-python.sh", "download-ruby.sh",
+                  "download-rust.sh",
                   "download-termux-tools.sh")
 
 # The body of a `get_sonames()` shell function, and one arm of the case inside
