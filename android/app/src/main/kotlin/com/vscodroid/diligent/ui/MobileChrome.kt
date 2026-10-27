@@ -6,6 +6,10 @@ import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,6 +25,7 @@ import com.vscodroid.diligent.ui.components.MenuAction
 import com.vscodroid.diligent.ui.components.standardEditorActions
 import com.vscodroid.diligent.ui.components.suggestionActions
 import com.vscodroid.diligent.ui.navigation.MobileTab
+import com.vscodroid.diligent.ui.screens.FilesMode
 import com.vscodroid.diligent.ui.screens.FilesScreen
 import com.vscodroid.diligent.ui.screens.MoreScreen
 import com.vscodroid.diligent.ui.screens.PreviewActions
@@ -58,10 +63,13 @@ fun TopChrome(shell: MobileShell, actions: MobileActions) {
 /** Over the editor, on the tabs that are not the editor. */
 @Composable
 fun NativeScreens(shell: MobileShell, actions: MobileActions) {
+    // Held here rather than in the Files tab, which leaves composition when
+    // another tab is in front: Folders stays chosen across a trip to the editor.
+    var filesMode by rememberSaveable { mutableStateOf(FilesMode.AllFiles) }
     if (!shell.chrome.nativeScreen) return
     when (shell.tab) {
         MobileTab.Projects -> ProjectsScreen(shell, actions)
-        MobileTab.Files -> FilesScreen(shell, actions)
+        MobileTab.Files -> FilesScreen(shell, actions, mode = filesMode, onMode = { filesMode = it })
         MobileTab.More -> MoreScreen(shell, actions)
         MobileTab.Editor, MobileTab.Terminal -> Unit
     }
