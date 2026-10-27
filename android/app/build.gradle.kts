@@ -461,6 +461,11 @@ android {
             "PlaySdkIndexNonCompliant",
             "PlaySdkIndexVulnerability",
         )
+        // The launcher PNGs under mipmap-*dpi are Diligent's full-bleed square
+        // logo, and lint wants a legacy icon to leave its corners empty. With
+        // minSdk 30 they are never shown: mipmap-anydpi's adaptive icon wins on
+        // every device this app installs on, and the launcher masks that one.
+        disable += "IconLauncherShape"
         baseline = file("lint-baseline.xml")
     }
 
