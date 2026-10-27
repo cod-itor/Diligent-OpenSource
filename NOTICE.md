@@ -205,6 +205,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | SBCL (Steel Bank Common Lisp) | Public domain, with BSD-style and MIT parts | https://www.sbcl.org |
 | Deno | MIT | https://deno.com |
 | Gleam | Apache 2.0 | https://gleam.run |
+| NASM | BSD 2-Clause | https://www.nasm.us |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 

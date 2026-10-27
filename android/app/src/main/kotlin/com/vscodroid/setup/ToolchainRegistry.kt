@@ -383,6 +383,19 @@ object ToolchainRegistry {
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_gleam.zip",
             requires = listOf("toolchain_erlang"),
         ),
+        ToolchainInfo(
+            packName = "toolchain_nasm",
+            displayName = "NASM (x86 assembler)",
+            shortLabel = "NASM",
+            descriptionRes = R.string.toolchain_nasm_description,
+            // 3,580 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (3,665,920 bytes in 4 KiB blocks, 3 files) after running
+            // scripts/download-nasm.sh against nasm 3.02. 4,000,000 leaves 0.3 MB
+            // for a point release. The ZIP measured 637,041 bytes.
+            estimatedSize = 4_000_000,
+            downloadSize = 700_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_nasm.zip",
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

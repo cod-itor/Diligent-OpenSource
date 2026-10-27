@@ -372,6 +372,7 @@
     <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp). ASDF 포함.</string>
     <string name="toolchain_deno_description">Deno. 자체 포매터, 린터, 테스트 러너를 갖춘 JavaScript 및 TypeScript 런타임입니다.</string>
     <string name="toolchain_gleam_description">Gleam 컴파일러. Erlang/OTP에서 실행되므로 Erlang/OTP도 설치하세요.</string>
+    <string name="toolchain_nasm_description">NASM x86 어셈블러 (nasm, ndisasm). 이 휴대전화가 아닌 PC용 코드를 만듭니다.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -378,6 +378,7 @@
     <string name="toolchain_sbcl_description">Common Lisp : SBCL (Steel Bank Common Lisp), avec ASDF.</string>
     <string name="toolchain_deno_description">Deno, un environnement d\'exécution JavaScript et TypeScript avec son propre formateur, linter et lanceur de tests.</string>
     <string name="toolchain_gleam_description">Compilateur Gleam. S\'exécute sur Erlang/OTP : installez aussi Erlang/OTP.</string>
+    <string name="toolchain_nasm_description">Assembleur x86 NASM (nasm, ndisasm). Produit du code pour PC, pas pour ce téléphone.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

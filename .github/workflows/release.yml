@@ -724,6 +724,7 @@ jobs:
           bash scripts/download-sbcl.sh
           bash scripts/download-deno.sh
           bash scripts/download-gleam.sh
+          bash scripts/download-nasm.sh
 
       # The unit suite ran on every pull request and on no tag, which put the
       # published build on the wrong side of it. Before the signing keystore is

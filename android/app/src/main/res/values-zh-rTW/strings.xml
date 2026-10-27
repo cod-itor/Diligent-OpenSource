@@ -372,6 +372,7 @@
     <string name="toolchain_sbcl_description">Common Lisp：SBCL（Steel Bank Common Lisp），附帶 ASDF。</string>
     <string name="toolchain_deno_description">Deno，內建格式化、程式碼檢查與測試執行器的 JavaScript 與 TypeScript 執行環境。</string>
     <string name="toolchain_gleam_description">Gleam 編譯器。在 Erlang/OTP 上執行，請同時安裝 Erlang/OTP。</string>
+    <string name="toolchain_nasm_description">NASM x86 組譯器（nasm、ndisasm）。產生的是 PC 程式碼，無法在這支手機上執行。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

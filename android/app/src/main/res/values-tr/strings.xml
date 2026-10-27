@@ -375,6 +375,7 @@
     <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp), ASDF ile.</string>
     <string name="toolchain_deno_description">Deno; kendi biçimlendiricisi, linter\'ı ve test çalıştırıcısı olan bir JavaScript ve TypeScript çalışma zamanı.</string>
     <string name="toolchain_gleam_description">Gleam derleyicisi. Erlang/OTP üzerinde çalışır: Erlang/OTP\'yi de yükleyin.</string>
+    <string name="toolchain_nasm_description">NASM x86 derleyicisi (nasm, ndisasm). Bu telefon için değil, PC\'ler için kod üretir.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->
