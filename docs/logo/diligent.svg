@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="18 18 72 72">
+  <title>Diligent</title>
+  <defs>
+    <linearGradient id="background" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="108" y2="108">
+      <stop stop-color="#005048" />
+      <stop offset="1" stop-color="#006A60" />
+    </linearGradient>
+    <radialGradient id="highlight" gradientUnits="userSpaceOnUse" cx="26" cy="22" r="74">
+      <stop stop-color="#FFFFFF" stop-opacity="0.0588235294" />
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <path fill="url(#background)" d="M0,0 H108 V108 H0 Z" />
+  <path fill="url(#highlight)" d="M0,0 H108 V108 H0 Z" />
+  <g fill="none" stroke="#E8FFFB" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M34,34 L34,74" />
+    <path d="M46,33 C55,33 60,39 68,46 L73,50 Q77,54 73,58 L68,62 C60,69 55,75 46,75" />
+  </g>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="18 18 72 72">
+  <title>Diligent mark</title>
+  <g fill="none" stroke="#E8FFFB" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M34,34 L34,74" />
+    <path d="M46,33 C55,33 60,39 68,46 L73,50 Q77,54 73,58 L68,62 C60,69 55,75 46,75" />
+  </g>
+</svg>
