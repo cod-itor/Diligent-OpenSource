@@ -1,0 +1,68 @@
+{
+  "id": "socketio-chat",
+  "title": "Live chat with Socket.io",
+  "summary": "A chat room with Express and Socket.io that updates live",
+  "language": "JavaScript",
+  "sizeMB": 12,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 40,
+    "internet": "once"
+  },
+  "tested": {
+    "express": "5",
+    "socket.io": "4"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write package.json",
+      "template": "socketio-chat/package.json",
+      "path": "package.json"
+    },
+    {
+      "type": "write",
+      "title": "Write server.js",
+      "template": "socketio-chat/server.js",
+      "path": "server.js"
+    },
+    {
+      "type": "write",
+      "title": "Write public/index.html",
+      "template": "socketio-chat/index.html",
+      "path": "public/index.html"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "socketio-chat/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Install Express and Socket.io",
+      "command": "npm install --no-fund --no-audit",
+      "timeoutSec": 900
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "start",
+          "command": "npm start",
+          "port": 3000
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that the chat server answers",
+      "profile": "start",
+      "expect": {
+        "port": 3000
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

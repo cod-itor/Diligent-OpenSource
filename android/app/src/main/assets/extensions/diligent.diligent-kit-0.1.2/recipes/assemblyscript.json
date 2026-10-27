@@ -1,0 +1,66 @@
+{
+  "id": "assemblyscript",
+  "title": "AssemblyScript to WebAssembly",
+  "summary": "TypeScript-like code compiled to WebAssembly, run with Node.js",
+  "language": "AssemblyScript",
+  "sizeMB": 105,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 250,
+    "internet": "once"
+  },
+  "tested": {
+    "assemblyscript": "0.28"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write package.json",
+      "template": "assemblyscript/package.json",
+      "path": "package.json"
+    },
+    {
+      "type": "write",
+      "title": "Write assembly/index.ts",
+      "template": "assemblyscript/index.ts",
+      "path": "assembly/index.ts"
+    },
+    {
+      "type": "write",
+      "title": "Write main.js",
+      "template": "assemblyscript/main.js",
+      "path": "main.js"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "assemblyscript/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Install AssemblyScript",
+      "command": "npm install --no-fund --no-audit",
+      "timeoutSec": 900
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "start",
+          "command": "npm start"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it compiles and runs",
+      "profile": "start",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 180
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "id": "flask",
+  "title": "Flask web app",
+  "summary": "A Python web app with Flask, a page and a JSON route",
+  "language": "Python",
+  "sizeMB": 35,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 60,
+    "internet": "once"
+  },
+  "tested": {
+    "python": "3.14",
+    "flask": "3"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write app.py",
+      "template": "flask/app.py",
+      "path": "app.py"
+    },
+    {
+      "type": "write",
+      "title": "Write requirements.txt",
+      "template": "flask/requirements.txt",
+      "path": "requirements.txt"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "flask/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Create the virtual environment",
+      "command": "python3 -m venv .venv",
+      "timeoutSec": 300
+    },
+    {
+      "type": "run",
+      "title": "Install Flask",
+      "command": ".venv/bin/python -m pip install -r requirements.txt",
+      "timeoutSec": 900
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "serve",
+          "command": ".venv/bin/python app.py",
+          "port": 5000
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that the app answers",
+      "profile": "serve",
+      "expect": {
+        "port": 5000
+      },
+      "timeoutSec": 90
+    }
+  ]
+}

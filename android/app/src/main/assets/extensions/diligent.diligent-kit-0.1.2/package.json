@@ -1,0 +1,44 @@
+{
+  "name": "diligent-kit",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.1.2",
+  "publisher": "diligent",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "diligent.kit.explain",
+        "title": "%command.explain%",
+        "category": "Diligent"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "diligent.kit.explain",
+          "when": "editorHasSelection",
+          "group": "9_cutcopypaste@9"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "diligent.kit.explain",
+          "when": "editorHasSelection"
+        }
+      ]
+    }
+  }
+}

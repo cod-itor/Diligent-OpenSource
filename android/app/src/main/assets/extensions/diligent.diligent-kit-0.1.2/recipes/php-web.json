@@ -1,0 +1,50 @@
+{
+  "id": "php-web",
+  "title": "PHP website",
+  "summary": "A PHP web page, served on the phone by PHP's built-in server",
+  "language": "PHP",
+  "sizeMB": 80,
+  "needs": {
+    "toolchains": [
+      "toolchain_php"
+    ],
+    "minFreeMB": 5,
+    "internet": "pack"
+  },
+  "tested": {
+    "php": "8"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the PHP pack",
+      "pack": "toolchain_php"
+    },
+    {
+      "type": "write",
+      "title": "Write public/index.php",
+      "template": "php-web/index.php",
+      "path": "public/index.php"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "serve",
+          "command": "php -S 127.0.0.1:8080 -t public",
+          "port": 8080
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that the page is served",
+      "profile": "serve",
+      "expect": {
+        "port": 8080
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

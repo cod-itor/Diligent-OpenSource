@@ -1,0 +1,54 @@
+{
+  "id": "node-cli",
+  "title": "Node.js command-line tool",
+  "summary": "A Node.js program that reads its options, with no packages to install",
+  "language": "JavaScript",
+  "sizeMB": 1,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 5,
+    "internet": "no"
+  },
+  "tested": {
+    "node": "24"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write package.json",
+      "template": "node-cli/package.json",
+      "path": "package.json"
+    },
+    {
+      "type": "write",
+      "title": "Write index.js",
+      "template": "node-cli/index.js",
+      "path": "index.js"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "node-cli/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "node index.js --name {{label}}"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

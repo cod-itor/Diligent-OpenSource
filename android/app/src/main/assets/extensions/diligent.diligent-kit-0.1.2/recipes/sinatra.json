@@ -1,0 +1,69 @@
+{
+  "id": "sinatra",
+  "title": "Sinatra web app",
+  "summary": "A Ruby web app with Sinatra, served with WEBrick",
+  "language": "Ruby",
+  "sizeMB": 50,
+  "needs": {
+    "toolchains": [
+      "toolchain_ruby"
+    ],
+    "minFreeMB": 30,
+    "internet": "once"
+  },
+  "tested": {
+    "ruby": "4.0",
+    "sinatra": "4"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the Ruby pack",
+      "pack": "toolchain_ruby"
+    },
+    {
+      "type": "write",
+      "title": "Write Gemfile",
+      "template": "sinatra/Gemfile",
+      "path": "Gemfile"
+    },
+    {
+      "type": "write",
+      "title": "Write app.rb",
+      "template": "sinatra/app.rb",
+      "path": "app.rb"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "sinatra/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Install Sinatra",
+      "command": "bundle config set --local path vendor/bundle && bundle install",
+      "timeoutSec": 900
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "serve",
+          "command": "bundle exec ruby app.rb",
+          "port": 4567
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that the app answers",
+      "profile": "serve",
+      "expect": {
+        "port": 4567
+      },
+      "timeoutSec": 90
+    }
+  ]
+}

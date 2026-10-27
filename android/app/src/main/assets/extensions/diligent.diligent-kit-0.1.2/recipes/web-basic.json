@@ -1,0 +1,55 @@
+{
+  "id": "web-basic",
+  "title": "Web page",
+  "summary": "HTML, CSS and JavaScript, served on the phone with Python's web server",
+  "language": "HTML and CSS",
+  "sizeMB": 1,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 5,
+    "internet": "no"
+  },
+  "tested": {
+    "python": "3.12"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write index.html",
+      "template": "web-basic/index.html",
+      "path": "index.html"
+    },
+    {
+      "type": "write",
+      "title": "Write style.css",
+      "template": "web-basic/style.css",
+      "path": "style.css"
+    },
+    {
+      "type": "write",
+      "title": "Write script.js",
+      "template": "web-basic/script.js",
+      "path": "script.js"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "serve",
+          "command": "python3 -m http.server 8000 --bind 127.0.0.1",
+          "port": 8000
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that the page is served",
+      "profile": "serve",
+      "expect": {
+        "port": 8000
+      },
+      "timeoutSec": 30
+    }
+  ]
+}

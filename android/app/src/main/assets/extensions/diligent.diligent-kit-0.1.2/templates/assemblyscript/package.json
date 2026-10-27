@@ -1,0 +1,13 @@
+{
+  "name": "{{pkg}}",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "asc assembly/index.ts --outFile build/module.wasm --optimize --bindings esm",
+    "start": "npm run build && node main.js"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.28.0"
+  }
+}
