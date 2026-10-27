@@ -136,6 +136,7 @@ fun GuidedStartScreen(shell: MobileShell, actions: MobileActions, onClose: () ->
                     onBack = back,
                     onStart = {
                         goal?.let { chosen ->
+                            if (chosen.beginner) actions.setBeginnerMode(true)
                             started = true
                             kit.start(chosen.recipe, ProjectNames.clean(name))
                         }

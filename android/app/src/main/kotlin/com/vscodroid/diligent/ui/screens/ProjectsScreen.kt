@@ -59,6 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.vscodroid.R
 import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.MobileShell
+import com.vscodroid.diligent.guide.Tip
 import com.vscodroid.diligent.process.BundledShell
 import com.vscodroid.diligent.projects.CloneOutcome
 import com.vscodroid.diligent.projects.CreateResult
@@ -77,6 +78,7 @@ import com.vscodroid.diligent.ui.components.CloneStage
 import com.vscodroid.diligent.ui.components.NewProjectForm
 import com.vscodroid.diligent.ui.components.OpenFolderList
 import com.vscodroid.diligent.ui.components.ProjectCard
+import com.vscodroid.diligent.ui.components.TipBanner
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 import kotlinx.coroutines.Dispatchers
@@ -143,6 +145,7 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
     }
 
     ProjectsContent(
+        tip = { TipBanner(Tip.Projects, shell, actions) },
         projects = projects,
         currentPath = shell.folder,
         now = now,
@@ -193,9 +196,11 @@ internal fun ProjectsContent(
     onClone: () -> Unit,
     onOpenFolder: () -> Unit,
     modifier: Modifier = Modifier,
+    tip: @Composable () -> Unit = {},
 ) {
     Surface(modifier = modifier.fillMaxSize(), color = DiligentTheme.colors.background) {
         Column {
+            tip()
             Box(
                 Modifier
                     .weight(1f)

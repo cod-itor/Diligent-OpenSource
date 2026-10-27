@@ -10,8 +10,31 @@ class MoreItemTest {
     fun `the list follows the guide's order`() {
         assertEquals(
             listOf(MoreItem.Run, MoreItem.Setup, MoreItem.Laptop, MoreItem.AI, MoreItem.Devices, MoreItem.Share, MoreItem.Health, MoreItem.Settings),
-            MoreItem.ordered,
+            MoreItem.listed(beginnerMode = false),
         )
+    }
+
+    @Test
+    fun `beginner mode keeps Run, Setup and Settings and moves the rest under Advanced`() {
+        assertEquals(
+            listOf(MoreItem.Run, MoreItem.Setup, MoreItem.Advanced, MoreItem.Settings),
+            MoreItem.listed(beginnerMode = true),
+        )
+        assertEquals(
+            listOf(MoreItem.Laptop, MoreItem.AI, MoreItem.Devices, MoreItem.Share, MoreItem.Health),
+            MoreItem.advancedItems,
+        )
+    }
+
+    @Test
+    fun `every entry is reachable in both modes, exactly once`() {
+        for (beginner in listOf(false, true)) {
+            val top = MoreItem.listed(beginner)
+            val reachable = top + if (MoreItem.Advanced in top) MoreItem.advancedItems else emptyList()
+            assertEquals(MoreItem.ordered.filter { it != MoreItem.Advanced }.toSet(), reachable.toSet() - MoreItem.Advanced, "beginner=$beginner")
+            assertEquals(reachable.size, reachable.toSet().size, "beginner=$beginner")
+        }
+        assertTrue(MoreItem.advancedItems.none { it.detail == MoreDetail.Advanced })
     }
 
     @Test

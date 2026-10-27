@@ -37,19 +37,38 @@ enum class GuideStep {
 }
 
 /**
- * Whether the guided start was already offered after the first view choice,
- * so it shows once on its own; New project offers it any time after that.
- * Kept in Diligent's preferences file next to the view.
+ * The guide's and beginner mode's settings, in Diligent's preferences file
+ * next to the view, so per device like it.
  */
 class GuideSettings(private val prefs: SharedPreferences) {
+    /**
+     * Whether the guided start was already offered after the first view
+     * choice, so it shows once on its own; New project offers it any time.
+     */
     var offered: Boolean
         get() = prefs.getBoolean(KEY_OFFERED, false)
         set(value) {
             prefs.edit { putBoolean(KEY_OFFERED, value) }
         }
 
+    /** Beginner mode: tips on each screen, advanced entries under More, then Advanced. */
+    var beginnerMode: Boolean
+        get() = prefs.getBoolean(KEY_BEGINNER, false)
+        set(value) {
+            prefs.edit { putBoolean(KEY_BEGINNER, value) }
+        }
+
+    /** The tips the user closed. A key this version does not know is dropped. */
+    var dismissedTips: Set<Tip>
+        get() = prefs.getStringSet(KEY_DISMISSED_TIPS, null).orEmpty().mapNotNull(Tip::fromKey).toSet()
+        set(value) {
+            prefs.edit { putStringSet(KEY_DISMISSED_TIPS, value.map { it.key }.toSet()) }
+        }
+
     companion object {
         internal const val KEY_OFFERED = "guided_start_offered"
+        internal const val KEY_BEGINNER = "beginner_mode"
+        internal const val KEY_DISMISSED_TIPS = "dismissed_tips"
     }
 }
 

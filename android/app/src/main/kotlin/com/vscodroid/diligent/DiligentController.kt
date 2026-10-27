@@ -41,6 +41,7 @@ import com.vscodroid.diligent.kit.KitProgress
 import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.files.RecentFiles
 import com.vscodroid.diligent.guide.GuideSettings
+import com.vscodroid.diligent.guide.Tip
 import com.vscodroid.diligent.projects.RecentProjects
 import com.vscodroid.diligent.preview.PreviewActivity
 import com.vscodroid.diligent.run.ProjectRunner
@@ -98,14 +99,18 @@ class DiligentController(
     /** Projects the editor opened, for the Projects tab. Shared with the tab through [RecentProjects.of]. */
     private val recentProjects by lazy { RecentProjects.of(activity) }
 
-    /** Whether the guided start was offered after the first view choice. */
+    /** Whether the guided start was offered after the first view choice; beginner mode and its tips. */
     private val guide by lazy {
         GuideSettings(activity.getSharedPreferences(ViewSettings.PREFS_NAME, Context.MODE_PRIVATE))
     }
 
     /** Mobile view's state; the bars and screens draw from it. */
     val shell by lazy {
-        MobileShell(views.view.value).apply { suggestDesktop = views.suggestDesktopOnBigScreens }
+        MobileShell(views.view.value).apply {
+            suggestDesktop = views.suggestDesktopOnBigScreens
+            beginnerMode = guide.beginnerMode
+            dismissedTips = guide.dismissedTips
+        }
     }
 
     // -- Run (diligent/run) --
@@ -417,6 +422,19 @@ class DiligentController(
         override fun setSuggestDesktop(on: Boolean) {
             views.suggestDesktopOnBigScreens = on
             shell.suggestDesktop = on
+        }
+        override fun setBeginnerMode(on: Boolean) {
+            guide.beginnerMode = on
+            shell.beginnerMode = on
+            if (on) {
+                guide.dismissedTips = emptySet()
+                shell.dismissedTips = emptySet()
+            }
+        }
+        override fun dismissTip(tip: Tip) {
+            val closed = shell.dismissedTips + tip
+            guide.dismissedTips = closed
+            shell.dismissedTips = closed
         }
         override fun editorCommand(command: String, vararg args: Any?) = editor.run(command, *args)
         override val projectsDir: String get() = host.projectsDir

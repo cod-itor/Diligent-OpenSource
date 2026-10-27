@@ -763,6 +763,26 @@
     <string name="diligent_next_step_run_script">Tap Run to start main.py, then change it and run it again.</string>
     <string name="diligent_next_step_dismiss">Dismiss</string>
 
+    <!-- Beginner mode: Settings, More, then Advanced, and the tip on each screen -->
+    <string name="diligent_settings_section_help">Help</string>
+    <string name="diligent_settings_beginner">Beginner mode</string>
+    <string name="diligent_settings_beginner_body">A short tip on each screen, and the advanced tools moved under More, then Advanced. Turning it on shows closed tips again.</string>
+    <string name="diligent_more_advanced">Advanced</string>
+    <string name="diligent_more_advanced_body">Laptop, AI, Devices, Share and Health</string>
+    <string name="diligent_tip_dismiss">Close tip</string>
+    <string name="diligent_tip_projects">Your projects. Tap one to open it, or New project to make one.</string>
+    <string name="diligent_tip_files">The files of your project. Tap a file to edit it.</string>
+    <string name="diligent_tip_more">Run your project, add a new one in Setup, or change Settings.</string>
+    <string name="diligent_tip_run">Run starts your project. Preview shows the page it serves.</string>
+    <string name="diligent_tip_setup">Pick what to build, and Diligent makes a project that runs.</string>
+    <string name="diligent_tip_laptop">Run a project on your own computer when the phone is too slow.</string>
+    <string name="diligent_tip_ai">Code together with an AI helper. It needs an account with a provider.</string>
+    <string name="diligent_tip_devices">Pair your laptop or another phone to sync projects between them.</string>
+    <string name="diligent_tip_share">Open the editor or your page in a browser on another device.</string>
+    <string name="diligent_tip_health">Checks that everything works, and why Android stopped a program.</string>
+    <string name="diligent_tip_settings">Beginner mode is on. Switch it off below when you want everything.</string>
+    <string name="diligent_tip_advanced">Tools for later. Nothing here is needed to make your first project.</string>
+
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>
     <string name="diligent_coming_soon">Coming soon</string>

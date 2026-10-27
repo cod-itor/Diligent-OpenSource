@@ -28,6 +28,8 @@ import com.vscodroid.diligent.ui.components.EditorActionBar
 import com.vscodroid.diligent.ui.components.FileNameChipBar
 import com.vscodroid.diligent.ui.components.MenuAction
 import com.vscodroid.diligent.ui.components.NextStepCard
+import com.vscodroid.diligent.ui.components.TipBanner
+import com.vscodroid.diligent.guide.Tip
 import com.vscodroid.diligent.ui.components.standardEditorActions
 import com.vscodroid.diligent.ui.components.suggestionActions
 import com.vscodroid.diligent.ui.navigation.MobileTab
@@ -103,7 +105,10 @@ fun NativeScreens(shell: MobileShell, actions: MobileActions) {
     if (!shell.chrome.nativeScreen) return
     when (shell.tab) {
         MobileTab.Projects -> ProjectsScreen(shell, actions)
-        MobileTab.Files -> FilesScreen(shell, actions, mode = filesMode, onMode = { filesMode = it })
+        MobileTab.Files -> Column {
+            TipBanner(Tip.Files, shell, actions)
+            FilesScreen(shell, actions, mode = filesMode, onMode = { filesMode = it }, modifier = Modifier.weight(1f))
+        }
         MobileTab.More -> MoreScreen(shell, actions)
         MobileTab.Editor, MobileTab.Terminal -> Unit
     }
