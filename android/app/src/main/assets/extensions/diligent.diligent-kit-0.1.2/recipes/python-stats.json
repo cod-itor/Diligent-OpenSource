@@ -1,0 +1,60 @@
+{
+  "id": "python-stats",
+  "title": "Python data from a CSV",
+  "summary": "Read a CSV file and sum it up with Python alone, nothing to download",
+  "language": "Python",
+  "sizeMB": 25,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 40,
+    "internet": "no"
+  },
+  "tested": {
+    "python": "3.14"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write main.py",
+      "template": "python-stats/main.py",
+      "path": "main.py"
+    },
+    {
+      "type": "write",
+      "title": "Write steps.csv",
+      "template": "python-stats/steps.csv",
+      "path": "steps.csv"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "python-stats/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Create the virtual environment",
+      "command": "python3 -m venv .venv",
+      "timeoutSec": 300
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": ".venv/bin/python main.py"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it reads the file",
+      "profile": "main",
+      "expect": {
+        "output": "rows, average"
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

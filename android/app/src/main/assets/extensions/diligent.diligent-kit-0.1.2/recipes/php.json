@@ -1,0 +1,49 @@
+{
+  "id": "php",
+  "title": "PHP script",
+  "summary": "A PHP script that runs in the terminal",
+  "language": "PHP",
+  "sizeMB": 80,
+  "needs": {
+    "toolchains": [
+      "toolchain_php"
+    ],
+    "minFreeMB": 5,
+    "internet": "pack"
+  },
+  "tested": {
+    "php": "8"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the PHP pack",
+      "pack": "toolchain_php"
+    },
+    {
+      "type": "write",
+      "title": "Write main.php",
+      "template": "php/main.php",
+      "path": "main.php"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "php main.php"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

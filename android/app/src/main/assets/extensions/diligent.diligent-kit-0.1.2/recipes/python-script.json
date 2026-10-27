@@ -1,0 +1,54 @@
+{
+  "id": "python-script",
+  "title": "Python script",
+  "summary": "A Python script with its own virtual environment",
+  "language": "Python",
+  "sizeMB": 25,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 40,
+    "internet": "no"
+  },
+  "tested": {
+    "python": "3.12"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write main.py",
+      "template": "python-script/main.py",
+      "path": "main.py"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "python-script/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Create the virtual environment",
+      "command": "python3 -m venv .venv",
+      "timeoutSec": 300
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": ".venv/bin/python main.py"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that the script runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

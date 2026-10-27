@@ -1,6 +1,7 @@
 package com.vscodroid.diligent.ui.screens
 
 import android.os.StatFs
+import androidx.activity.compose.BackHandler
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,7 +55,9 @@ import com.vscodroid.diligent.kit.KitDone
 import com.vscodroid.diligent.kit.KitInternet
 import com.vscodroid.diligent.kit.KitOffline
 import com.vscodroid.diligent.kit.KitRecipe
+import com.vscodroid.diligent.kit.KitRecipeGroup
 import com.vscodroid.diligent.kit.KitRecipes
+import com.vscodroid.diligent.kit.Languages
 import com.vscodroid.diligent.kit.KitRun
 import com.vscodroid.diligent.kit.KitStepLine
 import com.vscodroid.diligent.kit.KitStepState
@@ -81,8 +84,12 @@ import java.io.File
  *
  * The run itself is [MobileActions.kit], kept by the controller, so leaving
  * this screen while packages install loses nothing: coming back shows it.
- * The recipes are read from the kit extension's assets; a build without the
- * extension shows a note instead of cards.
+ * The recipes are read from the kit extension's assets, grouped by language;
+ * a build without the extension shows a note instead of cards.
+ *
+ * Above them, Languages lists every language the app runs: the built-ins and
+ * each pack of ToolchainRegistry, with Install and Set up all, which install
+ * through [MobileActions.packs] one pack after another.
  */
 @Composable
 fun SetupScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = Modifier) {
@@ -100,6 +107,18 @@ fun SetupScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier =
         offline = withContext(Dispatchers.IO) { KitOffline.load(list, File(Environment.getHomeDir(context))) }
     }
 
+    val packs = actions.packs
+    val queue = packs.queue
+    var showLanguages by rememberSaveable { mutableStateOf(false) }
+    var freeBytes by remember { mutableStateOf<Long?>(null) }
+    // Read again when a queue ends, and when a recipe run ends: its toolchain step installs packs too.
+    LaunchedEffect(queue?.finished, run?.finished, showLanguages) {
+        packs.refresh()
+        freeBytes = withContext(Dispatchers.IO) { freeSpace(File(Environment.getHomeDir(context))) }
+    }
+    val packList = remember { Languages.packs() }
+    BackHandler(enabled = showLanguages && run == null) { showLanguages = false }
+
     val open: (KitRun) -> String = { finished ->
         val path = finished.projectPath ?: File(actions.projectsDir, finished.projectName).path
         kit.dismiss()
@@ -112,6 +131,12 @@ fun SetupScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier =
         recipes = recipes,
         run = run,
         offline = offline,
+        languages = LanguagesUi(packList, packs.installed, queue, freeBytes),
+        showLanguages = showLanguages,
+        onShowLanguages = { showLanguages = it },
+        onInstallPacks = packs::start,
+        onStopPacks = packs::cancel,
+        onDismissPacks = packs::dismiss,
         onPick = { chosenId = it.id },
         onPrepare = { kit.prepare(it.id) },
         onCancel = kit::cancel,
@@ -157,6 +182,12 @@ internal fun SetupContent(
     recipes: List<KitRecipe>?,
     run: KitRun?,
     offline: Set<String>,
+    languages: LanguagesUi,
+    showLanguages: Boolean,
+    onShowLanguages: (Boolean) -> Unit,
+    onInstallPacks: (List<String>) -> Unit,
+    onStopPacks: () -> Unit,
+    onDismissPacks: () -> Unit,
     onPick: (KitRecipe) -> Unit,
     onPrepare: (KitRecipe) -> Unit,
     onCancel: () -> Unit,
@@ -173,7 +204,9 @@ internal fun SetupContent(
         ) {
             val title = run?.let { r -> recipes?.firstOrNull { it.id == r.recipe }?.title ?: r.recipe }.orEmpty()
             when {
-                run == null -> RecipeList(recipes, offline, onPick, onPrepare)
+                run == null && showLanguages ->
+                    LanguagesList(languages, onInstallPacks, onStopPacks, onDismissPacks, onBack = { onShowLanguages(false) })
+                run == null -> RecipeList(recipes, offline, languages, { onShowLanguages(true) }, onPick, onPrepare)
                 !run.finished -> Progress(run, title, onCancel)
                 run.succeeded && run.prepare -> PreparedReady(run, title, onBack)
                 run.succeeded -> Ready(run, onOpen, onRun, onBack)
@@ -204,16 +237,22 @@ private fun Body(text: String, modifier: Modifier = Modifier) {
 private fun RecipeList(
     recipes: List<KitRecipe>?,
     offline: Set<String>,
+    languages: LanguagesUi,
+    onOpenLanguages: () -> Unit,
     onPick: (KitRecipe) -> Unit,
     onPrepare: (KitRecipe) -> Unit,
 ) {
     Heading(stringResource(R.string.diligent_setup_title))
     Body(stringResource(R.string.diligent_setup_intro))
+    LanguagesCard(languages, onOpenLanguages)
     when {
         recipes == null -> Unit
         recipes.isEmpty() -> Body(stringResource(R.string.diligent_setup_none))
-        else -> recipes.forEach {
-            RecipeCard(it, readyOffline = it.id in offline, onClick = { onPick(it) }, onPrepare = { onPrepare(it) })
+        else -> KitRecipes.groups(recipes).forEach { group: KitRecipeGroup ->
+            SectionTitle(group.language ?: stringResource(R.string.diligent_setup_group_other))
+            group.recipes.forEach {
+                RecipeCard(it, readyOffline = it.id in offline, onClick = { onPick(it) }, onPrepare = { onPrepare(it) })
+            }
         }
     }
 }
@@ -565,9 +604,9 @@ private fun Failed(run: KitRun, onTryAgain: (KitRun) -> Unit, onBack: () -> Unit
 // -- Previews --
 
 private val previewRecipes = listOf(
-    KitRecipe("web-basic", "Web page", "HTML, CSS and JavaScript, served on the phone.", 1, emptyList(), 10, KitInternet.No, emptyList()),
-    KitRecipe("react-vite", "React app", "A React app with Vite, ready to run.", 85, emptyList(), 400, KitInternet.Once, listOf("Create the app", "Install packages", "Check it starts")),
-    KitRecipe("java", "Java", "Hello World with the Java pack.", 210, listOf("java"), 600, KitInternet.PackDownload, emptyList()),
+    KitRecipe("web-basic", "Web page", "HTML, CSS and JavaScript, served on the phone.", 1, emptyList(), 10, KitInternet.No, emptyList(), language = "HTML and CSS"),
+    KitRecipe("react-vite", "React app", "A React app with Vite, ready to run.", 85, emptyList(), 400, KitInternet.Once, listOf("Create the app", "Install packages", "Check it starts"), language = "JavaScript"),
+    KitRecipe("java", "Java", "Hello World with the Java pack.", 210, listOf("java"), 600, KitInternet.PackDownload, emptyList(), language = "Java"),
 )
 
 private val previewSteps = listOf(
@@ -590,7 +629,10 @@ private val previewFailed = KitRun(
 
 @Composable
 private fun PreviewSetup(run: KitRun?, recipes: List<KitRecipe>? = previewRecipes) = SetupContent(
-    recipes, run, offline = setOf("web-basic", "react-vite"), onPick = {}, onPrepare = {}, onCancel = {}, onOpen = {}, onRun = {}, onTryAgain = {}, onBack = {},
+    recipes, run, offline = setOf("web-basic", "react-vite"),
+    languages = LanguagesUi(Languages.packs(), setOf("toolchain_java"), null, 2_000_000_000L),
+    showLanguages = false, onShowLanguages = {}, onInstallPacks = {}, onStopPacks = {}, onDismissPacks = {},
+    onPick = {}, onPrepare = {}, onCancel = {}, onOpen = {}, onRun = {}, onTryAgain = {}, onBack = {},
 )
 
 @Composable

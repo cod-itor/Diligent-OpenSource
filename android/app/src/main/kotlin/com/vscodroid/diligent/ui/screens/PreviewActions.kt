@@ -4,6 +4,9 @@ import com.vscodroid.diligent.AppView
 import com.vscodroid.diligent.DeviceFolder
 import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.kit.KitSession
+import com.vscodroid.diligent.kit.PackInstallQueue
+import com.vscodroid.diligent.kit.PackInstaller
+import com.vscodroid.setup.ToolchainFailure
 import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.run.RunProfile
 import com.vscodroid.diligent.run.RunUiState
@@ -27,6 +30,17 @@ internal object PreviewActions : MobileActions {
     override val projectsDir: String = "/home/projects"
     override val run: RunControl = PreviewRun(RunUiState())
     override val kit: KitSession = KitSession(CoroutineScope(EmptyCoroutineContext), send = { _, _ -> })
+    override val packs: PackInstallQueue = PackInstallQueue(PreviewInstaller, post = { it() })
+}
+
+/** A [PackInstaller] that installs nothing, for `@Preview`s. */
+internal object PreviewInstaller : PackInstaller {
+    override fun install(pack: String) = Unit
+    override fun cancel(pack: String) = Unit
+    override fun listen(onState: ((String, Int, Int, ToolchainFailure?) -> Unit)?) = Unit
+    override fun heldElsewhere(pack: String) = false
+    override fun confirm() = Unit
+    override fun installed(): Set<String> = emptySet()
 }
 
 /** [PreviewActions] with the Run screen in [state]. */

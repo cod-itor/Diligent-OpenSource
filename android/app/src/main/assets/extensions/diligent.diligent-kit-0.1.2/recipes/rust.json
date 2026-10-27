@@ -1,0 +1,61 @@
+{
+  "id": "rust",
+  "title": "Rust program",
+  "summary": "Hello World in Rust, built and run with cargo",
+  "language": "Rust",
+  "sizeMB": 600,
+  "needs": {
+    "toolchains": [
+      "toolchain_rust"
+    ],
+    "minFreeMB": 100,
+    "internet": "pack"
+  },
+  "tested": {
+    "rust": "1"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the Rust pack",
+      "pack": "toolchain_rust"
+    },
+    {
+      "type": "write",
+      "title": "Write Cargo.toml",
+      "template": "rust/Cargo.toml",
+      "path": "Cargo.toml"
+    },
+    {
+      "type": "write",
+      "title": "Write src/main.rs",
+      "template": "rust/main.rs",
+      "path": "src/main.rs"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "rust/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "cargo run --quiet"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it builds and runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 600
+    }
+  ]
+}

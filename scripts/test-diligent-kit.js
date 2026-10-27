@@ -29,7 +29,16 @@ const ROOT = path.resolve(__dirname, '..');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'diligent-kit-'));
 process.on('exit', () => fs.rmSync(tmp, { recursive: true, force: true }));
 
-const RECIPE_IDS = ['web-basic', 'react-vite', 'nextjs', 'node-api', 'python-script', 'python-data', 'java', 'c-cpp', 'ruby'];
+const OFFLINE_IDS = ['web-basic', 'python-script', 'node-cli', 'python-cli', 'python-sqlite', 'python-game', 'python-stats', 'bash-script'];
+const ONCE_IDS = ['react-vite', 'nextjs', 'node-api', 'python-data', 'vue-vite', 'svelte-vite', 'preact-vite', 'solid-vite', 'lit-vite',
+    'vite-ts', 'typescript', 'socketio-chat', 'coffeescript', 'assemblyscript', 'flask', 'fastapi', 'django', 'sinatra'];
+const PACK_IDS = ['java', 'c-cpp', 'c', 'ruby', 'php', 'php-web', 'lua', 'perl', 'kotlin', 'rust'];
+const RECIPE_IDS = [...OFFLINE_IDS, ...ONCE_IDS, ...PACK_IDS];
+/**
+ * Packs the kit knows before ToolchainRegistry.kt lists them: their entries
+ * land there separately. Once one does, the size check below covers it.
+ */
+const PENDING_PACKS = ['toolchain_php', 'toolchain_lua', 'toolchain_perl', 'toolchain_kotlin', 'toolchain_rust'];
 
 // ---- recipes ---------------------------------------------------------------
 
@@ -40,15 +49,36 @@ function checkRecipes() {
     const byId = Object.fromEntries(recipes.map((r) => [r.id, r]));
 
     // The guide's table: which recipes go online.
-    for (const id of ['web-basic', 'python-script']) assert.strictEqual(byId[id].needs.internet, 'no', id);
-    for (const id of ['react-vite', 'nextjs', 'node-api', 'python-data']) assert.strictEqual(byId[id].needs.internet, 'once', id);
-    for (const id of ['java', 'c-cpp', 'ruby']) assert.strictEqual(byId[id].needs.internet, 'pack', id);
+    for (const id of OFFLINE_IDS) assert.strictEqual(byId[id].needs.internet, 'no', id);
+    for (const id of ONCE_IDS) assert.strictEqual(byId[id].needs.internet, 'once', id);
+    for (const id of PACK_IDS) assert.strictEqual(byId[id].needs.internet, 'pack', id);
+    for (const r of recipes) assert.ok(typeof r.language === 'string' && r.language.trim(), r.id + ': names its language');
+    // A toolchain step for every pack, in the order needs lists them: Java before Kotlin.
+    for (const r of recipes) {
+        const steps = r.steps.filter((/** @type {any} */ s) => s.type === 'toolchain').map((/** @type {any} */ s) => s.pack);
+        assert.deepStrictEqual(steps, r.needs.toolchains, r.id + ': one toolchain step per pack, in order');
+    }
+    assert.deepStrictEqual(byId.kotlin.needs.toolchains, ['toolchain_java', 'toolchain_kotlin']);
+    assert.deepStrictEqual(byId.sinatra.needs.toolchains, ['toolchain_ruby']);
     for (const r of recipes) for (const s of r.steps) assert.ok(typeof s.title === 'string' && s.title.trim(), r.id + ': every step has a title');
     assert.deepStrictEqual(byId.java.needs.toolchains, ['toolchain_java']);
     assert.deepStrictEqual(byId['c-cpp'].needs.toolchains, ['toolchain_cpp']);
     assert.deepStrictEqual(byId.ruby.needs.toolchains, ['toolchain_ruby']);
     const commands = (/** @type {any} */ r) => r.steps.map((/** @type {any} */ s) => s.command || (s.profiles || []).map((/** @type {any} */ p) => p.command).join(' ')).join('\n');
-    assert.ok(/vite@8/.test(commands(byId['react-vite'])), 'react-vite uses Vite 8');
+    // create-vite 9 is the one that makes Vite 8 projects; create-vite 8 still wrote Vite 7, which needs esbuild.
+    for (const id of ['react-vite', 'vue-vite', 'svelte-vite', 'preact-vite', 'solid-vite', 'lit-vite', 'vite-ts']) {
+        assert.ok(/npm create vite@9 /.test(commands(byId[id])), id + ' uses create-vite 9, which makes Vite 8 projects');
+    }
+    // Nothing that downloads a program Android will not run: esbuild (and so tsx),
+    // TypeScript 7's native compiler, Turbopack, uvicorn's compiled extras.
+    const templateText = (/** @type {any} */ r) => r.steps.filter((/** @type {any} */ s) => s.type === 'write')
+        .map((/** @type {any} */ s) => fs.readFileSync(path.join(DIR, 'templates', s.template), 'utf8')).join('\n');
+    for (const r of recipes) {
+        const all = commands(r) + '\n' + templateText(r);
+        assert.ok(!/esbuild|"tsx"|\btsx\b|--turbo|uvicorn\[standard\]|uvloop|httptools/.test(all), r.id + ': no program Android cannot run');
+    }
+    assert.match(templateText(byId.typescript), /"typescript": "~6\./, 'TypeScript 6: 7 is a native program');
+    assert.match(templateText(byId.fastapi), /pydantic>=[\d.]+,<2\.13/, 'pydantic that pydantic-core 2.41.5 serves');
     assert.ok(/--webpack/.test(commands(byId.nextjs)) && /--port 3000/.test(commands(byId.nextjs)), 'nextjs runs with webpack on 3000');
     assert.ok(/http\.server/.test(commands(byId['web-basic'])));
     assert.ok(/-m venv/.test(commands(byId['python-script'])));
@@ -58,7 +88,9 @@ function checkRecipes() {
     // The pack ids are the app's: ToolchainRegistry.kt lists the same set.
     const registry = fs.readFileSync(path.join(ROOT, 'android/app/src/main/kotlin/com/vscodroid/setup/ToolchainRegistry.kt'), 'utf8');
     const packs = [...registry.matchAll(/packName = "(toolchain_\w+)"/g)].map((m) => m[1]).sort();
-    assert.deepStrictEqual(Object.keys(engine.PACKS).sort(), packs);
+    for (const p of packs) assert.ok(p in engine.PACKS, p + ' is one the kit knows');
+    assert.deepStrictEqual(Object.keys(engine.PACKS).filter((p) => !packs.includes(p)).sort(),
+        PENDING_PACKS.filter((p) => !packs.includes(p)).sort(), 'only the pending packs are missing from the registry');
     for (const m of registry.matchAll(/packName = "(toolchain_\w+)",[\s\S]*?estimatedSize = ([\d_]+)/g)) {
         const bytes = Number(m[2].replace(/_/g, ''));
         assert.ok(engine.PACKS[m[1]].sizeMB * 1e6 >= bytes, m[1] + ' size is not understated');
@@ -319,7 +351,7 @@ async function checkServiceAndFailures() {
         runOptions: { checkInternet: async () => false, free: () => 100000, timeouts: { pollMs: 20, toolchainMs: 5000 } },
     });
     assert.deepStrictEqual(service.problems, []);
-    assert.strictEqual(service.list().length, 9);
+    assert.strictEqual(service.list().length, RECIPE_IDS.length);
     assert.deepStrictEqual(await service.health(), { checks: [{ id: 'x', title: 'X', state: 'pass', detail: '' }] });
     const silent = createService({ extensionDir: DIR, home, projectsDir, executeCommand: async () => { throw new Error('no bridge'); } });
     assert.strictEqual(await silent.health(), null);
@@ -417,10 +449,7 @@ async function checkOffline(byId) {
     assert.ok(engine.readyOffline(byId.nextjs, prepared, none));
     assert.ok(!engine.readyOffline({ ...byId.nextjs, tested: { next: '99' } }, prepared, none), 'a newer tested version needs preparing again');
     const flags = Object.fromEntries(engine.summaries(Object.values(byId), home).map((r) => [r.id, r.offline]));
-    assert.deepStrictEqual(flags, {
-        'web-basic': true, 'python-script': true, nextjs: true,
-        'react-vite': false, 'node-api': false, 'python-data': false, java: false, 'c-cpp': false, ruby: false,
-    });
+    assert.deepStrictEqual(flags, Object.fromEntries(RECIPE_IDS.map((id) => [id, OFFLINE_IDS.includes(id) || id === 'nextjs'])));
     fs.writeFileSync(path.join(home, engine.OFFLINE_FILE), '{broken');
     assert.deepStrictEqual(engine.preparedRecipes(home), {});
     assert.match(kit.formatList(engine.summaries([byId.nextjs, byId['react-vite']], home)), /kit prepare react-vite for offline/);

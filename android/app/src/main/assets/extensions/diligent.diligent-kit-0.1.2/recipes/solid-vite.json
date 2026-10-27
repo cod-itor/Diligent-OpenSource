@@ -1,0 +1,55 @@
+{
+  "id": "solid-vite",
+  "title": "Solid app",
+  "summary": "SolidJS with Vite 8 and a live-reloading dev server",
+  "language": "JavaScript",
+  "sizeMB": 60,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 200,
+    "internet": "once"
+  },
+  "tested": {
+    "create-vite": "9",
+    "vite": "8"
+  },
+  "steps": [
+    {
+      "type": "run",
+      "title": "Create the Solid app with Vite 8",
+      "command": "mkdir -p .kit-new && cd .kit-new && npm create vite@9 {{pkg}} -- --template solid --no-interactive",
+      "timeoutSec": 600
+    },
+    {
+      "type": "run",
+      "title": "Move it into the project folder",
+      "command": "shopt -s dotglob && mv .kit-new/{{pkg}}/* . && rm -rf .kit-new"
+    },
+    {
+      "type": "run",
+      "title": "Install packages",
+      "command": "npm install --no-fund --no-audit",
+      "timeoutSec": 1200
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "dev",
+          "command": "npm run dev -- --host 127.0.0.1 --port 5173",
+          "port": 5173
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that the dev server starts",
+      "profile": "dev",
+      "expect": {
+        "port": 5173
+      },
+      "timeoutSec": 180
+    }
+  ]
+}

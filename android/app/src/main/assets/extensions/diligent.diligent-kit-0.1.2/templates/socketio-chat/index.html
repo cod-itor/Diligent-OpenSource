@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{label}}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 0.4rem 0; border-bottom: 1px solid #ddd; }
+    form { display: flex; gap: 0.5rem; }
+    input { flex: 1; font: inherit; padding: 0.5rem; }
+    button { font: inherit; padding: 0.5rem 1rem; }
+  </style>
+</head>
+<body>
+  <h1>{{label}}</h1>
+  <ul id="messages"></ul>
+  <form id="form">
+    <input id="text" autocomplete="off" placeholder="Say something">
+    <button type="submit">Send</button>
+  </form>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const list = document.getElementById('messages');
+    const text = document.getElementById('text');
+    document.getElementById('form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (text.value.trim()) socket.emit('chat', text.value);
+      text.value = '';
+    });
+    socket.on('chat', (message) => {
+      const item = document.createElement('li');
+      item.textContent = message;
+      list.appendChild(item);
+    });
+  </script>
+</body>
+</html>

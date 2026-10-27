@@ -1,0 +1,66 @@
+{
+  "id": "typescript",
+  "title": "TypeScript program",
+  "summary": "TypeScript 6, compiled with tsc and run with Node.js",
+  "language": "TypeScript",
+  "sizeMB": 25,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 60,
+    "internet": "once"
+  },
+  "tested": {
+    "typescript": "6"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write package.json",
+      "template": "typescript/package.json",
+      "path": "package.json"
+    },
+    {
+      "type": "write",
+      "title": "Write tsconfig.json",
+      "template": "typescript/tsconfig.json",
+      "path": "tsconfig.json"
+    },
+    {
+      "type": "write",
+      "title": "Write src/index.ts",
+      "template": "typescript/index.ts",
+      "path": "src/index.ts"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "typescript/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Install TypeScript",
+      "command": "npm install --no-fund --no-audit",
+      "timeoutSec": 900
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "start",
+          "command": "npm start"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it compiles and runs",
+      "profile": "start",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 180
+    }
+  ]
+}

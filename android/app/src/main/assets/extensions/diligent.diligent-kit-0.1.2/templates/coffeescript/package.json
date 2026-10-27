@@ -1,0 +1,12 @@
+{
+  "name": "{{pkg}}",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "coffee main.coffee",
+    "build": "coffee --compile --output dist main.coffee"
+  },
+  "devDependencies": {
+    "coffeescript": "^2.7.0"
+  }
+}

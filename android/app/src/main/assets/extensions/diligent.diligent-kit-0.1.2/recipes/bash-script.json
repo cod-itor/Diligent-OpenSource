@@ -1,0 +1,42 @@
+{
+  "id": "bash-script",
+  "title": "Bash script",
+  "summary": "A shell script for the terminal, with nothing to install",
+  "language": "Shell",
+  "sizeMB": 1,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 5,
+    "internet": "no"
+  },
+  "tested": {
+    "bash": "5"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write main.sh",
+      "template": "bash-script/main.sh",
+      "path": "main.sh"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "bash main.sh"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

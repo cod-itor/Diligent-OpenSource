@@ -39,6 +39,8 @@ import com.vscodroid.diligent.devices.DeviceLinks
 import com.vscodroid.diligent.health.HealthReport
 import com.vscodroid.diligent.kit.KitProgress
 import com.vscodroid.diligent.kit.KitSession
+import com.vscodroid.diligent.kit.PackInstallQueue
+import com.vscodroid.diligent.kit.ToolchainPackInstaller
 import com.vscodroid.diligent.files.RecentFiles
 import com.vscodroid.diligent.guide.GuideSettings
 import com.vscodroid.diligent.guide.Tip
@@ -141,6 +143,11 @@ class DiligentController(
     /** The Setup screen's run (diligent/kit), kept here so it outlives the screen. */
     val kit by lazy {
         KitSession(activity.lifecycleScope, send = { command, args -> editor.run(command, *args) })
+    }
+
+    /** Setup's Languages list, kept here so a Set up all outlives the screen. */
+    val packs by lazy {
+        PackInstallQueue(ToolchainPackInstaller(activity) { activity }, post = { block -> activity.runOnUiThread(block) })
     }
 
     private var topBar: View? = null
@@ -461,6 +468,7 @@ class DiligentController(
         override val projectsDir: String get() = host.projectsDir
         override val run: RunControl get() = runner
         override val kit: KitSession get() = this@DiligentController.kit
+        override val packs: PackInstallQueue get() = this@DiligentController.packs
 
         // The editor page is http://127.0.0.1:<port>/..., so the WebView's own
         // address names the port without asking the activity.
