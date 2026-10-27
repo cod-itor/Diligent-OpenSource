@@ -366,6 +366,7 @@
     <string name="toolchain_tcl_description">Tcl 8.6 (tclsh)。Itcl、Thread、TDBC 付き。</string>
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh)。Java 21 上で動作するため、Java 21 もインストールしてください。</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc)。Java 21 上で動作するため、Java 21 もインストールしてください。</string>
+    <string name="toolchain_erlang_description">Erlang/OTP (erl、erlc、escript)。wx と ODBC は含みません。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

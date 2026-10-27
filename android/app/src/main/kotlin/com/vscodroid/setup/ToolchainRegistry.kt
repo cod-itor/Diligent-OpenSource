@@ -298,6 +298,25 @@ object ToolchainRegistry {
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_scala.zip",
             requires = listOf("toolchain_java"),
         ),
+        ToolchainInfo(
+            packName = "toolchain_erlang",
+            displayName = "Erlang/OTP",
+            shortLabel = "Erlang",
+            descriptionRes = R.string.toolchain_erlang_description,
+            // 56,116 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (57,462,784 bytes in 4 KiB blocks, 1,476 files) after running
+            // scripts/download-erlang.sh against erlang 29.1.2. Each
+            // application's src/ (52 MB), wx and ODBC are left out. 60,000,000
+            // leaves 2.5 MB for a point release. The ZIP measured 40,004,317
+            // bytes.
+            //
+            // erl finds the release root from its own path and every process
+            // the runtime starts is an execv or execve through libc, which the
+            // terminal's exec interceptor wraps.
+            estimatedSize = 60_000_000,
+            downloadSize = 41_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_erlang.zip",
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

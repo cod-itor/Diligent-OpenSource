@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy, Scala) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy, Scala, Erlang/OTP) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -875,6 +875,13 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: Apache License 2.0; the libraries in its bundled `maven2/` repository and inside `scala-cli.jar` carry their own permissive licences, recorded in each jar's `META-INF`
 - **Copyright**: Copyright (c) EPFL and Lightbend, Inc. (Scala); Copyright (c) VirtusLab (scala-cli)
 - **Full license**: ships inside the pack at `usr/share/doc/scala/copyright`, and https://www.scala-lang.org/license/
+
+### Erlang/OTP
+
+- **Project**: https://www.erlang.org (Erlang/OTP, packaged by Termux; the wx and ODBC applications are left out)
+- **License**: Apache License 2.0
+- **Copyright**: Copyright (c) Ericsson AB and the Erlang/OTP contributors
+- **Full license**: ships inside the pack at `usr/share/doc/erlang/copyright`, and https://github.com/erlang/otp/blob/master/LICENSE.txt
 
 ---
 

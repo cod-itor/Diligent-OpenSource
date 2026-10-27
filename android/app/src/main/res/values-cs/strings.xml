@@ -375,6 +375,7 @@
     <string name="toolchain_tcl_description">Tcl 8.6 (tclsh) s balíčky Itcl, Thread a TDBC.</string>
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Běží na Javě 21: nainstalujte také Java 21.</string>
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Běží na Javě 21: nainstalujte také Java 21.</string>
+    <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), bez wx a ODBC.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->
