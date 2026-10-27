@@ -370,6 +370,7 @@
     <string name="toolchain_kotlin_description">Compilador de Kotlin (kotlinc, kotlin). Funciona con Java 21: instala también Java 21.</string>
     <string name="toolchain_rust_description">Rust (rustc, cargo). Enlaza con C/C++, así que instala también C/C++. Necesita el interceptor de exec del terminal: no funciona con LD_PRELOAD establecido en null.</string>
     <string name="toolchain_tcl_description">Tcl 8.6 (tclsh), con Itcl, Thread y TDBC.</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Funciona con Java 21: instala también Java 21.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

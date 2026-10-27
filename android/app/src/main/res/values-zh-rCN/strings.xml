@@ -364,6 +364,7 @@
     <string name="toolchain_kotlin_description">Kotlin 编译器（kotlinc、kotlin）。运行在 Java 21 上，请同时安装 Java 21。</string>
     <string name="toolchain_rust_description">Rust（rustc、cargo）。使用 C/C++ 进行链接，请同时安装 C/C++。需要终端的 exec 拦截器，LD_PRELOAD 设为 null 时无法使用。</string>
     <string name="toolchain_tcl_description">Tcl 8.6（tclsh），附带 Itcl、Thread 和 TDBC。</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh)。运行在 Java 21 上，请同时安装 Java 21。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -265,6 +265,22 @@ object ToolchainRegistry {
             downloadSize = 2_000_000,
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_tcl.zip",
         ),
+        ToolchainInfo(
+            packName = "toolchain_groovy",
+            displayName = "Groovy",
+            shortLabel = "Groovy",
+            descriptionRes = R.string.toolchain_groovy_description,
+            // 44,148 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (45,207,552 bytes in 4 KiB blocks, 157 files) after running
+            // scripts/download-groovy.sh against groovy 6.0.0. Jars and their
+            // licences only, like Kotlin; the grooid jars and groovyConsole are
+            // left out. 48,000,000 leaves 2.8 MB for a point release. The ZIP
+            // measured 40,528,558 bytes.
+            estimatedSize = 48_000_000,
+            downloadSize = 41_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_groovy.zip",
+            requires = listOf("toolchain_java"),
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

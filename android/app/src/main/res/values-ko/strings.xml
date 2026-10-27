@@ -364,6 +364,7 @@
     <string name="toolchain_kotlin_description">Kotlin 컴파일러 (kotlinc, kotlin). Java 21에서 실행되므로 Java 21도 설치하세요.</string>
     <string name="toolchain_rust_description">Rust (rustc, cargo). C/C++로 링크하므로 C/C++도 설치하세요. 터미널의 exec 인터셉터가 필요하며 LD_PRELOAD를 null로 설정하면 동작하지 않습니다.</string>
     <string name="toolchain_tcl_description">Tcl 8.6 (tclsh). Itcl, Thread, TDBC 포함.</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Java 21에서 실행되므로 Java 21도 설치하세요.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

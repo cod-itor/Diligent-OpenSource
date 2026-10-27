@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -860,6 +860,14 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: the Tcl/Tk licence (TCL), a BSD-style permissive licence
 - **Copyright**: Copyright (c) the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties
 - **Full license**: ships inside the pack at `usr/share/doc/tcl/license.terms`, and https://www.tcl-lang.org/software/tcltk/license.html
+
+### Groovy
+
+- **Project**: https://groovy-lang.org (Apache Groovy, packaged by Termux)
+- **License**: Apache License 2.0; the libraries bundled in its `lib/` carry their own licences (BSD, MIT, Apache 2.0, and EPL-1.0 for JUnit 4), each listed in the files below
+- **Copyright**: Copyright (c) The Apache Software Foundation
+- **Full license**: ships inside the pack at `usr/opt/groovy/LICENSE` and `usr/opt/groovy/NOTICE`, with the bundled libraries' licences in `usr/opt/groovy/licenses`
+- **Source**: JUnit 4, which is under the Eclipse Public License 1.0, is available in source form at https://github.com/junit-team/junit4; Groovy's own at https://github.com/apache/groovy
 
 ---
 

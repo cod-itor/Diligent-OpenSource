@@ -198,6 +198,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | Kotlin | Apache 2.0 | https://kotlinlang.org |
 | Rust (rustc, cargo, rustdoc, rustfmt) | MIT or Apache 2.0 | https://www.rust-lang.org |
 | Tcl (with Itcl, Thread, TDBC) | TCL (BSD-style) | https://www.tcl-lang.org |
+| Apache Groovy | Apache 2.0 | https://groovy-lang.org |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 
