@@ -73,6 +73,7 @@ import com.vscodroid.diligent.ui.components.StatusDot
 import com.vscodroid.diligent.ui.components.StatusLabel
 import com.vscodroid.diligent.ui.components.StatusTone
 import com.vscodroid.diligent.ui.navigation.MobileTab
+import com.vscodroid.diligent.ui.navigation.MoreDetail
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /**
@@ -87,9 +88,18 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
  * A project without `run.json` gets what was detected ("We found `npm run
  * dev` on port 3000. Use it?"), and nothing is written until the user says
  * yes or fills in the form.
+ *
+ * A run that failed, or a log with a known error, gets a plain-language
+ * explanation ([RunErrorCard]); its fixes open other More screens through [onOpen].
  */
 @Composable
-fun RunScreen(shell: MobileShell, actions: MobileActions, onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun RunScreen(
+    shell: MobileShell,
+    actions: MobileActions,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+    onOpen: (MoreDetail) -> Unit = {},
+) {
     val run = actions.run
     WatchRun(run, withLog = true)
     val state = run.state
@@ -100,7 +110,7 @@ fun RunScreen(shell: MobileShell, actions: MobileActions, onClose: () -> Unit, m
             RunConfigState.Loading -> Loading()
             is RunConfigState.Invalid -> Invalid(config.problem, run::openConfig)
             is RunConfigState.Missing -> Proposal(config.proposal, state.saveFailed, run::save)
-            is RunConfigState.Loaded -> Running(state, run)
+            is RunConfigState.Loaded -> Running(state, run) { RunErrorCard(state, run, actions, onOpen) }
         }
     }
 }
@@ -108,20 +118,20 @@ fun RunScreen(shell: MobileShell, actions: MobileActions, onClose: () -> Unit, m
 // -- Profiles loaded: the main screen --
 
 @Composable
-private fun Running(state: RunUiState, run: RunControl) {
+private fun Running(state: RunUiState, run: RunControl, card: @Composable () -> Unit = {}) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         if (maxWidth > maxHeight) {
             // Landscape: controls on the left with the buttons at the bottom, the log beside them.
             Row(Modifier.fillMaxSize()) {
                 Column(Modifier.weight(0.42f).fillMaxHeight()) {
-                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) { Details(state, run) }
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) { Details(state, run, card) }
                     Actions(state, run)
                 }
                 LogView(state.log, Modifier.weight(0.58f).fillMaxHeight().padding(DiligentTheme.spacing.s))
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                Details(state, run)
+                Details(state, run, card)
                 LogView(
                     state.log,
                     Modifier.weight(1f).fillMaxWidth().padding(horizontal = DiligentTheme.spacing.m),
@@ -133,7 +143,7 @@ private fun Running(state: RunUiState, run: RunControl) {
 }
 
 @Composable
-private fun Details(state: RunUiState, run: RunControl) {
+private fun Details(state: RunUiState, run: RunControl, card: @Composable () -> Unit = {}) {
     Column(
         Modifier.padding(DiligentTheme.spacing.m),
         verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.s),
@@ -190,6 +200,7 @@ private fun Details(state: RunUiState, run: RunControl) {
             )
             Text(state.startOutput.joinToString("\n"), style = DiligentTheme.type.codeSmall, color = DiligentTheme.colors.onSurface)
         }
+        card()
         if (state.webpackNote) WebpackNote(run::dismissWebpackNote)
         state.offerLaptop?.let { laptop -> OffloadNote(laptop, onRun = { run.runOnLaptop(laptop) }, onDismiss = run::dismissOffload) }
         TextButton(

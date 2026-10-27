@@ -133,7 +133,7 @@ private fun MoreContent(
                 DetailHeader(stringResource(MoreItem.of(detail).title), onBack)
                 Box(Modifier.weight(1f)) {
                     when (detail) {
-                        MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack)
+                        MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack, onOpen = onOpen)
                         MoreDetail.Setup -> SetupScreen(shell, actions)
                         MoreDetail.Laptop -> LaptopScreen()
                         MoreDetail.AI -> AiScreen(shell, actions)
