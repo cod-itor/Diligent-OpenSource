@@ -69,8 +69,11 @@ function activate(context) {
                 }
             },
         },
+        // A third argument "prepare" is `kit prepare` (the Setup screen's
+        // Prepare for offline), so the app reaches it through the command it
+        // is already allowed to send.
         vscode.commands.registerCommand('diligent.kit.add',
-            (/** @type {string} */ recipeId, /** @type {string} */ name) => service.start(recipeId, name)),
+            (/** @type {string} */ recipeId, /** @type {string} */ name, /** @type {string} */ mode) => service.start(recipeId, name, mode)),
         vscode.commands.registerCommand('diligent.kit.cancel', (/** @type {string} */ runId) => service.cancel({ runId })),
         vscode.commands.registerCommand('diligent.kit.list', () => JSON.stringify(service.list())),
     );

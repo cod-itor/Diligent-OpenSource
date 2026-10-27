@@ -5,7 +5,8 @@
 /**
  * kit: Diligent's setup command for the terminal.
  *
- *   kit list | kit add <recipe> [name] | kit remove <pack> | kit doctor | kit help
+ *   kit list | kit add <recipe> [name] | kit prepare <recipe> | kit remove <pack>
+ *   kit doctor | kit help
  *
  * Shipped by the diligent-kit extension to ~/.diligent/kit/kit.js and run by
  * the `kit()` function in .bashrc. It holds no recipes itself: it asks the
@@ -32,6 +33,7 @@ const HELP = [
     'Usage:',
     '  kit list                  Show what kit can set up',
     '  kit add <recipe> [name]   Create a project from a recipe in your projects folder',
+    '  kit prepare <recipe>      Download what a recipe needs now, so kit add works offline later',
     '  kit remove <pack>         Remove a toolchain pack (ruby, java, cpp)',
     '  kit doctor                Check tools, packs, storage and the app\'s health',
     '  kit help                  Show this help',
@@ -53,14 +55,16 @@ function shellQuote(value) {
 
 /**
  * `kit list` output.
- * @param {Array<{id: string, title: string, summary: string, sizeMB: number, internet: string, toolchains: Array<{label: string}>}>} recipes
+ * @param {Array<{id: string, title: string, summary: string, sizeMB: number, internet: string, toolchains: Array<{label: string}>, offline?: boolean}>} recipes
  */
 function formatList(recipes) {
     const width = Math.max(...recipes.map((r) => r.id.length), 4);
     const lines = ['Recipes (kit add <recipe> [name]):', ''];
     for (const r of recipes) {
         const notes = ['about ' + r.sizeMB + ' MB',
-            r.internet === 'once' ? 'needs internet once' : r.internet === 'pack' ? 'internet for the pack download' : 'works offline'];
+            r.internet === 'no' ? 'works offline'
+                : r.offline ? 'ready offline'
+                    : r.internet === 'once' ? 'needs internet once (kit prepare ' + r.id + ' for offline)' : 'internet for the pack download'];
         if (r.toolchains.length) notes.push('installs ' + r.toolchains.map((t) => t.label).join(', '));
         lines.push('  ' + r.id.padEnd(width) + '  ' + r.title + ': ' + r.summary);
         lines.push('  ' + ' '.repeat(width) + '  (' + notes.join(', ') + ')');
@@ -218,8 +222,13 @@ async function main(argv) {
         console.log(formatList(reply.result));
         return 0;
     }
-    if (cmd === 'add') {
-        if (!rest[0]) return fail('Usage: kit add <recipe> [name]. Run "kit list" to see the recipes.');
+    if (cmd === 'add' || cmd === 'prepare') {
+        const prepare = cmd === 'prepare';
+        if (!rest[0]) {
+            return fail(prepare ? 'Usage: kit prepare <recipe>. Run "kit list" to see the recipes.'
+                : 'Usage: kit add <recipe> [name]. Run "kit list" to see the recipes.');
+        }
+        if (prepare && rest.length > 1) return fail('Usage: kit prepare <recipe>. It takes no project name.');
         if (rest.length > 2) return fail('A project name with spaces needs quotes: kit add ' + rest[0] + ' "my app"');
         /** @type {string | null} */
         let runId = null;
@@ -236,7 +245,7 @@ async function main(argv) {
         process.on('SIGINT', onSigint);
         let reply;
         try {
-            reply = await request('add', { recipe: rest[0], name: rest[1] || null }, (event, conn) => {
+            reply = await request(cmd, prepare ? { recipe: rest[0] } : { recipe: rest[0], name: rest[1] || null }, (event, conn) => {
                 runId = event.runId;
                 connection = conn;
                 for (const line of formatEvent(event)) console.log(line);
@@ -247,7 +256,7 @@ async function main(argv) {
             process.off('SIGINT', onSigint);
         }
         if (!reply.ok) return fail(String(reply.error));
-        const lines = formatResult(reply.result);
+        const lines = prepare ? [reply.result.message] : formatResult(reply.result);
         if (reply.result.ok) {
             console.log(lines.join('\n'));
             return 0;

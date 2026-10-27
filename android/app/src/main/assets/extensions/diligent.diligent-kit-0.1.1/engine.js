@@ -55,6 +55,14 @@ const LINE_INTERVAL_MS = 250;
 const INTERNET_HOST = 'registry.npmjs.org';
 const INTERNET_TIMEOUT_MS = 4_000;
 const TAIL_LINES = 15;
+/** The record of prepared recipes, under the terminal's HOME. */
+const OFFLINE_FILE = path.join('.diligent', 'kit-offline.json');
+/** Where `kit prepare` runs a recipe, under HOME; removed when it ends. */
+const PREPARE_DIR = path.join('.diligent', 'kit-prepare');
+/** Python wheels `kit prepare` downloads, one folder per recipe, under HOME. */
+const WHEELS_DIR = path.join('.diligent', 'kit-wheels');
+/** A `pip install` in a recipe command, which prepare turns into a `pip download` first. */
+const PIP_INSTALL = /\bpip3? install\b/;
 
 // ---- names -------------------------------------------------------------
 
@@ -218,10 +226,14 @@ function loadRecipes(extensionDir) {
 }
 
 /**
- * What the Setup screen and `kit list` show for each recipe.
+ * What the Setup screen and `kit list` show for each recipe. With `home`,
+ * `offline` says whether `kit add` works without the internet.
  * @param {any[]} recipes
+ * @param {string} [home]
  */
-function summaries(recipes) {
+function summaries(recipes, home) {
+    const prepared = home ? preparedRecipes(home) : {};
+    const installed = home ? installedPacks(home) : new Set();
     return recipes.map((r) => ({
         id: r.id,
         title: r.title,
@@ -229,7 +241,92 @@ function summaries(recipes) {
         sizeMB: r.sizeMB,
         internet: r.needs.internet,
         toolchains: r.needs.toolchains.map((/** @type {string} */ t) => ({ pack: t, label: PACKS[/** @type {keyof PACKS} */ (t)].label })),
+        offline: readyOffline(r, prepared, installed),
     }));
+}
+
+// ---- offline ------------------------------------------------------------
+
+/**
+ * The recipes `kit prepare` (or a finished `kit add`) left ready offline:
+ * `~/.diligent/kit-offline.json`, `{"recipes": {"<id>": {"preparedAt", "tested"}}}`.
+ * @param {string} home
+ * @returns {Record<string, { preparedAt: string, tested: unknown }>}
+ */
+function preparedRecipes(home) {
+    try {
+        const state = JSON.parse(fs.readFileSync(path.join(home, OFFLINE_FILE), 'utf8'));
+        const recipes = state && typeof state.recipes === 'object' && state.recipes ? state.recipes : {};
+        return Array.isArray(recipes) ? {} : recipes;
+    } catch {
+        return {};
+    }
+}
+
+/**
+ * Records `recipe` as prepared, with the versions it was tested with: a
+ * recipe whose `tested` changes (a newer Vite) needs preparing again.
+ * @param {string} home @param {any} recipe @param {Date} [now]
+ */
+function markPrepared(home, recipe, now = new Date()) {
+    const recipes = { ...preparedRecipes(home), [recipe.id]: { preparedAt: now.toISOString(), tested: recipe.tested } };
+    const file = path.join(home, OFFLINE_FILE);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const tmp = file + '.tmp-' + process.pid;
+    fs.writeFileSync(tmp, JSON.stringify({ recipes }, null, 2) + '\n');
+    fs.renameSync(tmp, file);
+}
+
+/**
+ * Whether `kit add` of `recipe` works without the internet: it needs none,
+ * or its packs are installed and it downloads nothing else, or it was
+ * prepared for the versions it is tested with (and its packs are still there).
+ * @param {any} recipe
+ * @param {Record<string, { tested: unknown }>} prepared
+ * @param {Set<string>} installed
+ */
+function readyOffline(recipe, prepared, installed) {
+    const packsThere = recipe.needs.toolchains.every((/** @type {string} */ t) => installed.has(t));
+    if (recipe.needs.internet === 'no') return true;
+    if (recipe.needs.internet === 'pack') return packsThere;
+    const entry = prepared[recipe.id];
+    return Boolean(entry) && packsThere && JSON.stringify(entry.tested) === JSON.stringify(recipe.tested);
+}
+
+/** Whether a recipe installs Python packages with pip. @param {any} recipe */
+function usesPip(recipe) {
+    return recipe.steps.some((/** @type {any} */ s) => s.type === 'run' && PIP_INSTALL.test(s.command));
+}
+
+/**
+ * The command that fills the wheel folder for a `pip install` command:
+ * the same packages, downloaded instead of installed.
+ * @param {string} command @param {string} wheels
+ */
+function pipDownload(command, wheels) {
+    return command.replace(PIP_INSTALL, (m) => m.replace('install', 'download --dest ' + shellQuote(wheels)));
+}
+
+/**
+ * The environment a recipe's commands get for the cache. A prepared recipe
+ * prefers npm's cache over the registry, and when there is no internet it
+ * uses the cache alone, so a missing package fails at once rather than
+ * after minutes of retries. pip looks in the recipe's wheel folder first,
+ * and without the internet only there.
+ * @param {{ prepared: boolean, internet: boolean | null, wheels: string }} c
+ * @returns {Record<string, string>}
+ */
+function cacheEnv(c) {
+    /** @type {Record<string, string>} */
+    const env = {};
+    if (!c.prepared) return env;
+    env.npm_config_prefer_offline = 'true';
+    if (c.internet === false) env.npm_config_offline = 'true';
+    if (fs.existsSync(c.wheels)) {
+        env.PIP_FIND_LINKS = c.wheels;
+        if (c.internet === false) env.PIP_NO_INDEX = '1';
+    }
+    return env;
 }
 
 // ---- needs --------------------------------------------------------------
@@ -241,8 +338,11 @@ function summaries(recipes) {
  * A pack that is not installed yet is not missing: the recipe installs it.
  * It does add its space, and it needs the internet to download.
  *
+ * A recipe prepared for offline use ([readyOffline]) does not need the
+ * internet for its packages.
+ *
  * @param {any} recipe
- * @param {{ freeMB: number | null, internet: boolean | null, installed: Set<string> }} facts
+ * @param {{ freeMB: number | null, internet: boolean | null, installed: Set<string>, prepared?: boolean }} facts
  * @returns {string[]}
  */
 function missingNeeds(recipe, facts) {
@@ -257,8 +357,9 @@ function missingNeeds(recipe, facts) {
     }
     const labels = toInstall.map((/** @type {string} */ t) => PACKS[/** @type {keyof PACKS} */ (t)].label);
     if (facts.internet === false) {
-        if (recipe.needs.internet === 'once') {
-            missing.push('No internet connection: this recipe downloads packages. Connect to the internet and try again.');
+        if (recipe.needs.internet === 'once' && !facts.prepared) {
+            missing.push('No internet connection: this recipe downloads packages. Connect to the internet, ' +
+                'or use a recipe marked ready offline, and try again.');
         } else if (labels.length) {
             missing.push('No internet connection: the ' + labels.join(' and ') +
                 ' pack has to be downloaded first. Connect to the internet and try again.');
@@ -449,10 +550,10 @@ class LineThrottle {
 
 // ---- running ------------------------------------------------------------
 
-/** The terminal's environment for a command, with the exec interceptor. */
-function commandEnv() {
+/** The terminal's environment for a command, with the exec interceptor. @param {Record<string, string>} [extra] */
+function commandEnv(extra = {}) {
     /** @type {Record<string, string | undefined>} */
-    const env = { ...process.env, npm_config_yes: 'true', BROWSER: 'none', PYTHONUNBUFFERED: '1' };
+    const env = { ...process.env, npm_config_yes: 'true', BROWSER: 'none', PYTHONUNBUFFERED: '1', ...extra };
     // Kotlin's RunScripts exports the same file for the same reason: a file
     // under the app's folder (`./hello`, a venv's python) only starts through it.
     const preload = path.join(process.env.PREFIX || '', 'lib', 'libtermux-exec.so');
@@ -471,11 +572,12 @@ function bashPath() {
  * @param {string} command
  * @param {string} cwd
  * @param {(line: string) => void} onLine
+ * @param {Record<string, string>} [env] added to the terminal's environment
  * @returns {{ child: import('child_process').ChildProcess, exited: Promise<number> }}
  */
-function startCommand(command, cwd, onLine) {
+function startCommand(command, cwd, onLine, env = {}) {
     const child = spawn(bashPath(), ['-c', command], {
-        cwd, env: commandEnv(), detached: true, stdio: ['ignore', 'pipe', 'pipe'],
+        cwd, env: commandEnv(env), detached: true, stdio: ['ignore', 'pipe', 'pipe'],
     });
     for (const stream of [child.stdout, child.stderr]) {
         let rest = '';
@@ -537,8 +639,15 @@ function newRunId(n = Date.now()) {
  * Runs `recipe` into a new project folder. Never throws: every outcome ends
  * in one progress message with `done` set.
  *
+ * With `prepare`, it is `kit prepare`: the recipe runs once in
+ * `~/.diligent/kit-prepare/<id>` to fill npm's cache (and a wheel folder for
+ * pip), without its test step, the folder is deleted at the end, and a run
+ * that worked is recorded in `~/.diligent/kit-offline.json`. A later `kit
+ * add` of a prepared recipe uses the cache first ([cacheEnv]) and starts
+ * without the internet.
+ *
  * @param {{
- *   recipe: any, name?: string | null, runId?: string,
+ *   recipe: any, name?: string | null, runId?: string, prepare?: boolean,
  *   extensionDir: string, home: string, projectsDir: string,
  *   onProgress: (p: Progress) => void,
  *   installToolchain: (pack: string) => Promise<unknown>,
@@ -554,11 +663,16 @@ async function runRecipe(o) {
     const recipe = o.recipe;
     const runId = o.runId || newRunId();
     const signal = o.signal || { cancelled: false };
-    const name = o.name || defaultName(o.projectsDir, recipe.id);
-    const folder = projectFolder(o.projectsDir, name);
+    const prepare = Boolean(o.prepare);
+    const prepareDir = path.join(o.home, PREPARE_DIR, recipe.id);
+    const wheels = path.join(o.home, WHEELS_DIR, recipe.id);
+    if (prepare) fs.rmSync(prepareDir, { recursive: true, force: true });
+    const name = prepare ? recipe.id : o.name || defaultName(o.projectsDir, recipe.id);
+    const folder = prepare ? { dir: prepareDir } : projectFolder(o.projectsDir, name);
     const project = 'dir' in folder ? folder.dir : path.join(o.projectsDir, String(name));
     const vars = { name: String(name), pkg: packageName(String(name)), label: safeLabel(String(name)), project };
     const installed = installedPacks(o.home);
+    const prepared = !prepare && recipe.needs.internet === 'once' && readyOffline(recipe, preparedRecipes(o.home), installed);
     const steps = planSteps(recipe, installed, vars);
     const total = steps.length;
     /** @type {string | null} */
@@ -584,6 +698,15 @@ async function runRecipe(o) {
     /** @param {boolean} ok @param {string} message */
     const finish = (ok, message) => {
         throttle.clear();
+        if (prepare) {
+            fs.rmSync(prepareDir, { recursive: true, force: true });
+            if (ok) {
+                try { markPrepared(o.home, recipe); } catch (err) { ok = false; message = 'Could not record it: ' + String(err); }
+            }
+        } else if (ok && recipe.needs.internet === 'once' && !usesPip(recipe)) {
+            // npm's cache now holds everything this recipe downloads.
+            try { markPrepared(o.home, recipe); } catch { /* still a working project */ }
+        }
         const done = { ok, projectPath: project, message };
         o.onProgress({ runId, recipe: recipe.id, project, step: { ...current }, line: lastLine, done, run: runHint });
         return { ok, projectPath: project, message, run: runHint };
@@ -598,13 +721,19 @@ async function runRecipe(o) {
     const needInternet = needsInternetCheck(recipe, installed);
     const internet = needInternet ? await (o.checkInternet || internetAnswers)() : null;
     fs.mkdirSync(o.projectsDir, { recursive: true });
-    const missing = missingNeeds(recipe, { freeMB: (o.free || freeMB)(o.projectsDir), internet, installed });
+    const missing = missingNeeds(recipe, { freeMB: (o.free || freeMB)(o.projectsDir), internet, installed, prepared });
     if (missing.length) {
         current.state = 'fail';
         return finish(false, missing.join(' '));
     }
 
     fs.mkdirSync(project, { recursive: true });
+    if (prepare && usesPip(recipe)) {
+        fs.rmSync(wheels, { recursive: true, force: true });
+        fs.mkdirSync(wheels, { recursive: true });
+    }
+    const env = prepare ? (usesPip(recipe) ? { PIP_FIND_LINKS: wheels } : {}) : cacheEnv({ prepared, internet, wheels });
+    const kept = prepare ? '' : ' The folder ' + project + ' was kept.';
     const templates = path.join(o.extensionDir, 'templates');
     /** @type {any[]} */
     const profiles = [];
@@ -614,13 +743,13 @@ async function runRecipe(o) {
         current = { index: i, total, title: step.title, state: 'running' };
         lastLine = null;
         tail = [];
-        if (signal.cancelled) return finish(false, 'Setup was cancelled. The folder ' + project + ' was kept.');
+        if (signal.cancelled) return finish(false, 'Setup was cancelled.' + kept);
         emit();
         /** @type {string | null} */
         let failure = null;
         try {
             failure = await runStep(step, {
-                o, project, vars, templates, profiles, onLine, signal,
+                o, project, vars, templates, profiles, onLine, signal, env, prepare, wheels,
                 setHint: (/** @type {string} */ h) => { runHint = h; },
             });
         } catch (err) {
@@ -629,19 +758,20 @@ async function runRecipe(o) {
         throttle.clear();
         if (signal.cancelled) {
             current.state = 'fail';
-            return finish(false, 'Setup was cancelled. The folder ' + project + ' was kept.');
+            return finish(false, 'Setup was cancelled.' + kept);
         }
         if (failure !== null) {
             current.state = 'fail';
             if (failure) lastLine = failure;
             o.onProgress({ runId, recipe: recipe.id, project, step: { ...current }, line: lastLine, done: null, tail });
             return finish(false, 'Step ' + (i + 1) + ' of ' + total + ' failed: ' + step.title + '. ' +
-                (failure || 'See the output above.') + ' The folder ' + project + ' was kept.');
+                (failure || 'See the output above.') + kept);
         }
         current.state = 'ok';
         emit();
     }
-    return finish(true, recipe.title + ' is ready in ' + project + '.');
+    return finish(true, prepare ? recipe.title + ' is ready offline: kit add ' + recipe.id + ' now works without the internet.'
+        : recipe.title + ' is ready in ' + project + '.');
 }
 
 /**
@@ -652,7 +782,7 @@ async function runRecipe(o) {
  * @returns {Promise<string | null>}
  */
 async function runStep(step, c) {
-    const { o, project, vars, templates, profiles, onLine, signal } = c;
+    const { o, project, vars, templates, profiles, onLine, signal, env } = c;
     if (step.type === 'toolchain') {
         const label = PACKS[/** @type {keyof PACKS} */ (step.pack)].label;
         if (step.alreadyDone || installedPacks(o.home).has(step.pack)) {
@@ -703,17 +833,46 @@ async function runStep(step, c) {
         return null;
     }
     if (step.type === 'run') {
-        const { child, exited } = startCommand(render(step.command, shellVars(vars)), project, onLine);
-        signal.onCancel = () => stopGroup(child);
-        const limit = (step.timeoutSec ? step.timeoutSec * 1000 : (o.timeouts?.runMs ?? RUN_TIMEOUT_MS));
-        const timer = setTimeout(() => stopGroup(child), limit);
-        const code = await exited;
-        clearTimeout(timer);
-        signal.onCancel = undefined;
-        if (code === 0) return null;
-        return code === 128 ? 'It was stopped after ' + Math.round(limit / 1000) + ' s.' : 'It ended with exit code ' + code + '.';
+        if (c.prepare && PIP_INSTALL.test(step.command)) {
+            const failed = await runCommand(pipDownload(render(step.command, shellVars(vars)), c.wheels), c);
+            if (failed !== null) return failed;
+        }
+        return runCommand(render(step.command, shellVars(vars)), c, step.timeoutSec);
+    }
+    if (c.prepare) {
+        // test: nothing it does fills a cache, and its port may be taken.
+        onLine('Skipped while preparing.');
+        return null;
     }
     // test: start the profile, wait for its port or an expected line, stop it.
+    return runTest(step, c);
+}
+
+/**
+ * Runs one command of a `run` step in the project folder.
+ * @param {string} command @param {any} c @param {number} [timeoutSec]
+ * @returns {Promise<string | null>}
+ */
+async function runCommand(command, c, timeoutSec) {
+    const { o, project, onLine, signal, env } = c;
+    const { child, exited } = startCommand(command, project, onLine, env);
+    signal.onCancel = () => stopGroup(child);
+    const limit = (timeoutSec ? timeoutSec * 1000 : (o.timeouts?.runMs ?? RUN_TIMEOUT_MS));
+    const timer = setTimeout(() => stopGroup(child), limit);
+    const code = await exited;
+    clearTimeout(timer);
+    signal.onCancel = undefined;
+    if (code === 0) return null;
+    return code === 128 ? 'It was stopped after ' + Math.round(limit / 1000) + ' s.' : 'It ended with exit code ' + code + '.';
+}
+
+/**
+ * The `test` step: start the profile, wait for its port or an expected line, stop it.
+ * @param {any} step @param {any} c
+ * @returns {Promise<string | null>}
+ */
+async function runTest(step, c) {
+    const { project, profiles, onLine, signal, env } = c;
     const profile = profiles.find((/** @type {any} */ p) => p.name === step.profile);
     const expect = step.expect;
     if (expect.port !== undefined && await portAnswers(expect.port)) {
@@ -725,7 +884,7 @@ async function runStep(step, c) {
     const { child, exited } = startCommand(profile.command, project, (line) => {
         if (pattern && pattern.test(line)) matched = true;
         onLine(line);
-    });
+    }, env);
     signal.onCancel = () => stopGroup(child);
     let ended = false;
     /** @type {number | null} */
@@ -789,6 +948,15 @@ module.exports = {
     safeRelative,
     loadRecipes,
     summaries,
+    OFFLINE_FILE,
+    PREPARE_DIR,
+    WHEELS_DIR,
+    preparedRecipes,
+    markPrepared,
+    readyOffline,
+    usesPip,
+    pipDownload,
+    cacheEnv,
     missingNeeds,
     needsInternetCheck,
     freeMB,

@@ -48,4 +48,17 @@ class KitSessionTest {
         assertTrue(kit.run!!.timedOut)
         assertFalse(kit.busy)
     }
+
+    @Test
+    fun `prepare sends kit add in prepare mode and hears the prepare folder`() {
+        val kit = session()
+        kit.prepare("nextjs")
+        assertEquals(listOf(listOf<Any?>("diligent.kit.add", "nextjs", "nextjs", "prepare")), sent)
+        assertTrue(kit.run!!.prepare)
+        kit.onProgress(KitProgress.parse("""{"runId":"p1","recipe":"nextjs","project":"/h/.diligent/kit-prepare/nextjs","step":{"index":0,"total":4,"title":"Create","state":"running"}}""")!!)
+        assertEquals("p1", kit.run!!.runId)
+        kit.onProgress(KitProgress.parse("""{"runId":"p1","done":{"ok":true,"projectPath":"/h/.diligent/kit-prepare/nextjs","message":"Ready offline."}}""")!!)
+        assertTrue(kit.run!!.succeeded)
+        assertFalse(kit.busy)
+    }
 }

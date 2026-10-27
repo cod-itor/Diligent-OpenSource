@@ -395,6 +395,117 @@ async function checkServiceAndFailures() {
     assert.strictEqual(slow.activeRunId, null);
 }
 
+// ---- offline kit ------------------------------------------------------------------
+
+async function checkOffline(byId) {
+    const home = path.join(tmp, 'offline-home');
+    fs.mkdirSync(home, { recursive: true });
+    const none = new Set();
+
+    // Ready offline: no internet needed, packs installed, or prepared for the tested versions.
+    assert.deepStrictEqual(engine.preparedRecipes(home), {});
+    assert.ok(engine.readyOffline(byId['web-basic'], {}, none));
+    assert.ok(engine.readyOffline(byId['python-script'], {}, none));
+    assert.ok(!engine.readyOffline(byId.nextjs, {}, none));
+    assert.ok(!engine.readyOffline(byId.java, {}, none));
+    assert.ok(engine.readyOffline(byId.java, {}, new Set(['toolchain_java'])));
+    engine.markPrepared(home, byId.nextjs, new Date(0));
+    const prepared = engine.preparedRecipes(home);
+    assert.deepStrictEqual(prepared.nextjs, { preparedAt: '1970-01-01T00:00:00.000Z', tested: byId.nextjs.tested });
+    assert.ok(engine.readyOffline(byId.nextjs, prepared, none));
+    assert.ok(!engine.readyOffline({ ...byId.nextjs, tested: { next: '99' } }, prepared, none), 'a newer tested version needs preparing again');
+    const flags = Object.fromEntries(engine.summaries(Object.values(byId), home).map((r) => [r.id, r.offline]));
+    assert.deepStrictEqual(flags, {
+        'web-basic': true, 'python-script': true, nextjs: true,
+        'react-vite': false, 'node-api': false, 'python-data': false, java: false, 'c-cpp': false, ruby: false,
+    });
+    fs.writeFileSync(path.join(home, engine.OFFLINE_FILE), '{broken');
+    assert.deepStrictEqual(engine.preparedRecipes(home), {});
+    assert.match(kit.formatList(engine.summaries([byId.nextjs, byId['react-vite']], home)), /kit prepare react-vite for offline/);
+
+    // A prepared recipe starts without the internet.
+    assert.deepStrictEqual(engine.missingNeeds(byId.nextjs, { freeMB: 5000, internet: false, installed: none, prepared: true }), []);
+
+    // The caches: npm prefers its cache, and uses only it offline; pip its wheel folder.
+    const wheels = path.join(tmp, 'wheels');
+    assert.deepStrictEqual(engine.cacheEnv({ prepared: false, internet: false, wheels }), {});
+    assert.deepStrictEqual(engine.cacheEnv({ prepared: true, internet: true, wheels }), { npm_config_prefer_offline: 'true' });
+    fs.mkdirSync(wheels, { recursive: true });
+    assert.deepStrictEqual(engine.cacheEnv({ prepared: true, internet: false, wheels }), {
+        npm_config_prefer_offline: 'true', npm_config_offline: 'true', PIP_FIND_LINKS: wheels, PIP_NO_INDEX: '1',
+    });
+    assert.ok(engine.usesPip(byId['python-data']) && !engine.usesPip(byId.nextjs));
+    assert.strictEqual(engine.pipDownload('.venv/bin/python -m pip install --prefer-binary numpy', '/w x'),
+        ".venv/bin/python -m pip download --dest '/w x' --prefer-binary numpy");
+
+    // Prepare for real, with a recipe that records the environment it ran with.
+    const ext = path.join(tmp, 'offline-ext');
+    fs.mkdirSync(path.join(ext, 'recipes'), { recursive: true });
+    fs.mkdirSync(path.join(ext, 'templates'), { recursive: true });
+    const mark = path.join(tmp, 'offline-mark.txt');
+    fs.writeFileSync(path.join(ext, 'recipes', 'cachey.json'), JSON.stringify({
+        id: 'cachey', title: 'Cachey', summary: 's', sizeMB: 0, tested: { x: '1' },
+        needs: { toolchains: [], minFreeMB: 0, internet: 'once' },
+        steps: [
+            { type: 'run', title: 'Install', command: 'echo pip install thing; echo "$PWD p=${npm_config_prefer_offline:-} o=${npm_config_offline:-} f=${PIP_FIND_LINKS:+set} n=${PIP_NO_INDEX:-}" >> ' + engine.shellQuote(mark) },
+            { type: 'profile', title: 'p', profiles: [{ name: 'x', command: 'echo done' }] },
+            { type: 'test', title: 't', profile: 'x', expect: { output: 'done' } },
+        ],
+    }));
+    const projectsDir = path.join(home, 'projects');
+    let online = true;
+    const service = createService({
+        extensionDir: ext, home, projectsDir, executeCommand: async () => undefined,
+        runOptions: { checkInternet: async () => online, free: () => 100000 },
+    });
+    const lines = [];
+    const prep = await service.prepare({ recipe: 'cachey' }, (e) => { if (e.line) lines.push(e.line); });
+    assert.strictEqual(prep.ok, true, prep.message);
+    assert.match(prep.message, /ready offline/);
+    assert.ok(lines.includes('pip download --dest ' + path.join(home, engine.WHEELS_DIR, 'cachey') + ' thing'), lines.join('\n'));
+    assert.ok(lines.includes('Skipped while preparing.'), 'the test step is skipped');
+    assert.ok(!fs.existsSync(path.join(home, engine.PREPARE_DIR, 'cachey')), 'the folder is deleted');
+    assert.ok(fs.existsSync(path.join(home, engine.WHEELS_DIR, 'cachey')), 'the wheel folder stays');
+    assert.ok(engine.preparedRecipes(home).cachey, 'recorded');
+    assert.deepStrictEqual(service.list().map((r) => r.offline), [true]);
+    let ran = fs.readFileSync(mark, 'utf8').trim().split('\n');
+    assert.strictEqual(ran.length, 2, 'download, then install');
+    assert.match(ran[1], /kit-prepare\/cachey p= o= f=set n=$/);
+
+    // Then kit add works with the internet gone, from the cache only.
+    online = false;
+    const added = await service.add({ recipe: 'cachey', name: 'off' }, () => {});
+    assert.strictEqual(added.ok, true, added.message);
+    ran = fs.readFileSync(mark, 'utf8').trim().split('\n');
+    assert.match(ran[2], /projects\/off p=true o=true f=set n=1$/);
+
+    // Unprepared, the same recipe stops before step 1.
+    const fresh = createService({
+        extensionDir: ext, home: path.join(tmp, 'offline-fresh'), projectsDir, executeCommand: async () => undefined,
+        runOptions: { checkInternet: async () => false, free: () => 100000 },
+    });
+    assert.match((await fresh.add({ recipe: 'cachey', name: 'nope' }, () => {})).message, /No internet connection/);
+    // Preparing offline fails the same way, and leaves no folder.
+    const failedPrep = await fresh.prepare({ recipe: 'cachey' }, () => {});
+    assert.strictEqual(failedPrep.ok, false);
+    assert.ok(!fs.existsSync(path.join(tmp, 'offline-fresh', engine.PREPARE_DIR, 'cachey')));
+
+    // A recipe that needs nothing is not run; the app's start names the prepare folder.
+    const real = createService({ extensionDir: DIR, home, projectsDir, executeCommand: async () => undefined });
+    assert.match((await real.prepare({ recipe: 'web-basic' }, () => {})).message, /works offline already/);
+    const sent = [];
+    const appSide = createService({
+        extensionDir: ext, home, projectsDir,
+        executeCommand: async (cmd, json) => { if (cmd === 'diligent.bridge.kitProgress') sent.push(JSON.parse(json)); },
+        runOptions: { checkInternet: async () => true, free: () => 100000 },
+    });
+    const runId = await appSide.start('cachey', 'ignored', 'prepare');
+    while (!sent.some((p) => p.runId === runId && p.done)) await new Promise((r) => setTimeout(r, 20));
+    const last = sent[sent.length - 1];
+    assert.strictEqual(last.project, path.join(home, engine.PREPARE_DIR, 'cachey'));
+    assert.strictEqual(last.done.ok, true);
+}
+
 // ---- end to end ------------------------------------------------------------------
 
 function hasPython() {
@@ -496,6 +607,7 @@ function checkBashrc() {
     checkCliOutput(byId);
     await checkProtocol();
     await checkServiceAndFailures();
+    await checkOffline(byId);
     await checkEndToEnd();
     checkCliProcess();
     checkBashrc();
