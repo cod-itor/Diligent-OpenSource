@@ -669,6 +669,27 @@ Host myserver
     IdentityFile ~/.ssh/id_ed25519
 ```
 
+### Running a Project on Your Laptop (Diligent)
+
+In Mobile view, More, then Laptop walks through it: turn on SSH on the laptop
+(macOS: System Settings, General, Sharing, Remote Login; Linux:
+`openssh-server`), add its address and username, copy the phone's key line
+into the laptop's terminal, and tap Test. Laptops are kept in
+`~/.diligent/machines.json`.
+
+A run profile with `"where": "laptop:<name>"` in `.diligent/run.json` then runs
+there. Start takes a snapshot, pushes it with Git to `~/diligent-sync/<project>.git`
+on the laptop, checks it out in `~/diligent-work/<project>`, runs the profile's
+optional `prepare` command (for example `npm ci`) when a lock file changed, and
+starts the command over `ssh -tt` with the port forwarded, so Preview on the
+phone shows the laptop's app:
+
+```json
+{ "profiles": [ { "name": "dev", "command": "npm run dev", "port": 3000, "where": "laptop:mac", "prepare": "npm ci" } ] }
+```
+
+The work folder on the laptop is overwritten on every start: edit on the phone.
+
 ---
 
 ## Web Development

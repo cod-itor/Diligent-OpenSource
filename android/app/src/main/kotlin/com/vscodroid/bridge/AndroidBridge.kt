@@ -15,6 +15,7 @@ import com.google.android.play.core.assetpacks.model.AssetPackStatus
 import com.vscodroid.R
 import com.vscodroid.authCallbackIsExpected
 import com.vscodroid.diligent.DiligentBridgeHost
+import com.vscodroid.diligent.ai.NetworkType
 import com.vscodroid.isExtensionCallback
 import com.vscodroid.setup.ToolchainManager
 import com.vscodroid.setup.ToolchainRegistry
@@ -452,6 +453,135 @@ object AuthTabWindow {
 
     @Synchronized
     fun armedReadings(): List<Long> = launches.values.filterNot { it.expired }.mapNotNull { it.at }
+}
+
+private const val SSH_KEY_TAG = "AndroidBridge"
+
+/**
+ * The body of [AndroidBridge.generateSshKey], without the token check, so
+ * Diligent's Laptop screen can create or reuse the same key from Kotlin.
+ * Same JSON answer: {success, publicKey?, existed?, error?}.
+ */
+internal fun generateSshKeyIn(context: Context, comment: String): String {
+    val result = JSONObject()
+    try {
+        val nativeLibDir = context.applicationInfo.nativeLibraryDir
+        val homeDir = "${context.filesDir}/home"
+        val sshDir = File(homeDir, ".ssh")
+        sshDir.mkdirs()
+        val keyFile = File(sshDir, "id_ed25519")
+        val pubFile = File("${keyFile.absolutePath}.pub")
+
+        // Existing private keys must never be replaced, even if their public file is missing.
+        if (keyFile.exists() && pubFile.isFile) {
+            val pubKey = pubFile.readText().trim()
+            result.put("success", true)
+            result.put("publicKey", pubKey)
+            result.put("existed", true)
+            return result.toString()
+        }
+        if (keyFile.exists()) {
+            result.put("success", false)
+            result.put(
+                "error",
+                "An SSH private key already exists without its public file. " +
+                    "Recover it in the terminal with: " +
+                    "ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub"
+            )
+            return result.toString()
+        }
+
+        val keyComment = if (comment.isBlank()) "vscodroid@android" else comment
+        // The private key cannot be there (returned above), but a public file can be: it is
+        // the user's, so a failed generation leaves it and removes only what it made.
+        val publicWasThere = pubFile.exists()
+
+        val process = ProcessBuilder(
+            "$nativeLibDir/libssh-keygen.so",
+            "-t", "ed25519",
+            "-f", keyFile.absolutePath,
+            "-N", "",  // empty passphrase
+            "-C", keyComment
+        ).apply {
+            environment()["HOME"] = homeDir
+            environment()["LD_LIBRARY_PATH"] = "$nativeLibDir:${context.filesDir}/usr/lib"
+            redirectErrorStream(true)
+        }.start()
+
+        // Drained on its own thread, and that ordering is the guarantee
+        // rather than a detail. readText() returns at EOF, and EOF on a
+        // child's stdout arrives when the child exits -- so reading before
+        // the wait makes the wait unreachable in precisely the case it was
+        // written for. A ssh-keygen that hangs while holding stdout open
+        // parked this thread with no bound at all, and this thread is the
+        // WebView's bridge thread: every other bridge call queues behind it,
+        // so one stuck key generation freezes clipboard, storage and
+        // toolchain calls too. The timeout below was already here, already
+        // documented as protecting the caller, and simply never got to run.
+        //
+        // Draining concurrently is also what keeps the wait honest in the
+        // other direction: with waitFor first and no reader, a child that
+        // filled the ~64 KB pipe buffer would block on write and never
+        // exit, turning the same hang into a guaranteed timeout instead of
+        // a completed key.
+        var output = ""
+        val drain = Thread {
+            output = try {
+                process.inputStream.bufferedReader().readText()
+            } catch (e: Exception) {
+                ""
+            }
+        }
+        drain.isDaemon = true
+        drain.start()
+
+        // Bounded, and bounded under the relay's own five seconds so this
+        // side gives up first. An unbounded wait parks the bridge thread,
+        // which every other bridge call queues behind, and the JavaScript
+        // caller has already rejected by then, so the extra time buys a
+        // frozen clipboard and storage rather than a key.
+        if (!process.waitFor(KEYGEN_TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)) {
+            process.destroyForcibly()
+            Logger.e(SSH_KEY_TAG, "ssh-keygen did not finish within ${KEYGEN_TIMEOUT_SECONDS}s; killed")
+            keyFile.delete()
+            if (!publicWasThere) pubFile.delete()
+            result.put("success", false)
+            result.put("error", "ssh-keygen did not finish within ${KEYGEN_TIMEOUT_SECONDS}s")
+            return result.toString()
+        }
+        // The child has exited, so its end of the pipe is closed and the
+        // drain is at most one buffer from EOF. The join publishes what it
+        // read; it is bounded so that this line cannot quietly become the
+        // unbounded wait the lines above exist to remove. Overrunning it
+        // costs the diagnostic text in the error message, nothing else.
+        drain.join(DRAIN_JOIN_MILLIS)
+        val exitCode = process.exitValue()
+
+        // A successful generation must leave both key files before the public key can be returned.
+        if (exitCode == 0 && keyFile.exists() && pubFile.isFile) {
+            // Set correct permissions (600 for private key, 644 for public)
+            try {
+                android.system.Os.chmod(keyFile.absolutePath, 384)  // 0600
+                android.system.Os.chmod(pubFile.absolutePath, 420)  // 0644
+            } catch (e: Exception) {
+                Logger.d(SSH_KEY_TAG, "Failed to chmod SSH key: ${e.message}")
+            }
+
+            val pubKey = pubFile.readText().trim()
+            result.put("success", true)
+            result.put("publicKey", pubKey)
+        } else {
+            keyFile.delete()
+            if (!publicWasThere) pubFile.delete()
+            result.put("success", false)
+            result.put("error", output.trim().ifEmpty { "ssh-keygen exited with code $exitCode" })
+        }
+    } catch (e: Exception) {
+        Logger.e(SSH_KEY_TAG, "SSH key generation failed", e)
+        result.put("success", false)
+        result.put("error", e.message ?: "unknown error")
+    }
+    return result.toString()
 }
 
 /**
@@ -1353,125 +1483,7 @@ class AndroidBridge(
     @JavascriptInterface
     fun generateSshKey(authToken: String, comment: String): String {
         if (!security.validateToken(authToken)) return """{"success":false,"error":"unauthorized"}"""
-        val result = JSONObject()
-        try {
-            val nativeLibDir = context.applicationInfo.nativeLibraryDir
-            val homeDir = "${context.filesDir}/home"
-            val sshDir = File(homeDir, ".ssh")
-            sshDir.mkdirs()
-            val keyFile = File(sshDir, "id_ed25519")
-            val pubFile = File("${keyFile.absolutePath}.pub")
-
-            // Existing private keys must never be replaced, even if their public file is missing.
-            if (keyFile.exists() && pubFile.isFile) {
-                val pubKey = pubFile.readText().trim()
-                result.put("success", true)
-                result.put("publicKey", pubKey)
-                result.put("existed", true)
-                return result.toString()
-            }
-            if (keyFile.exists()) {
-                result.put("success", false)
-                result.put(
-                    "error",
-                    "An SSH private key already exists without its public file. " +
-                        "Recover it in the terminal with: " +
-                        "ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub"
-                )
-                return result.toString()
-            }
-
-            val keyComment = if (comment.isBlank()) "vscodroid@android" else comment
-            // The private key cannot be there (returned above), but a public file can be: it is
-            // the user's, so a failed generation leaves it and removes only what it made.
-            val publicWasThere = pubFile.exists()
-
-            val process = ProcessBuilder(
-                "$nativeLibDir/libssh-keygen.so",
-                "-t", "ed25519",
-                "-f", keyFile.absolutePath,
-                "-N", "",  // empty passphrase
-                "-C", keyComment
-            ).apply {
-                environment()["HOME"] = homeDir
-                environment()["LD_LIBRARY_PATH"] = "$nativeLibDir:${context.filesDir}/usr/lib"
-                redirectErrorStream(true)
-            }.start()
-
-            // Drained on its own thread, and that ordering is the guarantee
-            // rather than a detail. readText() returns at EOF, and EOF on a
-            // child's stdout arrives when the child exits -- so reading before
-            // the wait makes the wait unreachable in precisely the case it was
-            // written for. A ssh-keygen that hangs while holding stdout open
-            // parked this thread with no bound at all, and this thread is the
-            // WebView's bridge thread: every other bridge call queues behind it,
-            // so one stuck key generation freezes clipboard, storage and
-            // toolchain calls too. The timeout below was already here, already
-            // documented as protecting the caller, and simply never got to run.
-            //
-            // Draining concurrently is also what keeps the wait honest in the
-            // other direction: with waitFor first and no reader, a child that
-            // filled the ~64 KB pipe buffer would block on write and never
-            // exit, turning the same hang into a guaranteed timeout instead of
-            // a completed key.
-            var output = ""
-            val drain = Thread {
-                output = try {
-                    process.inputStream.bufferedReader().readText()
-                } catch (e: Exception) {
-                    ""
-                }
-            }
-            drain.isDaemon = true
-            drain.start()
-
-            // Bounded, and bounded under the relay's own five seconds so this
-            // side gives up first. An unbounded wait parks the bridge thread,
-            // which every other bridge call queues behind, and the JavaScript
-            // caller has already rejected by then, so the extra time buys a
-            // frozen clipboard and storage rather than a key.
-            if (!process.waitFor(KEYGEN_TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)) {
-                process.destroyForcibly()
-                Logger.e(tag, "ssh-keygen did not finish within ${KEYGEN_TIMEOUT_SECONDS}s; killed")
-                keyFile.delete()
-                if (!publicWasThere) pubFile.delete()
-                result.put("success", false)
-                result.put("error", "ssh-keygen did not finish within ${KEYGEN_TIMEOUT_SECONDS}s")
-                return result.toString()
-            }
-            // The child has exited, so its end of the pipe is closed and the
-            // drain is at most one buffer from EOF. The join publishes what it
-            // read; it is bounded so that this line cannot quietly become the
-            // unbounded wait the lines above exist to remove. Overrunning it
-            // costs the diagnostic text in the error message, nothing else.
-            drain.join(DRAIN_JOIN_MILLIS)
-            val exitCode = process.exitValue()
-
-            // A successful generation must leave both key files before the public key can be returned.
-            if (exitCode == 0 && keyFile.exists() && pubFile.isFile) {
-                // Set correct permissions (600 for private key, 644 for public)
-                try {
-                    android.system.Os.chmod(keyFile.absolutePath, 384)  // 0600
-                    android.system.Os.chmod(pubFile.absolutePath, 420)  // 0644
-                } catch (e: Exception) {
-                    Logger.d(tag, "Failed to chmod SSH key: ${e.message}")
-                }
-
-                val pubKey = pubFile.readText().trim()
-                result.put("success", true)
-                result.put("publicKey", pubKey)
-            } else {
-                keyFile.delete()
-                if (!publicWasThere) pubFile.delete()
-                result.put("success", false)
-                result.put("error", output.trim().ifEmpty { "ssh-keygen exited with code $exitCode" })
-            }
-        } catch (e: Exception) {
-            Logger.e(tag, "SSH key generation failed", e)
-            result.put("success", false)
-            result.put("error", e.message ?: "unknown error")
-        }
-        return result.toString()
+        return generateSshKeyIn(context, comment)
     }
 
     /**
@@ -1554,6 +1566,88 @@ class AndroidBridge(
     fun diligentSetView(authToken: String, view: String) {
         if (!security.validateToken(authToken)) return
         diligent?.setView(view)
+    }
+
+    /**
+     * The diligent-core supervisor's tasks changed: [json] is
+     * `{"tasks":[...],"processes":n,"processLimit":32}` as docs/05-API_SPEC.md
+     * describes. Diligent lists the running ones on the foreground notification
+     * and keeps the phone awake while any runs. JSON it cannot read is ignored.
+     */
+    @JavascriptInterface
+    fun diligentUpdateTasks(authToken: String, json: String) {
+        if (!security.validateToken(authToken)) return
+        diligent?.updateTasks(json)
+    }
+
+    /**
+     * A message from the kit engine (diligent-kit) about a Setup run started
+     * with `diligent.kit.add`: the step it is on, its latest output line, and
+     * how it ended. [json] is described in docs/05-API_SPEC.md. The Setup
+     * screen shows it live. JSON it cannot read is ignored.
+     */
+    @JavascriptInterface
+    fun diligentKitProgress(authToken: String, json: String) {
+        if (!security.validateToken(authToken)) return
+        diligent?.kitProgress(json)
+    }
+
+    /**
+     * The Health screen's checks as JSON, for `kit doctor`:
+     * `{"checks":[{"id","title","state":"pass|fail|unknown","detail"}]}`.
+     * Answered here, on the JavaBridge thread. A refused token, or a bridge
+     * without Diligent, answers the empty string.
+     */
+    @JavascriptInterface
+    fun diligentGetHealth(authToken: String): String {
+        if (!security.validateToken(authToken)) return ""
+        return diligent?.getHealth() ?: ""
+    }
+
+    /**
+     * [installToolchain] with the token first, so the kit engine reaches it
+     * through the relay's one Diligent branch (`installToolchain` itself is
+     * not on the relay). Same behaviour: starts the install and returns.
+     */
+    @JavascriptInterface
+    fun diligentInstallToolchain(authToken: String, name: String) {
+        if (!security.validateToken(authToken)) return
+        installToolchain(name, authToken)
+    }
+
+    /**
+     * [removeToolchain] with the token first, for the kit engine's `kit remove`
+     * through the relay's one Diligent branch. Same behaviour: starts the
+     * removal and returns.
+     */
+    @JavascriptInterface
+    fun diligentRemoveToolchain(authToken: String, name: String) {
+        if (!security.validateToken(authToken)) return
+        removeToolchain(name, authToken)
+    }
+
+    /**
+     * The phone's network now, `wifi`, `cellular` or `none`, for the AI
+     * suggestions' "only on Wi-Fi" setting (diligent/ai/NetworkType.kt).
+     * Answered here, on the JavaBridge thread. A refused token answers the
+     * empty string.
+     */
+    @JavascriptInterface
+    fun diligentNetworkType(authToken: String): String {
+        if (!security.validateToken(authToken)) return ""
+        return NetworkType.current(context)
+    }
+
+    /**
+     * The file in front in the editor changed, or its unsaved state did:
+     * [json] is `{"path":"<abs>"|null,"name":"<file name>"|null,"dirty":bool}`
+     * as docs/05-API_SPEC.md describes. Mobile view's file name chip shows it.
+     * JSON it cannot read is ignored.
+     */
+    @JavascriptInterface
+    fun diligentActiveFile(authToken: String, json: String) {
+        if (!security.validateToken(authToken)) return
+        diligent?.activeFile(json)
     }
 
     private fun getVersionName(): String {

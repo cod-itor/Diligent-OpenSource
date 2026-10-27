@@ -39,11 +39,15 @@ const registered = new Map();
 // User-level settings as the workbench keeps them: a key absent here is unset.
 const userSettings = new Map();
 const statusItems = [];
+// What activate subscribed to, so a test can fire the editor's events.
+const listeners = { activeEditor: [], documentChange: [], documentSave: [] };
 const vscodeStub = {
     ConfigurationTarget: { Global: 1, Workspace: 2 },
     StatusBarAlignment: { Left: 1, Right: 2 },
     l10n: { t: (s) => s },
     window: {
+        activeTextEditor: undefined,
+        onDidChangeActiveTextEditor: (fn) => { listeners.activeEditor.push(fn); return { dispose() {} }; },
         createStatusBarItem: (id, alignment, priority) => {
             const item = { id, alignment, priority, shown: false, show() { this.shown = true; }, hide() { this.shown = false; }, dispose() {} };
             statusItems.push(item);
@@ -51,6 +55,8 @@ const vscodeStub = {
         },
     },
     workspace: {
+        onDidChangeTextDocument: (fn) => { listeners.documentChange.push(fn); return { dispose() {} }; },
+        onDidSaveTextDocument: (fn) => { listeners.documentSave.push(fn); return { dispose() {} }; },
         getConfiguration: () => ({
             inspect: (key) => ({ key, globalValue: userSettings.get(key) }),
             update: async (key, value, target) => {
@@ -211,6 +217,45 @@ async function main() {
     await bridge.applyView('desktop', globalState, vscodeStub);
     assert.ok(!userSettings.has('workbench.statusBar.visible'), 'Mobile view\'s own value was restored as the user\'s');
 
+    // Mobile view on a phone: nothing above the code, the line numbers kept,
+    // Diligent's own themes.
+    for (const [key, value] of Object.entries({
+        'workbench.editor.showTabs': 'none',
+        'breadcrumbs.enabled': false,
+        'workbench.editor.editorActionsLocation': 'hidden',
+        'editor.minimap.enabled': false,
+        'editor.stickyScroll.enabled': false,
+        'editor.scrollBeyondLastLine': false,
+        'editor.lineNumbers': 'on',
+        'workbench.preferredDarkColorTheme': 'Diligent Mobile Dark',
+        'workbench.preferredLightColorTheme': 'Diligent Mobile Light',
+    })) {
+        assert.deepStrictEqual(bridge.MOBILE_SETTINGS[key], value, `Mobile view's ${key}`);
+    }
+    // A phone already in Mobile view before the update: a key the earlier
+    // version set, still at its value, takes the new one on the next page
+    // load; one the user changed in Mobile view keeps the user's; and Desktop
+    // view still restores the user's own value from before Mobile view.
+    userSettings.set('workbench.editor.showTabs', 'multiple');
+    userSettings.set('workbench.preferredDarkColorTheme', 'Monokai');
+    await bridge.applyView('mobile', globalState, vscodeStub);
+    userSettings.set('workbench.editor.showTabs', 'single');
+    userSettings.set('workbench.preferredLightColorTheme', 'Default Light Modern');
+    userSettings.set('workbench.preferredDarkColorTheme', 'Solarized Dark');
+    await bridge.applyView('mobile', globalState, vscodeStub);
+    assert.strictEqual(userSettings.get('workbench.editor.showTabs'), 'none', 'the earlier tab strip value was kept');
+    assert.strictEqual(userSettings.get('workbench.preferredLightColorTheme'), 'Diligent Mobile Light');
+    assert.strictEqual(userSettings.get('workbench.preferredDarkColorTheme'), 'Solarized Dark', 'a theme the user chose in Mobile view was replaced');
+    await bridge.applyView('desktop', globalState, vscodeStub);
+    assert.strictEqual(userSettings.get('workbench.editor.showTabs'), 'multiple', 'the user\'s tab strip was not restored');
+    assert.strictEqual(userSettings.get('workbench.preferredDarkColorTheme'), 'Monokai', 'the user\'s dark theme was not restored');
+    assert.ok(!userSettings.has('workbench.preferredLightColorTheme'));
+    userSettings.delete('workbench.editor.showTabs');
+    userSettings.delete('workbench.preferredDarkColorTheme');
+    for (const key of Object.keys(bridge.EARLIER_MOBILE_VALUES)) {
+        assert.ok(key in bridge.MOBILE_SETTINGS, `${key} has earlier values but is no longer a Mobile view key`);
+    }
+
     // Kotlin's messages run one at a time, in order, however long each takes.
     const log = [];
     const slow = (name, ms) => () => new Promise((r) => setTimeout(() => { log.push(name); r(name); }, ms));
@@ -260,6 +305,12 @@ async function main() {
     const androidBridge = {
         diligentEditorReady: (...a) => { calls.push(['diligentEditorReady', ...a]); },
         diligentEcho: (token, x, y) => { calls.push(['diligentEcho', token, x, y]); return `${x}+${y}`; },
+        diligentGetHealth: (token) => { calls.push(['diligentGetHealth', token]); return '{"checks":[]}'; },
+        diligentInstallToolchain: (token, name) => { calls.push(['diligentInstallToolchain', token, name]); },
+        diligentKitProgress: (token, json) => { calls.push(['diligentKitProgress', token, json]); },
+        diligentRemoveToolchain: (token, name) => { calls.push(['diligentRemoveToolchain', token, name]); },
+        diligentActiveFile: (token, json) => { calls.push(['diligentActiveFile', token, json]); },
+        diligentNetworkType: (token) => { calls.push(['diligentNetworkType', token]); return 'wifi'; },
         // Not a Diligent method: the branch must not reach it by name.
         reclaimSafMirror: () => { throw new Error('reached a VSCodroid method through the Diligent branch'); },
     };
@@ -300,6 +351,26 @@ async function main() {
     assert.ok(registered.has('diligent.switchToMobileView'), 'the contributed command is not registered');
     const manifest = JSON.parse(fs.readFileSync(path.join(path.dirname(EXTENSION), 'package.json'), 'utf8'));
     assert.deepStrictEqual(manifest.contributes.commands.map((c) => c.command), ['diligent.switchToMobileView']);
+    // Never lose work: auto-save one second after typing stops. A contributed
+    // default, in the DEFAULT layer, so the user's own choice in the Settings
+    // editor still wins (FirstRunSetup.writeDefaultSettings explains why the
+    // machine settings file cannot hold a preference).
+    assert.deepStrictEqual(manifest.contributes.configurationDefaults, {
+        'files.autoSave': 'afterDelay',
+        'files.autoSaveDelay': 1000,
+    });
+
+    // The two themes Mobile view names exist, under the ids it names.
+    const themeIds = (manifest.contributes.themes || []).map((t) => t.id);
+    assert.deepStrictEqual(themeIds.sort(), [bridge.MOBILE_SETTINGS['workbench.preferredDarkColorTheme'],
+        bridge.MOBILE_SETTINGS['workbench.preferredLightColorTheme']].sort());
+    for (const theme of manifest.contributes.themes) {
+        const file = JSON.parse(fs.readFileSync(path.join(path.dirname(EXTENSION), theme.path), 'utf8'));
+        assert.ok(/^#[0-9A-F]{6}$/i.test(file.colors['editor.background']), `${theme.id} has no editor background`);
+        assert.strictEqual(file.colors['editorGutter.background'], file.colors['editor.background'], `${theme.id}: the gutter is a seam`);
+        assert.strictEqual(file.type, theme.uiTheme === 'vs' ? 'light' : 'dark');
+    }
+    assert.ok(bridge.ALLOWED_COMMANDS.has('workbench.action.files.saveAll'), 'sync cannot save all files');
 
     for (const id of ['diligent.view.apply', 'diligent.mobile.showEditor', 'diligent.mobile.showTerminal']) {
         assert.ok(registered.has(id), `${id} is allowed but was not registered`);
@@ -323,8 +394,115 @@ async function main() {
     for (const name of bridge.BRIDGE_METHODS) {
         assert.ok(registered.has('diligent.bridge.' + name), `diligent.bridge.${name} was not registered`);
     }
+    // The kit engine's calls: getHealth's answer comes back to the caller,
+    // installToolchain arrives with the token first, progress is passed on.
+    for (const name of ['kitProgress', 'getHealth', 'installToolchain', 'removeToolchain', 'networkType']) {
+        assert.ok(bridge.BRIDGE_METHODS.includes(name), `${name} is not a bridge method`);
+        assert.ok((manifest.activationEvents || []).includes('onCommand:diligent.bridge.' + name),
+            `diligent.bridge.${name} does not activate the extension`);
+    }
+    assert.strictEqual(await registered.get('diligent.bridge.getHealth')(), '{"checks":[]}');
+    await registered.get('diligent.bridge.installToolchain')('java');
+    assert.deepStrictEqual(calls.at(-1), ['diligentInstallToolchain', 'test-token', 'java']);
+    await registered.get('diligent.bridge.removeToolchain')('java');
+    assert.deepStrictEqual(calls.at(-1), ['diligentRemoveToolchain', 'test-token', 'java']);
+    // diligent-ai's Wi-Fi gate gets the answer back.
+    assert.strictEqual(await registered.get('diligent.bridge.networkType')(), 'wifi');
+    assert.deepStrictEqual(calls.at(-1), ['diligentNetworkType', 'test-token']);
+    await registered.get('diligent.bridge.kitProgress')('{"runId":"r"}');
+    assert.deepStrictEqual(calls.at(-1), ['diligentKitProgress', 'test-token', '{"runId":"r"}']);
+    for (const id of ['diligent.kit.add', 'diligent.kit.cancel',
+        'editor.action.inlineSuggest.commit', 'editor.action.inlineSuggest.showNext']) {
+        assert.ok(bridge.ALLOWED_COMMANDS.has(id), `${id} is not allowed`);
+    }
+    for (const id of ['workbench.action.chat.open', 'workbench.extensions.search', 'diligent.mobile.attachSession']) {
+        assert.ok(bridge.ALLOWED_COMMANDS.has(id), `${id} is not allowed`);
+    }
+    for (const id of ['workbench.action.terminal.sendSequence', 'workbench.action.terminal.new']) {
+        assert.ok(!bridge.ALLOWED_COMMANDS.has(id), `${id} must not be allowed`);
+    }
+    // Attach: a diligent-ai-* session only, in a terminal of its own.
+    assert.ok(registered.has('diligent.mobile.attachSession'), 'attachSession is allowed but not registered');
+    const terminals = [];
+    const termApi = { window: { createTerminal: (opts) => {
+        const t = { opts, shown: false, sent: [], show() { this.shown = true; }, sendText(x) { this.sent.push(x); } };
+        terminals.push(t);
+        return t;
+    } } };
+    assert.strictEqual(bridge.attachSession('diligent-ai-claude-my_app2', termApi), true);
+    assert.deepStrictEqual(terminals[0].opts, { name: 'diligent-ai-claude-my_app2' });
+    assert.ok(terminals[0].shown);
+    assert.deepStrictEqual(terminals[0].sent, ["tmux attach -t '=diligent-ai-claude-my_app2'"]);
+    for (const bad of ['diligent-ai-', 'diligent-ai-x\'; rm -rf ~', 'diligent-ai-X', 'diligent-my-app-dev',
+        'diligent-ai-a b', 'diligent-ai-a\n', 'x-diligent-ai-a', 42, null, undefined]) {
+        assert.strictEqual(bridge.attachSession(bad, termApi), false, `${JSON.stringify(bad)} was attached`);
+    }
+    assert.strictEqual(terminals.length, 1, 'a refused name opened a terminal');
+
+    // Run: a diligent-* run name only, one terminal per run, its own script.
+    assert.ok(bridge.ALLOWED_COMMANDS.has('diligent.mobile.showRun'), 'showRun is not allowed');
+    assert.ok(registered.has('diligent.mobile.showRun'), 'showRun is allowed but not registered');
+    const runTerminals = [];
+    const runApi = { window: {
+        get terminals() { return runTerminals.filter((t) => !t.disposed); },
+        createTerminal: (opts) => {
+            const t = { opts, name: opts.name, shown: false, disposed: false, sent: [],
+                show() { this.shown = true; }, sendText(x) { this.sent.push(x); }, dispose() { this.disposed = true; } };
+            runTerminals.push(t);
+            return t;
+        },
+    } };
+    assert.strictEqual(bridge.showRun('diligent-my_app-dev', 'dev', runApi), true);
+    assert.deepStrictEqual(runTerminals[0].opts, { name: 'Run: dev' });
+    assert.ok(runTerminals[0].shown);
+    assert.deepStrictEqual(runTerminals[0].sent, [' clear; bash ~/.diligent/term/diligent-my_app-dev.sh']);
+    assert.strictEqual(bridge.showRun('diligent-my_app-dev', 'dev', runApi), true);
+    assert.ok(runTerminals[0].disposed, 'running again left the old terminal open');
+    assert.strictEqual(runApi.window.terminals.length, 1);
+    assert.strictEqual(bridge.showRun('diligent-a-b', 'x\u001b[2Jy\n', runApi), true);
+    assert.strictEqual(runTerminals.at(-1).name, 'Run: x[2Jy', 'control characters reached the title');
+    assert.strictEqual(bridge.showRun('diligent-a-b', 42, runApi), true);
+    assert.strictEqual(runTerminals.at(-1).name, 'Run: diligent-a-b');
+    const before = runTerminals.length;
+    for (const bad of ['diligent-', "diligent-x'; rm -rf ~", 'diligent-X', 'diligent-a b', 'diligent-a\n',
+        'x-diligent-a', '../diligent-a', 'diligent-a/../../b', 42, null, undefined]) {
+        assert.strictEqual(bridge.showRun(bad, 'x', runApi), false, `${JSON.stringify(bad)} was shown`);
+    }
+    assert.strictEqual(runTerminals.length, before, 'a refused name opened a terminal');
+
     await new Promise((resolve) => setTimeout(resolve, 100));
     assert.ok(calls.some((c) => c[0] === 'diligentEditorReady'), 'activate did not announce itself');
+
+    // ---- the active file, for the native file name chip --------------------
+
+    const doc = (scheme, p, isDirty = false) => ({ uri: { scheme, path: p }, isDirty });
+    assert.deepStrictEqual(JSON.parse(bridge.activeFileJson(undefined)), { path: null, name: null, dirty: false });
+    assert.deepStrictEqual(JSON.parse(bridge.activeFileJson({ document: doc('vscode-remote', '/p/src/app.js', true) })),
+        { path: '/p/src/app.js', name: 'app.js', dirty: true });
+    assert.deepStrictEqual(JSON.parse(bridge.activeFileJson({ document: doc('untitled', 'Untitled-1') })),
+        { path: null, name: 'Untitled-1', dirty: false });
+    // Ready was answered, so the file in front was sent once activate's handshake finished.
+    assert.deepStrictEqual(calls.filter((c) => c[0] === 'diligentActiveFile').at(-1),
+        ['diligentActiveFile', 'test-token', '{"path":null,"name":null,"dirty":false}']);
+    const shownDoc = doc('vscode-remote', '/p/a.py');
+    vscodeStub.window.activeTextEditor = { document: shownDoc };
+    listeners.activeEditor.forEach((fn) => fn(vscodeStub.window.activeTextEditor));
+    await settle();
+    assert.deepStrictEqual(calls.at(-1), ['diligentActiveFile', 'test-token', '{"path":"/p/a.py","name":"a.py","dirty":false}']);
+    // Typing: one message when the dot appears, not one per character.
+    const callsBefore = calls.length;
+    shownDoc.isDirty = true;
+    for (let i = 0; i < 3; i += 1) listeners.documentChange.forEach((fn) => fn({ document: shownDoc }));
+    // Another document changing does not reach the chip.
+    listeners.documentChange.forEach((fn) => fn({ document: doc('vscode-remote', '/p/b.py', false) }));
+    await settle();
+    assert.strictEqual(calls.length, callsBefore + 1, 'typing sent more than one active file message');
+    assert.deepStrictEqual(JSON.parse(calls.at(-1)[2]), { path: '/p/a.py', name: 'a.py', dirty: true });
+    shownDoc.isDirty = false;
+    listeners.documentSave.forEach((fn) => fn(shownDoc));
+    await settle();
+    assert.deepStrictEqual(JSON.parse(calls.at(-1)[2]).dirty, false, 'saving did not clear the dot');
+    vscodeStub.window.activeTextEditor = undefined;
     subscriptions.forEach((s) => s.dispose());
 
     console.log(`diligent bridge: allowlist (${kotlinSent.size} Kotlin commands), paths, view layouts, relay branch and ready handshake OK`);

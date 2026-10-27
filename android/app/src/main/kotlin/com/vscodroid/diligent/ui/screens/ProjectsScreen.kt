@@ -1,6 +1,7 @@
 package com.vscodroid.diligent.ui.screens
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -106,11 +107,22 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
     val projects by recent.projects.collectAsState()
     val scope = rememberCoroutineScope()
     var sheet by rememberSaveable { mutableStateOf<ProjectsSheet?>(null) }
+    // New project, then Start from a template: the Setup screen in this tab's place.
+    var setupOpen by rememberSaveable { mutableStateOf(false) }
     // Read once per change of the list: "2 hours ago" does not need to tick
     // while someone is looking at it.
     val now = remember(projects) { System.currentTimeMillis() }
 
     LaunchedEffect(recent) { recent.refresh() }
+
+    if (setupOpen) {
+        BackHandler { setupOpen = false }
+        Column(modifier.fillMaxSize().background(DiligentTheme.colors.background)) {
+            DetailHeader(stringResource(R.string.diligent_setup_header), onBack = { setupOpen = false })
+            SetupScreen(shell, actions, Modifier.weight(1f))
+        }
+        return
+    }
 
     ProjectsContent(
         projects = projects,
@@ -134,6 +146,7 @@ fun ProjectsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
             projectsDir = actions.projectsDir,
             onDismiss = close,
             onCreated = { path -> actions.openFolder(path) },
+            onTemplate = { setupOpen = true },
         )
         ProjectsSheet.Open -> OpenFolderSheet(actions, now, onDismiss = close)
         ProjectsSheet.Clone -> CloneSheet(
@@ -349,9 +362,12 @@ internal fun DiligentSheet(
     }
 }
 
-/** New project: a name, then an empty folder in the projects folder, then the editor opens it. */
+/**
+ * New project: a name, then an empty folder in the projects folder, then the
+ * editor opens it. Or [onTemplate], the Setup screen's recipes.
+ */
 @Composable
-private fun NewProjectSheet(projectsDir: String, onDismiss: () -> Unit, onCreated: (String) -> Unit) {
+private fun NewProjectSheet(projectsDir: String, onDismiss: () -> Unit, onCreated: (String) -> Unit, onTemplate: () -> Unit) {
     var name by rememberSaveable { mutableStateOf("") }
     var problem by remember { mutableStateOf<NameProblem?>(NameProblem.Empty) }
     var showEmpty by remember { mutableStateOf(false) }
@@ -395,6 +411,9 @@ private fun NewProjectSheet(projectsDir: String, onDismiss: () -> Unit, onCreate
                 }
             },
             onCancel = { hide {} },
+            // The keyboard waits for a tap on the name, so the template choice above it shows.
+            autoFocus = false,
+            onTemplate = { hide(onTemplate) },
         )
     }
 }

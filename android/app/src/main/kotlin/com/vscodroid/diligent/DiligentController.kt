@@ -1,7 +1,9 @@
 package com.vscodroid.diligent
 
 import android.content.Context
+import android.content.Intent
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -10,7 +12,10 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
@@ -22,9 +27,15 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
+import com.vscodroid.diligent.health.HealthReport
+import com.vscodroid.diligent.kit.KitProgress
+import com.vscodroid.diligent.kit.KitSession
+import com.vscodroid.diligent.files.RecentFiles
 import com.vscodroid.diligent.projects.RecentProjects
 import com.vscodroid.diligent.preview.PreviewActivity
 import com.vscodroid.diligent.run.ProjectRunner
@@ -36,6 +47,8 @@ import com.vscodroid.diligent.ui.TopChrome
 import com.vscodroid.diligent.ui.components.ViewSuggestionCard
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.screens.ChooseViewScreen
+import com.vscodroid.diligent.ui.screens.DetailHeader
+import com.vscodroid.diligent.ui.screens.HealthScreen
 import com.vscodroid.diligent.ui.theme.DiligentTheme
 import kotlinx.coroutines.launch
 
@@ -99,6 +112,11 @@ class DiligentController(
     }
     // -- end Run --
 
+    /** The Setup screen's run (diligent/kit), kept here so it outlives the screen. */
+    val kit by lazy {
+        KitSession(activity.lifecycleScope, send = { command, args -> editor.run(command, *args) })
+    }
+
     private var topBar: View? = null
     private var nativeScreens: View? = null
     private var bottomBars: View? = null
@@ -110,6 +128,7 @@ class DiligentController(
      * underneath, so the editor is ready by the time the user picks.
      */
     fun onLayoutReady() {
+        ShareKeeper.forgetStale(activity)
         attachChrome()
         attachSuggestion()
         if (!views.hasChosen) showViewChooser()
@@ -274,6 +293,26 @@ class DiligentController(
         }
     }
 
+    /**
+     * Press and hold on the code, then drag: the cursor moves like on a
+     * trackpad. Mobile view's Editor tab only, with no native screen over it.
+     */
+    private val cursorDrag by lazy {
+        CursorDragTouch(
+            activity = activity,
+            webView = webView,
+            enabled = { shell.view == AppView.Mobile && shell.tab == MobileTab.Editor && !shell.chrome.nativeScreen },
+            sendKey = host::sendKey,
+        )
+    }
+
+    /**
+     * Every touch of the window, from the activity's `dispatchTouchEvent`,
+     * before the views get it. True when a cursor drag owns it, and the
+     * activity must not deliver it.
+     */
+    fun consumeTouch(ev: MotionEvent): Boolean = cursorDrag.consume(ev)
+
     /** The soft keyboard came up or went down (from the extra key row's inset listener). */
     fun onImeVisibilityChanged(visible: Boolean) {
         shell.imeVisible = visible
@@ -310,6 +349,9 @@ class DiligentController(
         }
 
         override fun openFile(path: String) {
+            // The one place every way of opening a file passes: the all-files
+            // list and switcher, the Files tree, and Run's own files.
+            RecentFiles.of(activity).opened(shell.folder, path)
             editor.run("vscode.open", EditorPath(path))
             openTab(MobileTab.Editor)
         }
@@ -333,6 +375,12 @@ class DiligentController(
         override fun editorCommand(command: String, vararg args: Any?) = editor.run(command, *args)
         override val projectsDir: String get() = host.projectsDir
         override val run: RunControl get() = runner
+        override val kit: KitSession get() = this@DiligentController.kit
+
+        // The editor page is http://127.0.0.1:<port>/..., so the WebView's own
+        // address names the port without asking the activity.
+        override fun editorPort(): Int? =
+            webView()?.url?.toUri()?.takeIf { it.scheme == "http" && it.host == "127.0.0.1" }?.port?.takeIf { it > 0 }
     }
 
     /** What the `diligent*` bridge methods call. On the JavaBridge thread, so each hops. */
@@ -352,7 +400,88 @@ class DiligentController(
             }
         }
 
+        override fun updateTasks(json: String) {
+            // Parsed here, off the UI thread; text that does not parse is dropped.
+            val update = TaskUpdate.parse(json) ?: return
+            activity.runOnUiThread { onTasks(update) }
+        }
+
+        override fun kitProgress(json: String) {
+            val progress = KitProgress.parse(json) ?: return
+            activity.runOnUiThread { kit.onProgress(progress) }
+        }
+
+        override fun activeFile(json: String) {
+            val result = ActiveFile.parse(json) ?: return
+            activity.runOnUiThread {
+                shell.activeFile = (result as? ActiveFile.Result.File)?.file
+            }
+        }
+
+        // Answered on the JavaBridge thread, which the relay waits on: the
+        // reads are guarded system service calls and string resources, all
+        // safe off the UI thread, and quick.
+        override fun getHealth(): String = HealthReport.read(activity)
     }
+
+    /** The supervisor's tasks changed: the notification, the wake lock and Health follow. */
+    private fun onTasks(update: TaskUpdate) = TaskKeeper.update(activity, update)
+
+    /**
+     * An intent reached the activity (launch or `onNewIntent`): a Stop tapped
+     * on the task notification, or the notice after a killed task. Anything
+     * else is not Diligent's and is ignored.
+     */
+    fun onIntent(intent: Intent?) {
+        TaskKeeper.stopIds(intent).forEach { editor.run(TaskKeeper.COMMAND_STOP_TASK, it) }
+        if (intent?.action == TaskKeeper.ACTION_OPEN_HEALTH) openHealth()
+        // Share: Stop on the "Sharing on" notification, or a tap on it.
+        if (ShareKeeper.isStop(intent)) ShareKeeper.stop(activity)
+        if (ShareKeeper.isOpen(intent) && shell.view == AppView.Mobile) {
+            shell.shareRequested = true
+            actions.openTab(MobileTab.More)
+        }
+    }
+
+    /**
+     * Shows Health: in Mobile view as More's Health screen; in Desktop view,
+     * which has no tabs and is never switched for the user, over the editor
+     * until Back or the back arrow.
+     */
+    private fun openHealth() {
+        if (shell.view == AppView.Mobile) {
+            shell.healthRequested = true
+            actions.openTab(MobileTab.More)
+            return
+        }
+        if (healthOverlay != null) return
+        val overlay = ComposeView(activity)
+        val close = {
+            (overlay.parent as? ViewGroup)?.removeView(overlay)
+            healthOverlay = null
+        }
+        overlay.setContent {
+            DiligentTheme {
+                BackHandler { close() }
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .background(DiligentTheme.colors.background)
+                        .windowInsetsPadding(WindowInsets.safeDrawing),
+                ) {
+                    DetailHeader(stringResource(R.string.diligent_more_health), onBack = close)
+                    HealthScreen(onOpenRun = null, modifier = Modifier.weight(1f))
+                }
+            }
+        }
+        healthOverlay = overlay
+        activity.addContentView(
+            overlay,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
+        )
+    }
+
+    private var healthOverlay: View? = null
 
     companion object {
         /** Commands the diligent-bridge extension contributes and allows. */

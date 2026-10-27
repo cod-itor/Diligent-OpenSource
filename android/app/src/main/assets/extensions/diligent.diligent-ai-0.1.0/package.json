@@ -1,0 +1,126 @@
+{
+  "name": "diligent-ai",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.1.0",
+  "publisher": "diligent",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "diligent.ai.chooseProvider",
+        "title": "%command.chooseProvider%",
+        "category": "Diligent"
+      },
+      {
+        "command": "diligent.ai.setApiKey",
+        "title": "%command.setApiKey%",
+        "category": "Diligent"
+      },
+      {
+        "command": "diligent.ai.toggleProject",
+        "title": "%command.toggleProject%",
+        "category": "Diligent"
+      }
+    ],
+    "configuration": {
+      "title": "%config.title%",
+      "properties": {
+        "diligent.ai.provider": {
+          "type": "string",
+          "enum": [
+            "off",
+            "laptop",
+            "apikey"
+          ],
+          "enumDescriptions": [
+            "%config.provider.off%",
+            "%config.provider.laptop%",
+            "%config.provider.apikey%"
+          ],
+          "default": "off",
+          "scope": "application",
+          "description": "%config.provider%"
+        },
+        "diligent.ai.laptopUrl": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "markdownDescription": "%config.laptopUrl%"
+        },
+        "diligent.ai.laptopModel": {
+          "type": "string",
+          "default": "qwen2.5-coder:1.5b-base",
+          "scope": "application",
+          "description": "%config.laptopModel%"
+        },
+        "diligent.ai.apiFormat": {
+          "type": "string",
+          "enum": [
+            "openai",
+            "anthropic",
+            "gemini"
+          ],
+          "default": "openai",
+          "scope": "application",
+          "description": "%config.apiFormat%"
+        },
+        "diligent.ai.endpoint": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "description": "%config.endpoint%"
+        },
+        "diligent.ai.model": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "description": "%config.model%"
+        },
+        "diligent.ai.maxTokens": {
+          "type": "number",
+          "default": 64,
+          "minimum": 1,
+          "scope": "application",
+          "description": "%config.maxTokens%"
+        },
+        "diligent.ai.wifiOnly": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "description": "%config.wifiOnly%"
+        },
+        "diligent.ai.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "%config.enabled%"
+        },
+        "diligent.ai.contextBefore": {
+          "type": "number",
+          "default": 2000,
+          "minimum": 0,
+          "description": "%config.contextBefore%"
+        },
+        "diligent.ai.contextAfter": {
+          "type": "number",
+          "default": 500,
+          "minimum": 0,
+          "description": "%config.contextAfter%"
+        }
+      }
+    }
+  }
+}

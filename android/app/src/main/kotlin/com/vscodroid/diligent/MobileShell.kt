@@ -3,6 +3,7 @@ package com.vscodroid.diligent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.ui.components.TopBarStatus
 import com.vscodroid.diligent.ui.navigation.MobileTab
@@ -20,17 +21,23 @@ data class Chrome(
     val topBar: Boolean,
     /** A native screen (Projects, Files, More) covering the editor. */
     val nativeScreen: Boolean,
-    /** Run, Preview, Save, Search, Command palette, Undo, under the editor. */
+    /** Run, Preview, Save, Search, Command palette, Undo (the snapshot list), under the editor. */
     val actionBar: Boolean,
     /** The five tabs, at the bottom. */
     val tabBar: Boolean,
+    /**
+     * The top strip is the file name chip instead of the project bar: on the
+     * Editor tab, where nothing but the file's name sits above the code.
+     */
+    val fileChip: Boolean = false,
 )
 
 /**
  * The rules:
  * - Desktop view, or no view chosen yet: none of it. The screen is VSCodroid's.
  * - Mobile view: top bar and tab bar, the action bar on the Editor tab only, and
- *   a native screen over the editor on the tabs that are not the editor.
+ *   a native screen over the editor on the tabs that are not the editor. On the
+ *   Editor tab the top bar is only the file name chip.
  * - While the soft keyboard is up, the bars step aside so the editor keeps the
  *   height (the extra key row takes their place). A native screen stays, since
  *   the keyboard is then typing into it.
@@ -43,6 +50,7 @@ fun chromeFor(view: AppView?, tab: MobileTab, imeVisible: Boolean): Chrome {
         nativeScreen = !tab.showsEditor,
         actionBar = bars && tab == MobileTab.Editor,
         tabBar = bars,
+        fileChip = bars && tab == MobileTab.Editor,
     )
 }
 
@@ -65,6 +73,12 @@ class MobileShell(view: AppView?) {
     /** What the top bar says about the running task, or null when nothing runs. */
     var runStatus by mutableStateOf<TopBarStatus?>(null)
 
+    /** The file in front in the editor, for the file name chip, or null when none is. */
+    var activeFile by mutableStateOf<ActiveFile?>(null)
+
+    /** Set by the file name chip: the all-files switcher opens. */
+    var fileSwitcherOpen by mutableStateOf(false)
+
     /** Whether a task of the open project is running (the action bar shows Stop). */
     var running by mutableStateOf(false)
 
@@ -76,6 +90,18 @@ class MobileShell(view: AppView?) {
      * the More tab opens its Run screen directly and clears this.
      */
     var runRequested by mutableStateOf(false)
+
+    /**
+     * Set when the notification after a killed task is tapped: the More tab
+     * opens its Health screen directly and clears this.
+     */
+    var healthRequested by mutableStateOf(false)
+
+    /**
+     * Set by the top bar's Share and a tap on the "Sharing on" notification:
+     * the More tab opens its Share screen directly and clears this.
+     */
+    var shareRequested by mutableStateOf(false)
 
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
@@ -127,4 +153,10 @@ interface MobileActions {
 
     /** Run profiles of the open project: start, stop, watch, preview. */
     val run: RunControl
+
+    /** The Setup screen's run: a recipe through the kit engine. */
+    val kit: KitSession
+
+    /** The editor server's loopback port, for the Share screen, or null while it is not loaded. */
+    fun editorPort(): Int? = null
 }

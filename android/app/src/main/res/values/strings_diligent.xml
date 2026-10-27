@@ -23,6 +23,12 @@
     <string name="diligent_menu">Menu</string>
     <string name="diligent_no_project">No project open</string>
 
+    <!-- File name chip (Editor tab's top strip) -->
+    <string name="diligent_file_none">No file open</string>
+    <string name="diligent_file_unsaved">%1$s, unsaved changes</string>
+    <string name="diligent_file_show_all">Show all files</string>
+    <string name="diligent_file_menu">Project menu</string>
+
     <!-- Editor action bar -->
     <string name="diligent_action_run">Run</string>
     <string name="diligent_action_stop">Stop</string>
@@ -31,10 +37,13 @@
     <string name="diligent_action_search">Find</string>
     <string name="diligent_action_commands">Commands</string>
     <string name="diligent_action_undo">Undo</string>
+    <string name="diligent_action_accept_suggestion">Accept suggestion</string>
+    <string name="diligent_action_next_suggestion">Next suggestion</string>
 
     <!-- Top bar menu -->
     <string name="diligent_menu_desktop_view">Switch to Desktop view</string>
     <string name="diligent_menu_settings">Settings</string>
+    <string name="diligent_menu_share">Share to other devices</string>
 
     <!-- Placeholder while a screen is being built -->
     <string name="diligent_screen_projects">Your projects</string>
@@ -90,6 +99,12 @@
     <string name="diligent_run_open_config">Open run.json</string>
     <string name="diligent_run_log_empty">Nothing printed yet.</string>
     <string name="diligent_run_jump_to_end">Jump to the end</string>
+    <string name="diligent_run_offload_body">The phone is struggling with this one: it was closed for lack of memory, or it is taking a long time. Your laptop can run it instead.</string>
+    <string name="diligent_run_offload_action">Run on %1$s instead</string>
+    <string name="diligent_run_offload_not_now">Not now</string>
+    <string name="diligent_run_on_laptop">Runs on %1$s over SSH. Start copies the project there first.</string>
+    <string name="diligent_run_no_laptop">There is no laptop named %1$s. Add it in More, then Laptop, or change \"where\" in run.json.</string>
+    <string name="diligent_run_where_unknown">This version of Diligent cannot run a profile on \"%1$s\". Change \"where\" in run.json.</string>
     <string name="diligent_preview_reload">Reload</string>
     <string name="diligent_preview_open_browser">Open in browser</string>
     <string name="diligent_preview_close">Close preview</string>
@@ -112,11 +127,15 @@
     <string name="diligent_more_run">Run</string>
     <string name="diligent_more_run_body">Start and stop your project, read its log</string>
     <string name="diligent_more_setup">Setup</string>
-    <string name="diligent_more_setup_body">Install languages and tools</string>
+    <string name="diligent_more_setup_body">Start a project from a template</string>
+    <string name="diligent_more_laptop">Laptop</string>
+    <string name="diligent_more_laptop_body">Run heavy projects on your laptop over SSH</string>
     <string name="diligent_more_ai">AI</string>
     <string name="diligent_more_ai_body">Code together with an AI assistant</string>
     <string name="diligent_more_devices">Devices</string>
     <string name="diligent_more_devices_body">Pair your laptop and sync projects</string>
+    <string name="diligent_more_share">Share</string>
+    <string name="diligent_more_share_body">Open the editor or a preview on your other devices</string>
     <string name="diligent_more_health">Health</string>
     <string name="diligent_more_health_body">Check that everything works</string>
     <string name="diligent_more_settings">Settings</string>
@@ -188,6 +207,25 @@
     <string name="diligent_files_problem_into_itself">A folder cannot go inside itself.</string>
     <string name="diligent_files_problem_already_there">It is already in that folder.</string>
     <string name="diligent_files_problem_failed">That did not work. Check that there is space and try again.</string>
+    <!-- Files tab: All files, every file of the project in one list -->
+    <string name="diligent_files_mode_all">All files</string>
+    <string name="diligent_files_mode_folders">Folders</string>
+    <string name="diligent_files_search">Search files</string>
+    <string name="diligent_files_search_clear">Clear search</string>
+    <string name="diligent_files_recent">Opened recently</string>
+    <string name="diligent_files_top_folder">Top folder of the project</string>
+    <string name="diligent_files_row_description">%1$s, in %2$s</string>
+    <string name="diligent_files_no_match_title">No file matches \"%1$s\"</string>
+    <string name="diligent_files_no_match_body">Check the spelling, or type part of the file name or its folder.</string>
+    <string name="diligent_files_no_files_body">There are no files here yet. Switch to Folders and tap New to add one.</string>
+    <string name="diligent_files_list_unreadable">The files of this project could not be read.</string>
+    <string name="diligent_files_switcher_title">Go to a file</string>
+    <string name="diligent_files_switcher_close">Close</string>
+    <string name="diligent_files_switcher_no_project_body">Open a project first. Then you can jump to any of its files from here.</string>
+    <plurals name="diligent_files_capped">
+        <item quantity="one">This project is very big, so only the first %1$d file is listed. Use Folders to reach the rest.</item>
+        <item quantity="other">This project is very big, so only the first %1$d files are listed. Use Folders to reach the rest.</item>
+    </plurals>
 
     <!-- Projects tab -->
     <string name="diligent_projects_new">New project</string>
@@ -285,6 +323,222 @@
     <string name="diligent_view_desktop">Desktop view</string>
     <string name="diligent_view_desktop_body">The full VS Code layout, as on a computer. Best with a keyboard, a tablet or a big screen.</string>
     <string name="diligent_choose_view_footer">You can switch at any time, in Settings or the menu at the top.</string>
+
+    <!-- Running tasks: the foreground notification, and the notice after a task is killed -->
+    <string name="diligent_tasks_one_running">%1$s is running</string>
+    <plurals name="diligent_tasks_running">
+        <item quantity="one">%d task is running</item>
+        <item quantity="other">%d tasks are running</item>
+    </plurals>
+    <string name="diligent_task_label">%1$s (%2$s)</string>
+    <string name="diligent_task_line_running">%1$s: running</string>
+    <string name="diligent_task_line_restarting">%1$s: starting again</string>
+    <string name="diligent_task_stop">Stop %1$s</string>
+    <string name="diligent_task_stop_all">Stop all tasks</string>
+    <string name="diligent_task_channel">Task problems</string>
+    <string name="diligent_task_channel_description">When Android stops a task you started, and what to check.</string>
+    <string name="diligent_task_problem_stopped">%1$s stopped</string>
+    <string name="diligent_task_problem_restarting">%1$s was stopped and is starting again</string>
+    <string name="diligent_task_problem_text">%1$s Tap to open Health and see what to change.</string>
+    <string name="diligent_task_cause_low_memory">The phone ran low on memory.</string>
+    <string name="diligent_task_cause_process_limit">Android\'s limit on background processes was reached.</string>
+    <string name="diligent_task_cause_port_busy">Another program is using its port.</string>
+    <string name="diligent_task_cause_killed">Android closed it in the background.</string>
+    <string name="diligent_task_cause_exit">It ended with an error.</string>
+
+    <!-- Health -->
+    <string name="diligent_health_intro">These checks keep what you start running while the phone is in your pocket.</string>
+    <string name="diligent_health_pass">Passed</string>
+    <string name="diligent_health_fail">Needs a fix</string>
+    <string name="diligent_health_cannot_check">Cannot check</string>
+    <string name="diligent_health_check_again">Check again</string>
+    <string name="diligent_health_copy">Copy command</string>
+    <string name="diligent_health_copied">Copied</string>
+    <string name="diligent_health_unreadable">Diligent could not read this setting on this phone.</string>
+    <string name="diligent_health_battery">Battery optimization</string>
+    <string name="diligent_health_battery_pass">Android lets Diligent keep working in the background.</string>
+    <string name="diligent_health_battery_fail">Android may pause your tasks to save battery. In the list, choose All apps, then Diligent, then Don\'t optimize.</string>
+    <string name="diligent_health_children">Child process limit</string>
+    <string name="diligent_health_children_pass">Android will not stop the programs your tasks start.</string>
+    <string name="diligent_health_children_fail">Android may stop programs your tasks start, such as a dev server. Turn the limit off in Developer options:</string>
+    <string name="diligent_health_children_unknown">Diligent cannot read this setting on this phone. Check it in Developer options:</string>
+    <string name="diligent_health_children_steps">1. Open Settings, then About phone, and tap Build number seven times.\n2. Go back and open Developer options (under System on some phones).\n3. Turn on Disable child process restrictions.</string>
+    <string name="diligent_health_adb_body">Android 12 and 13 stop extra programs your tasks start once there are more than 32. Only a computer can lift this limit: turn on Wireless debugging in Developer options, connect with adb, then run these commands in order.</string>
+    <string name="diligent_health_notifications">Notifications</string>
+    <string name="diligent_health_notifications_pass">Diligent can show running tasks and tell you when one stops.</string>
+    <string name="diligent_health_notifications_fail">Diligent cannot show running tasks or tell you when one stops.</string>
+    <string name="diligent_health_storage">Free storage</string>
+    <string name="diligent_health_storage_pass">%1$s free.</string>
+    <string name="diligent_health_storage_fail">Only %1$s free. Installing packages and building need at least 1 GB.</string>
+    <string name="diligent_health_processes">Running processes</string>
+    <string name="diligent_health_processes_pass">%1$d of %2$d in use.</string>
+    <string name="diligent_health_processes_fail">%1$d of %2$d in use. Near the limit Android stops programs. Stop the tasks you do not need.</string>
+    <string name="diligent_health_processes_unknown">Counted while a project is open in the editor. Open one and check again.</string>
+    <string name="diligent_health_fix_battery">Open battery settings</string>
+    <string name="diligent_health_fix_developer">Open Developer options</string>
+    <string name="diligent_health_fix_notifications">Open notification settings</string>
+    <string name="diligent_health_fix_storage">Open storage settings</string>
+    <string name="diligent_health_fix_run">Open Run</string>
+
+    <!-- Setup (More, then Setup; and New project, then Start from a template) -->
+    <string name="diligent_setup_header">New project from a template</string>
+    <string name="diligent_setup_title">What do you want to build?</string>
+    <string name="diligent_setup_intro">Pick a starting point. Diligent installs what it needs and makes a project that runs.</string>
+    <string name="diligent_setup_none">No templates come with this version of the app yet. You can still start an empty project from Projects.</string>
+    <string name="diligent_setup_size">About %1$d MB</string>
+    <string name="diligent_setup_internet_no">No internet needed</string>
+    <string name="diligent_setup_internet_once">Internet once</string>
+    <string name="diligent_setup_internet_pack">Pack download</string>
+    <string name="diligent_setup_internet_no_body">Works without internet.</string>
+    <string name="diligent_setup_internet_once_body">Needs internet once, to download packages.</string>
+    <string name="diligent_setup_internet_pack_body">Downloads a language pack first, so it needs internet.</string>
+    <string name="diligent_setup_installs">What gets installed</string>
+    <string name="diligent_setup_pack">Language pack: %1$s</string>
+    <string name="diligent_setup_nothing_extra">Nothing extra. It uses what the app already has.</string>
+    <string name="diligent_setup_space">Space needed</string>
+    <string name="diligent_setup_space_body">About %1$d MB of free space.</string>
+    <string name="diligent_setup_space_unknown">A little free space.</string>
+    <string name="diligent_setup_low_space">Your phone has %1$s free. Free up some space first, or setup may fail.</string>
+    <string name="diligent_setup_steps">Steps</string>
+    <string name="diligent_setup_start">Start</string>
+    <string name="diligent_setup_running_title">Setting up %1$s</string>
+    <string name="diligent_setup_waiting">Getting started. The first step can take a moment while the editor starts.</string>
+    <string name="diligent_setup_leave_note">You can use other tabs while this runs. Come back here to see how it is going.</string>
+    <string name="diligent_setup_step_untitled">Step %1$d</string>
+    <string name="diligent_setup_step_pending">Waiting</string>
+    <string name="diligent_setup_step_running">Working</string>
+    <string name="diligent_setup_step_ok">Done</string>
+    <string name="diligent_setup_step_fail">Failed</string>
+    <string name="diligent_setup_latest">Latest output</string>
+    <string name="diligent_setup_cancel">Cancel</string>
+    <string name="diligent_setup_done_title">%1$s is ready</string>
+    <string name="diligent_setup_done_body">Your project is set up. Open it to look at the files, or run it to see it working.</string>
+    <string name="diligent_setup_open">Open project</string>
+    <string name="diligent_setup_run">Run</string>
+    <string name="diligent_setup_back">Back to templates</string>
+    <string name="diligent_setup_failed_title">Setup did not finish</string>
+    <string name="diligent_setup_failed_body">Something went wrong. Try again, or check Health in More.</string>
+    <string name="diligent_setup_timeout">The setup engine did not answer. Wait until the editor has finished starting, then try again.</string>
+    <string name="diligent_setup_try_again">Try again</string>
+    <string name="diligent_projects_template">Start from a template</string>
+    <string name="diligent_projects_template_body">A ready-made project that runs: a website, a React app, Python and more.</string>
+    <string name="diligent_projects_empty_choice">Or start with an empty folder:</string>
+
+    <!-- AI (More, then AI) -->
+    <string name="diligent_ai_intro">Run an AI agent in %1$s. Diligent saves a snapshot first, so you can undo what the agent changes.</string>
+    <string name="diligent_ai_no_project">Open a project first. AI agents work in the open project.</string>
+    <string name="diligent_ai_claude">Claude Code</string>
+    <string name="diligent_ai_claude_body">Anthropic\'s coding agent, as the claude command.</string>
+    <string name="diligent_ai_claude_install">Install the Claude Code extension from Extensions, then sign in from its panel. Diligent does not include Claude Code; the extension brings the claude command with it.</string>
+    <string name="diligent_ai_claude_find">Find Claude Code in Extensions</string>
+    <string name="diligent_ai_agy">Antigravity CLI</string>
+    <string name="diligent_ai_agy_body">Google\'s coding agent, as the agy command.</string>
+    <string name="diligent_ai_agy_install">Install it yourself in the Terminal with Google\'s official command:</string>
+    <string name="diligent_ai_agy_install_command" translatable="false">curl -fsSL https://antigravity.google/cli/install.sh | bash</string>
+    <string name="diligent_ai_agy_note">Diligent never runs installers for you. Google may not support Android yet; if agy does not start after installing, it cannot run on this phone.</string>
+    <string name="diligent_ai_copilot">Copilot Chat</string>
+    <string name="diligent_ai_copilot_body">GitHub Copilot Chat is built into the editor. It opens in the editor\'s chat view.</string>
+    <string name="diligent_ai_copilot_open">Open chat</string>
+    <string name="diligent_ai_status_checking">Checking</string>
+    <string name="diligent_ai_status_missing">Not installed</string>
+    <string name="diligent_ai_status_installed">Installed, version %1$s</string>
+    <string name="diligent_ai_status_running">Running, version %1$s</string>
+    <string name="diligent_ai_status_broken">Installed, but it did not start (code %1$d)</string>
+    <string name="diligent_ai_start">Start session</string>
+    <string name="diligent_ai_starting">Starting</string>
+    <string name="diligent_ai_attach">Attach</string>
+    <string name="diligent_ai_stop">Stop</string>
+    <string name="diligent_ai_undo">Undo changes since this session started</string>
+    <string name="diligent_ai_snapshot">Snapshot before the session: %1$s</string>
+    <string name="diligent_ai_start_title">Start %1$s?</string>
+    <string name="diligent_ai_start_body">Diligent saves a snapshot of the project first, so you can undo what the agent changes. If the folder is not a Git repository yet, this makes it one. The session keeps running when you leave this screen.</string>
+    <string name="diligent_ai_undo_title">Undo the agent\'s changes?</string>
+    <string name="diligent_ai_undo_body">Files go back to how they were when the %1$s session started. New files stay. Diligent saves a snapshot of how things are now first, so this can be undone from the snapshot list. Stop the agent first if it is still working.</string>
+    <string name="diligent_ai_undo_confirm">Undo changes</string>
+    <string name="diligent_ai_cancel">Cancel</string>
+    <string name="diligent_ai_copy">Copy command</string>
+    <string name="diligent_ai_copied">Copied</string>
+    <string name="diligent_ai_check_again">Check again</string>
+    <string name="diligent_ai_dismiss">OK</string>
+    <string name="diligent_ai_notice_no_tmux">tmux was not found, so sessions cannot run. Check Health in More.</string>
+    <string name="diligent_ai_notice_start_failed">The session did not start.</string>
+    <string name="diligent_ai_notice_snapshot_failed">The snapshot failed, so the session was not started.</string>
+    <string name="diligent_ai_notice_undone">Files are back to how they were when the session started.</string>
+    <string name="diligent_ai_notice_undo_failed">Undo failed. Try again, or use Undo in the editor to pick a snapshot.</string>
+
+    <!-- Share (More, then Share): the editor and previews over Tailscale -->
+    <string name="diligent_share_intro">Open this editor, or the app your project runs, in a browser on your laptop, tablet or other phone. It works over Tailscale, so only devices signed in to your own Tailscale network can connect.</string>
+    <string name="diligent_share_no_tailscale_title">Install Tailscale and sign in</string>
+    <string name="diligent_share_no_tailscale_body">Tailscale is a private network between your own devices. Install it on this phone and on the other device, sign in to both with the same account, turn it on, then come back here.</string>
+    <string name="diligent_share_get_tailscale">Get Tailscale</string>
+    <string name="diligent_share_no_store">No app store or browser can open the link. Search for Tailscale in your app store.</string>
+    <string name="diligent_share_check_again">Check again</string>
+    <string name="diligent_share_address">This phone on Tailscale: %1$s</string>
+    <string name="diligent_share_editor_title">Editor</string>
+    <string name="diligent_share_editor_body">The full editor in a browser. The link includes the editor\'s access key, so send it only to your own devices.</string>
+    <string name="diligent_share_editor_not_ready">The editor is still starting. Try again in a moment.</string>
+    <string name="diligent_share_start_editor">Share editor</string>
+    <string name="diligent_share_preview_title">Preview</string>
+    <string name="diligent_share_preview_body">The app your project is running, on port %1$d.</string>
+    <string name="diligent_share_preview_body_none">The app your project runs, once it is running.</string>
+    <string name="diligent_share_preview_none">Run a project with a preview to share it.</string>
+    <string name="diligent_share_start_preview">Share preview</string>
+    <string name="diligent_share_copy">Copy link</string>
+    <string name="diligent_share_copied">Link copied</string>
+    <string name="diligent_share_stop">Stop sharing</string>
+    <string name="diligent_share_qr">QR code for %1$s</string>
+    <string name="diligent_share_safety">Sharing is off until you turn it on. It turns off after 60 minutes without use, when Tailscale disconnects, or when you tap Stop sharing here or on the notification.</string>
+    <string name="diligent_share_no_token">The editor\'s access key is missing. Restart the editor, then try again.</string>
+    <string name="diligent_share_failed">Could not start sharing on the Tailscale address. Try again.</string>
+    <string name="diligent_share_stopped_idle">Sharing turned off after 60 minutes without use.</string>
+    <string name="diligent_share_stopped_tailscale">Sharing turned off because Tailscale disconnected.</string>
+    <string name="diligent_share_stopped_failed">Sharing stopped unexpectedly.</string>
+    <string name="diligent_share_channel">Sharing</string>
+    <string name="diligent_share_channel_description">Shown while the editor or a preview is open to your other devices.</string>
+    <string name="diligent_share_notification_title">Sharing on</string>
+    <string name="diligent_share_notification_editor">Editor at %1$s:%2$d</string>
+    <string name="diligent_share_notification_preview">Preview at %1$s:%2$d</string>
+
+    <!-- Laptop (More, then Laptop) -->
+    <string name="diligent_laptop_intro">Run heavy projects on your laptop and see them on the phone. The phone connects to the laptop with SSH, using a key instead of a password.</string>
+    <string name="diligent_laptop_step_ssh">1. Turn on SSH on the laptop</string>
+    <string name="diligent_laptop_ssh_macos">macOS: System Settings, General, Sharing, then turn on Remote Login.</string>
+    <string name="diligent_laptop_ssh_linux">Linux: install and start openssh-server, for example sudo apt install openssh-server.</string>
+    <string name="diligent_laptop_ssh_address">You need its address and your username on it. The address is its Wi-Fi IP address (macOS: System Settings, Wi-Fi, Details; Linux: hostname -I) or its Tailscale name. The username is what whoami prints in the laptop\'s terminal.</string>
+    <string name="diligent_laptop_step_key">2. Let the laptop accept this phone</string>
+    <string name="diligent_laptop_key_none">The phone needs an SSH key. Diligent uses the one in ~/.ssh, or makes one.</string>
+    <string name="diligent_laptop_make_key">Create or reuse key</string>
+    <string name="diligent_laptop_copy_key">Copy key</string>
+    <string name="diligent_laptop_key_command">Paste this line into a terminal on the laptop:</string>
+    <string name="diligent_laptop_copy_command">Copy command</string>
+    <string name="diligent_laptop_copied">Copied</string>
+    <string name="diligent_laptop_step_machines">3. Your laptops</string>
+    <string name="diligent_laptop_none">No laptop yet. Add one, then tap Test.</string>
+    <string name="diligent_laptop_add">Add laptop</string>
+    <string name="diligent_laptop_machine_line">%1$s, %2$s</string>
+    <string name="diligent_laptop_os_macos">macOS</string>
+    <string name="diligent_laptop_os_linux">Linux</string>
+    <string name="diligent_laptop_test">Test</string>
+    <string name="diligent_laptop_edit">Edit</string>
+    <string name="diligent_laptop_remove">Remove</string>
+    <string name="diligent_laptop_connected">Connected: %1$s</string>
+    <string name="diligent_laptop_found">found</string>
+    <string name="diligent_laptop_missing">missing</string>
+    <string name="diligent_laptop_tools">Node: %1$s. Git: %2$s.</string>
+    <string name="diligent_laptop_needs_git">Running on the laptop needs Git there. On macOS it comes with the Xcode Command Line Tools; on Linux, install the git package.</string>
+    <string name="diligent_laptop_unreachable">Can\'t reach %1$s. Is it awake and on the same network or Tailscale?</string>
+    <string name="diligent_laptop_key_refused">%1$s answered but did not accept the phone\'s key. Run the command above on the laptop, then test again.</string>
+    <string name="diligent_laptop_host_key_changed">%1$s answered with a different host key than before. If the laptop was reinstalled, remove its line from ~/.ssh/known_hosts in the terminal.</string>
+    <string name="diligent_laptop_form_name">Name</string>
+    <string name="diligent_laptop_form_bad_name">A short name on one line, for example mac.</string>
+    <string name="diligent_laptop_form_duplicate">Another laptop has this name.</string>
+    <string name="diligent_laptop_form_host">Address</string>
+    <string name="diligent_laptop_form_host_hint">Wi-Fi IP address or Tailscale name</string>
+    <string name="diligent_laptop_form_user">Username</string>
+    <string name="diligent_laptop_form_user_hint">Your login name on the laptop</string>
+    <string name="diligent_laptop_form_save">Save</string>
+    <string name="diligent_laptop_save_failed">Could not write ~/.diligent/machines.json.</string>
+    <string name="diligent_laptop_how_to_run">To run a project there, set \"where\": \"laptop:NAME\" in its .diligent/run.json, or tap Run on NAME instead on the Run screen when Diligent offers it.</string>
 
     <!-- Shared -->
     <string name="diligent_editor_starting">The editor is still starting. Try again in a moment.</string>

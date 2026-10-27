@@ -37,6 +37,14 @@ data class RunUiState(
     val saveFailed: Boolean = false,
     val log: List<String> = emptyList(),
     val webpackNote: Boolean = false,
+    /**
+     * For a profile running on a laptop: the phone's end of the forwarded
+     * port, which Preview opens. Null on the phone, where the profile's own
+     * port is the one.
+     */
+    val localPort: Int? = null,
+    /** The laptop the screen offers to run the active profile on instead ([OffloadHint]), or null. */
+    val offerLaptop: String? = null,
 ) {
     val profiles: List<RunProfile>
         get() = (config as? RunConfigState.Loaded)?.config?.profiles.orEmpty()
@@ -47,7 +55,13 @@ data class RunUiState(
     val isRunning: Boolean get() = status == RunStatus.Running
 
     /** The port to preview, while the active profile runs and has one. */
-    val previewPort: Int? get() = if (isRunning) activeProfile?.port else null
+    val previewPort: Int? get() = if (isRunning) shownPort else null
+
+    /** The port the phone reaches the active profile on: the forwarded one for a laptop. */
+    val shownPort: Int? get() = activeProfile?.port?.let { localPort ?: it }
+
+    /** Where the active profile runs. */
+    val where: RunWhere get() = activeProfile?.let { RunWhere.parse(it.where) } ?: RunWhere.Phone
 }
 
 /** What the Run screen and the action bar can ask of the runner. */
@@ -68,10 +82,25 @@ interface RunControl {
     /** Writes [profile] as the project's only profile in `run.json` (Accept, or Save from the form). */
     fun save(profile: RunProfile)
     fun dismissWebpackNote()
+
+    /** Moves the active profile to the laptop called [name] and starts it there. */
+    fun runOnLaptop(name: String)
+
+    /** "Not now" on the offload hint, for this session while the app runs. */
+    fun dismissOffload()
     fun openPreview()
 
     /** Opens `run.json` in the editor. */
     fun openConfig()
+
+    /**
+     * The action bar's Run: gets the active profile's output ready for a
+     * terminal, then calls [show] on the main thread with the run's session
+     * name and the profile's name. A script (no port, on the phone) runs in
+     * that terminal itself; a dev server, or a run on a laptop, is started
+     * as [start] does and its log is followed there.
+     */
+    fun showInTerminal(show: (session: String, label: String) -> Unit) = Unit
 }
 
 /** Which profile Start and Stop act on. */

@@ -191,8 +191,8 @@ The OAuth pair described a flow this app does not implement; see §2.5.
 Exposed via `@JavascriptInterface`:
 
 Every method takes the session token and validates it before doing anything; a call
-with a token that does not match is refused before the method acts. Thirty-one of
-the thirty-seven then return an empty value: `false`, `null`, `""`, `"{}"`, `"[]"`,
+with a token that does not match is refused before the method acts. Thirty-five of
+the forty-one then return an empty value: `false`, `null`, `""`, `"{}"`, `"[]"`,
 `0`, or nothing. **Six do not, and each is truthy on refusal.**
 `generateSshKey` returns `{"success":false,"error":"unauthorized"}`, so a caller
 testing `if (!result)` reads a refusal as success; test its `success` field.
@@ -208,7 +208,7 @@ with `"[]"`, and both are non-empty strings, so truthy until parsed. Read the to
 added without the check, so this holds for the class rather than for the list below.
 
 **Registered is not the same as reachable, and the difference decides what an extension
-can do.** All 37 methods below live on the `AndroidBridge` object injected into the
+can do.** All 41 methods below live on the `AndroidBridge` object injected into the
 workbench page, so anything running in that page's own realm can call them directly. An
 extension cannot: it runs in the web extension host, which does not see objects added by
 `addJavascriptInterface`. Extensions reach the bridge over the BroadcastChannel relay
@@ -812,7 +812,8 @@ fun toggleExtraKeyRow(authToken: String): Boolean
 Diligent's own methods, all named `diligentXxx` and all reached through the one relay
 branch described above, with the token first and then the call's `args` in order. Each
 is answered on the JavaBridge thread and hands its work to the UI thread through
-`DiligentBridgeHost`, so none of them blocks the page. The bundled extension
+`DiligentBridgeHost`, so none of them blocks the page; `diligentGetHealth` and
+`diligentNetworkType` are the exceptions that answer with data, read on the JavaBridge thread itself. The bundled extension
 `diligent.diligent-bridge` is their caller; it also runs editor commands for Kotlin, on
 `BroadcastChannel('diligent-events')`, for the commands on its allowlist only.
 
@@ -834,6 +835,87 @@ fun diligentSetView(authToken: String, view: String)
 // Diligent's Settings: stored per device, native screens and the editor layout
 // follow, no reload. Sent by diligent-bridge's "Diligent: Switch to Mobile view"
 // command and its status bar item. Any other value is ignored. Returns nothing.
+
+@JavascriptInterface
+fun diligentUpdateTasks(authToken: String, json: String)
+// The diligent-core supervisor's tasks, sent whenever they change. `json` is
+//   {"tasks":[{"id":"<tmux session>","name":"<profile name>",
+//              "project":"<project folder>",
+//              "state":"running|restarting|failed|stopped",
+//              "cause":"low-memory|process-limit|port-busy|killed|exit"|null,
+//              "message":"<plain sentence>"|null,"restarts":<n>}],
+//    "processes":<n>|null,"processLimit":32}
+// TaskKeeper lists the running and restarting tasks on the foreground
+// notification, each with a Stop that sends `diligent.core.stopTask(id)` back to
+// the editor, holds a partial wake lock while any of them runs, and posts a
+// notification that opens Health when a task is killed or fails for a named
+// cause. `processes` feeds Health's process count. Parsed defensively: text that
+// is not a JSON object with a `tasks` array is ignored, and a task without an
+// `id` or with an unknown `state` is skipped. Returns nothing; a refused token
+// does nothing.
+
+@JavascriptInterface
+fun diligentKitProgress(authToken: String, json: String)
+// The kit engine (diligent-kit) reports a Setup run started with
+// `diligent.kit.add(recipe, projectName)`, once per change. `json` is
+//   {"runId":"<id>","recipe":"<id>","project":"<abs path>",
+//    "step":{"index":<0-based>,"total":<n>,"title":"<text>",
+//            "state":"running|ok|fail"},
+//    "line":"<latest output line>"|null,
+//    "done":null|{"ok":true|false,"projectPath":"<abs>","message":"<plain sentence>"}}
+// The Setup screen shows the steps, the latest line and the result live. Kotlin
+// learns `runId` from the first message of a run it started (matched by recipe
+// and project folder name) and then ignores other runs, such as a `kit add` in
+// the terminal. Parsed defensively: text that is not a JSON object with a
+// `runId` is ignored, and an incomplete `step` or `done` is dropped. Cancel
+// sends `diligent.kit.cancel(runId)` back to the editor. Returns nothing; a
+// refused token does nothing.
+
+@JavascriptInterface
+fun diligentGetHealth(authToken: String): String
+// The Health screen's checks, for `kit doctor`:
+//   {"checks":[{"id":"battery|child-processes|child-processes-adb|notifications|storage|processes",
+//               "title":"<text>","state":"pass|fail|unknown","detail":"<plain sentence>"}]}
+// It answers with data, like diligentNetworkType: it is read on the JavaBridge
+// thread (guarded system service and settings reads, string resources) and
+// returned straight away, so the relay posts it as `data` to the caller. A
+// refused token answers the empty string.
+
+@JavascriptInterface
+fun diligentInstallToolchain(authToken: String, name: String)
+// `installToolchain(name, authToken)` with the token first, so the kit engine
+// can reach it through the one Diligent relay branch (`installToolchain` is
+// not on the relay). Starts the install and returns; nothing is reported
+// back. A refused token does nothing.
+
+@JavascriptInterface
+fun diligentRemoveToolchain(authToken: String, name: String)
+// `removeToolchain(name, authToken)` with the token first, for the kit engine's
+// `kit remove` (`executeCommand('diligent.bridge.removeToolchain', pack)`).
+// Starts the removal and returns; nothing is reported back. A refused token
+// does nothing.
+
+@JavascriptInterface
+fun diligentActiveFile(authToken: String, json: String)
+// The file in front in the editor, sent by diligent-bridge when the active text
+// editor changes, when that file gains or loses unsaved changes, and once after
+// each `diligentEditorReady`. `json` is
+//   {"path":"<abs path>"|null,"name":"<file name>"|null,"dirty":true|false}
+// `path` is null for an untitled file; all fields are null or false when no text
+// editor is active. Mobile view's Editor tab shows `name` in its file name chip,
+// with a dot while `dirty`. Repeats are not sent. Parsed defensively: text that is
+// not a JSON object is ignored. Returns nothing; a refused token does nothing.
+
+@JavascriptInterface
+fun diligentNetworkType(authToken: String): String
+// The phone's active network: "wifi" (Wi-Fi or Ethernet, or an unknown transport
+// Android reports as not metered), "cellular" (mobile data, also under a VPN, and
+// any other metered network) or "none" (no network that reaches the internet).
+// Read from ConnectivityManager on the JavaBridge thread and returned straight
+// away, like diligentGetHealth. The diligent-ai extension asks before each
+// suggestion request when "Suggestions only on Wi-Fi" is on, through
+// `executeCommand('diligent.bridge.networkType')`. A refused token answers the
+// empty string.
 ```
 
 ---

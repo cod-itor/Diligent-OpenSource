@@ -97,27 +97,129 @@ class RunScripts(
     fun statusPath(session: String) = "$logDir/$session.status"
 
     /**
+     * Where the supervisor (the `diligent.diligent-core` extension) finds the
+     * runs to keep alive: one `<session>.sh` per run started from Diligent.
+     */
+    val runsDir: String get() = "$homeDir/.diligent/runs"
+
+    fun runScriptPath(session: String) = "$runsDir/$session.sh"
+
+    /**
+     * Where the action bar's Run leaves what its terminal runs: the bridge
+     * extension's `diligent.mobile.showRun` runs `~/.diligent/term/<session>.sh`
+     * and nothing else.
+     */
+    val termDir: String get() = "$homeDir/.diligent/term"
+
+    fun terminalScriptPath(session: String) = "$termDir/$session.sh"
+
+    /** Writes [body] as [session]'s terminal script. */
+    fun writeTerminalScript(session: String, body: String): String =
+        "mkdir -p ${quote(termDir)} && printf '%s' ${quote(body)} > ${quote(terminalScriptPath(session))}"
+
+    /**
+     * A script, run in the terminal itself rather than in tmux: the screen
+     * is cleared, then only the program's output shows, and the program can
+     * read what the user types (Python's `input()`, a C program's `scanf`).
+     * When it ends, one dim line says how, and the output stays on screen.
+     */
+    fun inTerminal(projectDir: String, profile: RunProfile): String = buildList {
+        addAll(environment(projectDir, profile))
+        add("clear")
+        // A subshell, so a command that ends with `exit` ends only itself and
+        // the line saying how it ended still prints.
+        add("( ${profile.command}\n)")
+        add("diligent_code=\$?")
+        add("printf '\\n\\033[2m%s\\033[0m\\n' \"Finished with exit code \$diligent_code. Tap Run to run it again.\"")
+    }.joinToString("\n") + "\n"
+
+    /**
+     * A dev server's output in the terminal: the server stays in its
+     * supervised tmux session (restarted if it crashes), and the terminal
+     * follows its log from the start, so what shows is exactly what the
+     * server printed. The log's end marker becomes a plain sentence. Ctrl-C
+     * here stops following, not the server; Stop on the action bar stops it.
+     */
+    fun followLog(session: String, command: String): String = listOf(
+        "clear",
+        "printf '\\033[2m%s\\033[0m\\n' ${quote("Showing the output of: $command (Stop on the action bar stops it)")}",
+        "tail -n +2 -F ${quote(logPath(session))} 2>/dev/null | while IFS= read -r diligent_line; do",
+        "  case \"\$diligent_line\" in",
+        "    $EXIT_MARK*) printf '\\n\\033[2m%s\\033[0m\\n' \"Stopped with exit code \${diligent_line#$EXIT_MARK}.\" ;;",
+        "    *) printf '%s\\n' \"\$diligent_line\" ;;",
+        "  esac",
+        "done",
+    ).joinToString("\n") + "\n"
+
+    /**
      * Starts [profile] in [session] with [projectDir] as its working directory.
      * Does nothing when the session is already running. Exits 127 when tmux is
      * missing and 2 when the folder is gone.
+     *
+     * A new session also leaves its own launch script, [launch], at
+     * [runScriptPath], so the supervisor restarts a run with `bash <that file>`
+     * and never builds a start command of its own: one place decides how a run
+     * starts, with the quoting below.
      */
-    fun start(session: String, projectDir: String, profile: RunProfile): String {
-        val log = quote(logPath(session))
-        val target = quote("=$session")
-        return listOf(
-            "command -v tmux >/dev/null 2>&1 || { echo 'tmux was not found'; exit 127; }",
-            "[ -d ${quote(projectDir)} ] || { echo 'The project folder is missing'; exit 2; }",
-            "mkdir -p ${quote(logDir)} || exit 1",
-            "if tmux has-session -t $target 2>/dev/null; then exit 0; fi",
-            "rm -f ${quote(statusPath(session))}",
-            "printf '%s\\n' ${quote("[diligent] $ " + profile.command)} > $log",
-            "exec tmux new-session -d -s ${quote(session)} -c ${quote(projectDir)} " +
-                "${quote(shell)} -lc ${quote(inner(session, projectDir, profile))}",
-        ).joinToString("\n")
+    fun start(session: String, projectDir: String, profile: RunProfile): String =
+        lines(session, projectDir, profile, save = true).joinToString("\n")
+
+    /**
+     * The file the supervisor runs to restart [session]: the start script
+     * without the step that writes this file, under a first line
+     * `# diligent-run: {"dir":...,"name":...,"port":...}` naming the project
+     * folder, the profile and its port. The JSON is written by
+     * [RunConfig.jsonString], which escapes every line break, so a name cannot
+     * end the comment and become a command.
+     */
+    fun launch(session: String, projectDir: String, profile: RunProfile): String {
+        val meta = buildString {
+            append("{\"dir\":").append(RunConfig.jsonString(projectDir))
+            append(",\"name\":").append(RunConfig.jsonString(profile.name))
+            if (profile.port != null) append(",\"port\":").append(profile.port)
+            append('}')
+        }
+        return (listOf("$RUN_META$meta") + lines(session, projectDir, profile, save = false)).joinToString("\n") + "\n"
     }
 
-    /** What runs inside the session: environment, the command into the log, then the exit code into the status file. */
+    private fun lines(session: String, projectDir: String, profile: RunProfile, save: Boolean): List<String> {
+        val log = quote(logPath(session))
+        val target = quote("=$session")
+        return buildList {
+            add("command -v tmux >/dev/null 2>&1 || { echo 'tmux was not found'; exit 127; }")
+            add("[ -d ${quote(projectDir)} ] || { echo 'The project folder is missing'; exit 2; }")
+            add("mkdir -p ${quote(logDir)} || exit 1")
+            add("if tmux has-session -t $target 2>/dev/null; then exit 0; fi")
+            add("rm -f ${quote(statusPath(session))}")
+            if (save) {
+                add("mkdir -p ${quote(runsDir)} && printf '%s' ${quote(launch(session, projectDir, profile))} > ${quote(runScriptPath(session))}")
+            }
+            add("printf '%s\\n' ${quote("[diligent] $ " + profile.command)} > $log")
+            add(
+                "exec tmux new-session -d -s ${quote(session)} -c ${quote(projectDir)} " +
+                    "${quote(shell)} -lc ${quote(inner(session, projectDir, profile))}",
+            )
+        }
+    }
+
+    /**
+     * What runs inside the session: environment, the command into the log,
+     * then the exit code into the status file and, as the log's last line,
+     * `DILIGENT_EXIT:<code>`. A log that ends without that line belongs to a
+     * session that was killed (by Android, or by Stop) rather than one whose
+     * command ended, which is how the supervisor tells the two apart.
+     */
     internal fun inner(session: String, projectDir: String, profile: RunProfile): String = buildList {
+        addAll(environment(projectDir, profile))
+        // The newline before the brace lets the command end in a comment or a `;`.
+        add("{ ${profile.command}\n} 2>&1 | tee -ia ${quote(logPath(session))}")
+        add("diligent_code=\${PIPESTATUS[0]}")
+        add("printf 'exit %s\\n' \"\$diligent_code\" > ${quote(statusPath(session))}")
+        add("printf '$EXIT_MARK%s\\n' \"\$diligent_code\" >> ${quote(logPath(session))}")
+    }.joinToString("\n")
+
+    /** The project folder and the profile's environment, the same for every way a run starts. */
+    private fun environment(projectDir: String, profile: RunProfile): List<String> = buildList {
         // A login shell may cd elsewhere in .bash_profile; the command runs in the project.
         add("cd ${quote(projectDir)} || exit 2")
         add("export PYTHONUNBUFFERED=1")
@@ -126,10 +228,7 @@ class RunScripts(
             require(RunConfig.isEnvName(k)) { "not an environment variable name: $k" }
             add("export $k=${quote(v)}")
         }
-        // The newline before the brace lets the command end in a comment or a `;`.
-        add("{ ${profile.command}\n} 2>&1 | tee -ia ${quote(logPath(session))}")
-        add("printf 'exit %s\\n' \"\${PIPESTATUS[0]}\" > ${quote(statusPath(session))}")
-    }.joinToString("\n")
+    }
 
     /**
      * Stops [session]: Ctrl-C first, as a person at the terminal would, so a
@@ -178,11 +277,20 @@ class RunScripts(
         const val STOP_WAIT_STEPS = 30
         internal const val LOG_MARK = "@@diligent-log"
 
+        /** The log's last line when the command ended by itself: `DILIGENT_EXIT:<code>`. */
+        const val EXIT_MARK = "DILIGENT_EXIT:"
+
+        /** The first line of a saved launch script, before its JSON. */
+        const val RUN_META = "# diligent-run: "
+
+        private val EXIT_LINE = Regex("""^DILIGENT_EXIT:-?\d+$""")
+
         /** Reads what [poll] printed. A garbled answer reads as idle with no log rather than failing. */
         fun parsePoll(lines: List<String>): RunPoll {
             val mark = lines.indexOf(LOG_MARK)
             val head = if (mark < 0) lines else lines.subList(0, mark)
-            val log = if (mark < 0) emptyList() else lines.subList(mark + 1, lines.size).map(::cleanLogLine)
+            // The exit marker is for the supervisor; the screen shows the exit in its status.
+            val log = if (mark < 0) emptyList() else lines.subList(mark + 1, lines.size).map(::cleanLogLine).filterNot { EXIT_LINE.matches(it) }
             val sessions = head.filter { it.startsWith("session " + RunSession.PREFIX) }.map { it.removePrefix("session ") }.toSet()
             val status = head.lastOrNull { it.startsWith("status ") }?.removePrefix("status ")?.trim()
             return RunPoll(sessions, statusOf(status), log.takeLast(LOG_LINES))

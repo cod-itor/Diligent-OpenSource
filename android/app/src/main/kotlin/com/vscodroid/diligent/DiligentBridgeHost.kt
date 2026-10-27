@@ -14,4 +14,29 @@ interface DiligentBridgeHost {
 
     /** The editor asked for a view (`mobile` or `desktop`); anything else is ignored. */
     fun setView(view: String)
+
+    /**
+     * The supervisor's tasks, as JSON (see `diligentUpdateTasks` in
+     * docs/05-API_SPEC.md). Text that does not parse is ignored.
+     */
+    fun updateTasks(json: String)
+
+    /**
+     * A message from the kit engine about a Setup run, as JSON (see
+     * `diligentKitProgress` in docs/05-API_SPEC.md). Text that does not parse
+     * is ignored.
+     */
+    fun kitProgress(json: String)
+
+    /**
+     * The Health screen's checks as JSON (see `diligentGetHealth`), answered
+     * on the calling thread: the reads it makes are safe off the UI thread.
+     */
+    fun getHealth(): String
+
+    /**
+     * The editor's active file, as JSON (see `diligentActiveFile` in
+     * docs/05-API_SPEC.md). Text that does not parse is ignored.
+     */
+    fun activeFile(json: String)
 }

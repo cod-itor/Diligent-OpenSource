@@ -97,6 +97,12 @@ data class DiligentColors(
     /** A task that stopped with an error. Same as the scheme's error. */
     val failed: Color,
     val isDark: Boolean,
+    /**
+     * A QR code's modules and its background. Dark on light in both themes,
+     * because not every camera reads an inverted code.
+     */
+    val qrInk: Color = Palette.slateText,
+    val qrPaper: Color = Color.White,
 ) {
     val primary get() = scheme.primary
     val onPrimary get() = scheme.onPrimary
@@ -248,6 +254,8 @@ data class DiligentSizes(
     val iconSmall: Dp = 18.dp,
     val iconLarge: Dp = 32.dp,
     val topBar: Dp = 56.dp,
+    /** The file name chip's visible height; its touch target is still [touchTarget]. */
+    val chip: Dp = 32.dp,
     val tabBar: Dp = 64.dp,
     val actionBar: Dp = 56.dp,
     val statusDot: Dp = 8.dp,
@@ -256,6 +264,8 @@ data class DiligentSizes(
     val splitMinWidth: Dp = 600.dp,
     /** How wide a dialog-like sheet grows before it stops. */
     val sheetMaxWidth: Dp = 560.dp,
+    /** The widest a QR code is drawn: big enough for a laptop webcam to read. */
+    val qrCode: Dp = 280.dp,
 )
 
 /** Corner shapes, from a chip up to a large card. */

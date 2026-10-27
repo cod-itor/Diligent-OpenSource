@@ -10,6 +10,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.os.SystemClock
 import androidx.core.app.NotificationCompat
+import com.vscodroid.diligent.TaskKeeper
 import androidx.core.app.ServiceCompat
 import com.vscodroid.R
 import com.vscodroid.VSCodroidApp
@@ -203,6 +204,7 @@ class NodeService : Service() {
         Logger.i(tag, "Service created")
         processManager = ProcessManager(this)
         setupProcessCallbacks()
+        TaskKeeper.attach(::refreshNotification) // Diligent: running tasks on this card
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -291,6 +293,7 @@ class NodeService : Service() {
     override fun onDestroy() {
         Logger.i(tag, "Service destroying")
         isServiceRunning = false
+        TaskKeeper.detach() // Diligent
         // Scope first, then the process (the same order [shutdown] uses), for the
         // reason it writes down: a coroutine still inside the readiness poll
         // would otherwise get a window in which it can observe a server being
@@ -1347,6 +1350,8 @@ class NodeService : Service() {
             // Not in tension with setSilent above: that governs whether it makes
             // a sound, this governs whether it waits.
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+
+        if (serverRunning) TaskKeeper.decorate(this, builder, text) // Diligent: running tasks, each with a Stop
 
         // On both cards. On the stopped one it is the only route back: see the
         // KDoc above for what was measured about sending it at a reclaimed

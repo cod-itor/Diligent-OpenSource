@@ -20,9 +20,11 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Devices
+import androidx.compose.material.icons.outlined.Laptop
 import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,7 +59,7 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /**
  * Mobile view's More tab: a list of everything that is not one of the four
- * main tabs, and the screens it opens (Run, Settings) in its own place.
+ * main tabs, and the screens it opens (Run, Setup, Laptop, AI, Share, Health, Settings) in its own place.
  *
  * Which entry is open is the tab's own small back stack, one level deep:
  * the list, or one detail with a back arrow. It is saved across recreation
@@ -83,6 +85,18 @@ fun MoreScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = 
         if (shell.runRequested) {
             detail = MoreDetail.Run
             shell.runRequested = false
+        }
+    }
+    LaunchedEffect(shell.shareRequested) {
+        if (shell.shareRequested) {
+            detail = MoreDetail.Share
+            shell.shareRequested = false
+        }
+    }
+    LaunchedEffect(shell.healthRequested) {
+        if (shell.healthRequested) {
+            detail = MoreDetail.Health
+            shell.healthRequested = false
         }
     }
     MoreContent(
@@ -114,6 +128,11 @@ private fun MoreContent(
                 Box(Modifier.weight(1f)) {
                     when (detail) {
                         MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack)
+                        MoreDetail.Setup -> SetupScreen(shell, actions)
+                        MoreDetail.Laptop -> LaptopScreen()
+                        MoreDetail.AI -> AiScreen(shell, actions)
+                        MoreDetail.Share -> ShareScreen(shell, actions)
+                        MoreDetail.Health -> HealthScreen(onOpenRun = { onOpen(MoreDetail.Run) })
                         MoreDetail.Settings -> SettingsScreen(shell, actions)
                     }
                 }
@@ -161,9 +180,9 @@ private fun MoreList(onOpen: (MoreDetail) -> Unit) {
     }
 }
 
-/** A detail's own small bar: back to the list, and what this screen is. */
+/** A detail's own small bar: back to the list, and what this screen is. Also Health's, over Desktop view. */
 @Composable
-private fun DetailHeader(title: String, onBack: () -> Unit) {
+internal fun DetailHeader(title: String, onBack: () -> Unit) {
     Column {
         Row(
             modifier = Modifier
@@ -201,8 +220,10 @@ private val MoreItem.title: Int
     get() = when (this) {
         MoreItem.Run -> R.string.diligent_more_run
         MoreItem.Setup -> R.string.diligent_more_setup
+        MoreItem.Laptop -> R.string.diligent_more_laptop
         MoreItem.AI -> R.string.diligent_more_ai
         MoreItem.Devices -> R.string.diligent_more_devices
+        MoreItem.Share -> R.string.diligent_more_share
         MoreItem.Health -> R.string.diligent_more_health
         MoreItem.Settings -> R.string.diligent_more_settings
     }
@@ -212,8 +233,10 @@ private val MoreItem.subtitle: Int
     get() = when (this) {
         MoreItem.Run -> R.string.diligent_more_run_body
         MoreItem.Setup -> R.string.diligent_more_setup_body
+        MoreItem.Laptop -> R.string.diligent_more_laptop_body
         MoreItem.AI -> R.string.diligent_more_ai_body
         MoreItem.Devices -> R.string.diligent_more_devices_body
+        MoreItem.Share -> R.string.diligent_more_share_body
         MoreItem.Health -> R.string.diligent_more_health_body
         MoreItem.Settings -> R.string.diligent_more_settings_body
     }
@@ -227,8 +250,10 @@ private val MoreItem.icon: ImageVector
     get() = when (this) {
         MoreItem.Run -> Icons.Outlined.PlayArrow
         MoreItem.Setup -> Icons.Outlined.Build
+        MoreItem.Laptop -> Icons.Outlined.Laptop
         MoreItem.AI -> Icons.Outlined.AutoAwesome
         MoreItem.Devices -> Icons.Outlined.Devices
+        MoreItem.Share -> Icons.Outlined.Share
         MoreItem.Health -> Icons.Outlined.MonitorHeart
         MoreItem.Settings -> Icons.Outlined.Settings
     }

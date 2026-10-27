@@ -3,10 +3,13 @@ package com.vscodroid.diligent.ui.screens
 import com.vscodroid.diligent.AppView
 import com.vscodroid.diligent.DeviceFolder
 import com.vscodroid.diligent.MobileActions
+import com.vscodroid.diligent.kit.KitSession
 import com.vscodroid.diligent.run.RunControl
 import com.vscodroid.diligent.run.RunProfile
 import com.vscodroid.diligent.run.RunUiState
 import com.vscodroid.diligent.ui.navigation.MobileTab
+import kotlinx.coroutines.CoroutineScope
+import kotlin.coroutines.EmptyCoroutineContext
 
 /** [MobileActions] that do nothing, for `@Preview`s. */
 internal object PreviewActions : MobileActions {
@@ -23,6 +26,7 @@ internal object PreviewActions : MobileActions {
     override fun editorCommand(command: String, vararg args: Any?) = Unit
     override val projectsDir: String = "/home/projects"
     override val run: RunControl = PreviewRun(RunUiState())
+    override val kit: KitSession = KitSession(CoroutineScope(EmptyCoroutineContext), send = { _, _ -> })
 }
 
 /** [PreviewActions] with the Run screen in [state]. */
@@ -38,6 +42,8 @@ internal class PreviewRun(override val state: RunUiState) : RunControl {
     override fun stop() = Unit
     override fun save(profile: RunProfile) = Unit
     override fun dismissWebpackNote() = Unit
+    override fun runOnLaptop(name: String) = Unit
+    override fun dismissOffload() = Unit
     override fun openPreview() = Unit
     override fun openConfig() = Unit
 }

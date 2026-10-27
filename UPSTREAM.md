@@ -74,9 +74,10 @@ resolve them by keeping both sides' intent:
 | `android/app/src/main/assets/server.js` | `nameShort` and `nameLong` in `productOverrides` |
 | `scripts/verify-server-tree.py`, `scripts/test-server-bootstrap.js` | Expect the name Diligent |
 | `LICENSE` | Diligent's copyright line under VSCodroid's |
-| `android/gradle/libs.versions.toml`, `android/build.gradle.kts`, `android/app/build.gradle.kts` | Compose, Material 3 and `androidx.window` |
+| `android/gradle/libs.versions.toml`, `android/build.gradle.kts`, `android/app/build.gradle.kts` | Compose, Material 3, `androidx.window`, and ZXing core (`com.google.zxing:core`, the Share screen's QR code) |
 | `android/app/src/main/kotlin/com/vscodroid/setup/FirstRunSetup.kt` | `isOwnExtension()`: `diligent.diligent-*` extensions count as the app's own |
 | `.gitignore`, `scripts/check-extension-updates.py` | `diligent.diligent-*` extensions are committed and need a version bump on change |
+| `android/app/src/main/kotlin/com/vscodroid/setup/FirstRunSetup.kt`, `SplashActivity.kt` | `KIT_BLOCK` (the `kit` shell function) in the new `.bashrc`, and `ensureKitFunction()` run at every launch to append it to an existing one |
 
 Add a row whenever a phase edits another VSCodroid file.
 
@@ -85,10 +86,14 @@ Add a row whenever a phase edits another VSCodroid file.
 VSCodroid's `versionCode` drives the data migrations in `FirstRunSetup.kt`.
 Do not reset or offset it without reading those migrations first;
 `AGENT_GUIDE.md` Phase 7 settles Diligent's version scheme.
-| `android/app/src/main/kotlin/com/vscodroid/MainActivity.kt` | Holds a `DiligentController` (with a small `DiligentActivityHost` for opening folders), calls its `onLayoutReady()` after `setContentView`, tells it about the keyboard (`onImeVisibilityChanged`) and the open folder (`rememberWorkspaceFolder`), passes its bridge host to `AndroidBridge`, and one relay branch forwards `diligent*` commands. `recreateWebView` re-adds the WebView to `editorFrame`. Back asks `diligent.onBack()` first. `onConfigurationChanged` tells it the screen changed (big screen suggestion) |
-| `android/app/src/main/kotlin/com/vscodroid/bridge/AndroidBridge.kt` | `diligent` constructor parameter and the `diligentEditorReady` and `diligentSetView` methods |
+| `android/app/src/main/kotlin/com/vscodroid/MainActivity.kt` | Holds a `DiligentController` (with a small `DiligentActivityHost` for opening folders), calls its `onLayoutReady()` after `setContentView`, tells it about the keyboard (`onImeVisibilityChanged`) and the open folder (`rememberWorkspaceFolder`), passes its bridge host to `AndroidBridge`, and one relay branch forwards `diligent*` commands. `recreateWebView` re-adds the WebView to `editorFrame`. Back asks `diligent.onBack()` first. `onConfigurationChanged` tells it the screen changed (big screen suggestion). `onCreate` and `onNewIntent` pass the intent to `diligent.onIntent` (the task notification's Stop, and opening Health). `dispatchTouchEvent` asks `diligent.consumeTouch` first (Mobile view's press-and-drag cursor), and the host's `sendKey` presses a key through the extra key row's `KeyInjector` |
+| `android/app/src/main/kotlin/com/vscodroid/bridge/AndroidBridge.kt` | `diligent` constructor parameter and the `diligentEditorReady`, `diligentSetView`, `diligentUpdateTasks`, `diligentKitProgress`, `diligentGetHealth`, `diligentInstallToolchain`, `diligentRemoveToolchain`, `diligentNetworkType` and `diligentActiveFile` methods (the toolchain two delegate to `installToolchain` and `removeToolchain` with the token first; `diligentNetworkType` asks `diligent/ai/NetworkType.kt`) The body of `generateSshKey` moved unchanged into the top-level `generateSshKeyIn(context, comment)`, which the method calls after its token check, so the Laptop screen creates or reuses the same key from Kotlin |
 | `android/app/src/test/.../bridge/BridgeTokenUniformityTest.kt` | Watches the `diligent` collaborator |
 | `docs/05-API_SPEC.md` | The Diligent relay branch and methods |
-| `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js` |
+| `docs/PRIVACY_POLICY.md` | Names Diligent's `WAKE_LOCK` and `ACCESS_NETWORK_STATE` permissions and what AI suggestions send |
+| `.github/workflows/lint.yml`, `.github/workflows/release.yml` | Run `scripts/test-diligent-bridge.js`, `scripts/test-diligent-core.js`, `scripts/test-diligent-kit.js` and `scripts/test-diligent-ai.js` |
 | `android/app/src/main/res/layout/activity_main.xml` | The WebView sits in an `editorFrame` FrameLayout, so Mobile view's native screens can cover it without resizing it |
-| `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app |
+| `android/app/src/main/AndroidManifest.xml` | Declares `diligent.preview.PreviewActivity` (not exported), Mobile view's preview of the running app, the `WAKE_LOCK` permission `diligent/TaskKeeper.kt` holds while a task runs, and `ACCESS_NETWORK_STATE` for `diligent/ai/NetworkType.kt` |
+| `android/app/src/main/kotlin/com/vscodroid/service/NodeService.kt` | Three one-line calls into `diligent/TaskKeeper.kt`: `attach` in `onCreate`, `detach` in `onDestroy`, and `decorate` in `createNotification`, which lists the running tasks with a Stop each on the running card |
+| `NOTICE.md` | A ZXing row under Core Components, for the QR code on the Share screen |
+| `scripts/build-termux-exec.sh` | Fetches Chromium's LICENSE from chromium.googlesource.com (base64, decoded, same pin): raw.githubusercontent.com keeps answering 429 for that mirror |

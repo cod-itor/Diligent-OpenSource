@@ -2101,6 +2101,25 @@ class FirstRunSetup(
     }
 
     /**
+     * Diligent: adds the `kit` command ([KIT_BLOCK]) to a `.bashrc` written
+     * before it existed. [createBashrc] only runs on a fresh file, so this is
+     * what reaches existing installs. Appended whole through a temporary file,
+     * like [ensureToolchainEnvSourcing], and the user's bytes go through as
+     * they were.
+     */
+    fun ensureKitFunction() {
+        val bashrc = File(context.filesDir, "home/.bashrc")
+        if (!bashrc.exists()) return
+        val existing = bashrc.readBytes()
+        if (String(existing, Charsets.ISO_8859_1).contains(KIT_MARKER)) return
+        if (writeAtomically(bashrc) { it.write(existing); it.write(("\n" + KIT_BLOCK).toByteArray()) }) {
+            Logger.i(tag, "Appended the kit command to .bashrc")
+        } else {
+            Logger.w(tag, "Could not append the kit command; .bashrc is unchanged")
+        }
+    }
+
+    /**
      * Writes the file `BASH_ENV` points at, which is what gives a NON-interactive
      * shell the commands the terminal has.
      *
@@ -2987,7 +3006,7 @@ claude() {
 
             # On-demand toolchain env vars
             [ -f "${'$'}HOME/.vscodroid/toolchain-env.sh" ] && . "${'$'}HOME/.vscodroid/toolchain-env.sh"
-        """.trimIndent() + "\n\n" + STARTUP_DIR_BLOCK + "\n"
+        """.trimIndent() + "\n\n" + KIT_BLOCK + "\n" + STARTUP_DIR_BLOCK + "\n"
         return writeAtomically(bashrc) { it.write(initial.toByteArray()) }
     }
 
@@ -4588,6 +4607,11 @@ claude() {
  * moved the repair would silently stop recognising its own output.
  */
 private const val BASHRC_HEADER = "# VSCodroid bash configuration"
+
+/** Diligent: the `kit` command, run by the diligent-kit extension's copy of kit.js. */
+internal const val KIT_MARKER = "# Diligent: kit"
+internal const val KIT_BLOCK = "$KIT_MARKER\n" +
+    "kit() { node \"\$HOME/.diligent/kit/kit.js\" \"\$@\"; }\n"
 
 /**
  * What opens the file `BASH_ENV` names.

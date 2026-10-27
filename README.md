@@ -15,6 +15,7 @@
   <a href="#what-diligent-is">What it is</a> •
   <a href="#two-views-you-choose">Two views</a> •
   <a href="#features">Features</a> •
+  <a href="#privacy-and-safety">Privacy and safety</a> •
   <a href="#status">Status</a> •
   <a href="#building-from-source">Build</a> •
   <a href="#credits">Credits</a> •
@@ -24,8 +25,10 @@
 ---
 
 > [!NOTE]
-> Diligent is in early development and has no release yet. To try it, build it from source
-> (see [Building from source](#building-from-source)).
+> Diligent is in early development and has no release yet. Phases 1 to 4 are built and pass
+> their automated tests, but they have not been tried on a phone yet, so expect rough edges.
+> To try it, install the `debug-apk` artifact of the **Build** workflow, or build it from
+> source (see [Building from source](#building-from-source)).
 
 ## What Diligent is
 
@@ -65,27 +68,83 @@ From VSCodroid, unchanged:
 - **On-demand languages**: Ruby, Java and C/C++.
 - **Extra Key Row**: Ctrl, Alt, Tab, Esc, F1 to F12, symbols and a cursor trackpad.
 
-Added by Diligent (see [Status](#status) for what is built so far):
+Added by Diligent:
 
-- **Mobile view** with a native top bar, bottom tabs and an action bar (Run, Preview, Save,
-  Search, Command palette, Undo).
-- **Projects and Files** screens: recent projects, clone from Git, a native file tree.
-- **Run and Preview**: run profiles per project, logs, and a preview of your dev server.
-- Later: a setup center, running on your laptop over SSH, AI agents, and pairing and sync with
-  Diligent's desktop and iPhone companions.
+**Mobile view**
+
+- A native top bar, bottom tabs (Projects, Files, Editor, Terminal, More) and an action bar
+  under the editor: Run or Stop, Preview, Save, Find, Commands, Undo, plus Accept and Next for
+  AI suggestions.
+- **Projects**: recent projects with their language, New project, Open folder and Clone from
+  Git, with live progress and a Stop that never leaves a half-cloned folder behind.
+- **Files**: a native file tree to create, rename, move and delete files and folders.
+- **Run and Preview**: Diligent finds how to start a project (`npm run dev`, Flask, FastAPI and
+  more), runs it in the background with a live log, and previews it inside the app.
+- **Settings**: switch between Mobile and Desktop view at any time. Desktop view gets a
+  "Mobile view" button to come back, and a big screen or Samsung DeX may suggest Desktop view.
+
+**Reliability**
+
+- A supervisor restarts a crashed dev server by itself and says why it stopped: low memory,
+  Android's background process limit, a busy port, or Android closing it. It gives up after
+  five failures in ten minutes.
+- A notification lists running tasks with Stop, and the phone stays awake only while one runs.
+- **Health** (More, then Health): checks battery optimisation, Android's background process
+  limit, notifications, storage and process count, each with a Fix button.
+- **Snapshots**: the project is saved to a private Git ref every ten minutes, without touching
+  your branch, staging area or files. Undo opens the list and restores one.
+- Auto-save one second after you stop typing (you can turn it off in Settings).
+
+**Setup center**
+
+- "What do you want to build?": nine ready templates (web page, React with Vite, Next.js,
+  Express API, Python, Python for data, Java, C/C++, Ruby) with live progress.
+- The same in the terminal: `kit list`, `kit add nextjs my-app`, `kit doctor`, `kit remove`.
+- Space, internet and tools are checked before anything starts, with a plain message saying
+  what is missing.
+
+**Laptop, AI and sharing**
+
+- **Run on laptop** (More, then Laptop): pair a Mac or Linux laptop over SSH, then run a
+  profile there. Diligent syncs the project with Git, starts it, and previews it on the phone.
+- **AI agents** (More, then AI): Claude Code and Antigravity CLI sessions that keep running in
+  the background, with Attach, Stop and "Undo changes since this session started", plus
+  Copilot Chat.
+- **AI suggestions while typing**: from Ollama on your laptop or your own API key
+  (OpenAI-compatible endpoints such as Codestral, Anthropic, Gemini).
+- **Share to other devices** (More, then Share): open the editor or a preview on another device
+  over Tailscale, with a link and a QR code.
+
+Coming next: pairing and sync with Diligent's desktop and iPhone companions, any-phone and
+offline improvements, and a beginner mode.
+
+## Privacy and safety
+
+- **AI suggestions are off** until you pick a provider. Before the first request Diligent
+  names the service and host that will receive your code. They run only on Wi-Fi by default,
+  and never read `.env` files, keys (`*.pem`, `*.key`, `id_*`) or anything listed in
+  `.diligentignore`. API keys are kept in the editor's secret storage, never in settings files.
+- **Sharing is off** by default and never starts by itself. It listens only on the phone's
+  Tailscale address (never on Wi-Fi or every address), shows a "Sharing on" notification with
+  Stop, and turns itself off after 60 minutes without traffic.
+- **AI agents**: Diligent never installs them for you and never reads or uploads their sign-in
+  files. A snapshot is taken before each session so its changes can be undone.
+- **Run on laptop** uses your own SSH key; Diligent stores no passwords.
 
 ## Status
 
 Diligent is built in phases, described in [AGENT_GUIDE.md](AGENT_GUIDE.md). What is done is
-recorded in [CHANGELOG-DILIGENT.md](CHANGELOG-DILIGENT.md).
+recorded in [CHANGELOG-DILIGENT.md](CHANGELOG-DILIGENT.md). "Built" means the phase is written
+and passes its automated tests; each phase's on-device checks in the guide still need a real
+phone.
 
 | Phase | What | State |
 | --- | --- | --- |
 | 0 | Clone VSCodroid, rename to Diligent, build | Done |
-| 1 | The view switch and Mobile view | In progress: theme, components, the editor bridge, the view setting and the first-launch choice are in |
-| 2 | Reliability | Planned |
-| 3 | Setup center | Planned |
-| 4 | Run on laptop, AI agents, sharing | Planned |
+| 1 | The view switch and Mobile view | Built |
+| 2 | Reliability | Built |
+| 3 | Setup center | Built |
+| 4 | Run on laptop, AI agents, AI suggestions, sharing | Built |
 | 5 | Devices, pairing and sync | Planned |
 | 6 | Any phone, offline and beginner mode | Planned |
 | 7 | Release | Planned |
