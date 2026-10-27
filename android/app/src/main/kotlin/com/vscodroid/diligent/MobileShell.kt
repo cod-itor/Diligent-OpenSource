@@ -131,6 +131,12 @@ class MobileShell(view: AppView?) {
     /** Settings: whether a big screen may suggest Desktop view. */
     var suggestDesktop by mutableStateOf(true)
 
+    /** Settings: low-memory mode (lighter editor settings, a warning before a run on little free memory). */
+    var lowMemory by mutableStateOf(false)
+
+    /** A run waiting on the low free memory warning, or null when none is. The dialog clears it. */
+    var memoryWarning by mutableStateOf<MemoryWarning?>(null)
+
     val chrome: Chrome get() = chromeFor(view, tab, imeVisible)
 
     /** The open project's name: the folder's last segment, without `.code-workspace`. */
@@ -181,6 +187,14 @@ interface MobileActions {
 
     /** Closes one beginner tip for good (stored per device). */
     fun dismissTip(tip: Tip) = Unit
+    /** Settings: low-memory mode on or off (stored per device, applied to the editor at once). */
+    fun setLowMemory(on: Boolean) = Unit
+
+    /**
+     * Starts a run through [proceed], or first asks, when low-memory mode is
+     * on and the phone has under 500 MB free (LowMemoryPolicy.warnBeforeRun).
+     */
+    fun beforeRun(proceed: () -> Unit) = proceed()
 
     /** The folder new projects and clones go in. */
     val projectsDir: String

@@ -73,6 +73,7 @@ private val Tip.text: Int
         Tip.Devices -> R.string.diligent_tip_devices
         Tip.Share -> R.string.diligent_tip_share
         Tip.Health -> R.string.diligent_tip_health
+        Tip.Storage -> R.string.diligent_tip_storage
         Tip.Settings -> R.string.diligent_tip_settings
         Tip.Advanced -> R.string.diligent_tip_advanced
     }

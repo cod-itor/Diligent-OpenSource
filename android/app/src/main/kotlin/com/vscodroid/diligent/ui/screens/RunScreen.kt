@@ -110,7 +110,9 @@ fun RunScreen(
             RunConfigState.Loading -> Loading()
             is RunConfigState.Invalid -> Invalid(config.problem, run::openConfig)
             is RunConfigState.Missing -> Proposal(config.proposal, state.saveFailed, run::save)
-            is RunConfigState.Loaded -> Running(state, run) { RunErrorCard(state, run, actions, onOpen) }
+            is RunConfigState.Loaded -> Running(state, run, onStart = { actions.beforeRun(run::start) }) {
+                RunErrorCard(state, run, actions, onOpen)
+            }
         }
     }
 }
@@ -118,14 +120,14 @@ fun RunScreen(
 // -- Profiles loaded: the main screen --
 
 @Composable
-private fun Running(state: RunUiState, run: RunControl, card: @Composable () -> Unit = {}) {
+private fun Running(state: RunUiState, run: RunControl, onStart: () -> Unit, card: @Composable () -> Unit = {}) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         if (maxWidth > maxHeight) {
             // Landscape: controls on the left with the buttons at the bottom, the log beside them.
             Row(Modifier.fillMaxSize()) {
                 Column(Modifier.weight(0.42f).fillMaxHeight()) {
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) { Details(state, run, card) }
-                    Actions(state, run)
+                    Actions(state, run, onStart)
                 }
                 LogView(state.log, Modifier.weight(0.58f).fillMaxHeight().padding(DiligentTheme.spacing.s))
             }
@@ -136,7 +138,7 @@ private fun Running(state: RunUiState, run: RunControl, card: @Composable () -> 
                     state.log,
                     Modifier.weight(1f).fillMaxWidth().padding(horizontal = DiligentTheme.spacing.m),
                 )
-                Actions(state, run)
+                Actions(state, run, onStart)
             }
         }
     }
@@ -233,7 +235,7 @@ private fun screenStatus(state: RunUiState): Pair<String, StatusTone> {
 
 /** Start or Stop, big and at the bottom; Preview beside it while the app runs on a port. */
 @Composable
-private fun Actions(state: RunUiState, run: RunControl) {
+private fun Actions(state: RunUiState, run: RunControl, onStart: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().padding(DiligentTheme.spacing.m),
         horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.s),
@@ -254,7 +256,7 @@ private fun Actions(state: RunUiState, run: RunControl) {
                 Text(stringResource(R.string.diligent_run_stop), Modifier.padding(start = DiligentTheme.spacing.s))
             }
         } else {
-            Button(onClick = run::start, enabled = !busy && state.activeProfile != null, modifier = bigButton) {
+            Button(onClick = onStart, enabled = !busy && state.activeProfile != null, modifier = bigButton) {
                 if (busy) {
                     CircularProgressIndicator(Modifier.size(DiligentTheme.sizes.iconSmall), strokeWidth = DiligentTheme.sizes.divider * 2)
                 } else {

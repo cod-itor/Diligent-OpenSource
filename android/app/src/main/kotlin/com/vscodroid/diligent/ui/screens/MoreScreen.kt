@@ -26,6 +26,7 @@ import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,7 +64,7 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /**
  * Mobile view's More tab: a list of everything that is not one of the four
- * main tabs, and the screens it opens (Run, Setup, Laptop, AI, Devices, Share, Health, Settings) in its own place.
+ * main tabs, and the screens it opens (Run, Setup, Laptop, AI, Devices, Share, Health, Storage, Settings) in its own place.
  * In beginner mode the advanced ones sit one level down, under Advanced
  * ([MoreItem.listed]), and each screen starts with its tip.
  *
@@ -164,6 +165,7 @@ private fun MoreContent(
                         MoreDetail.Share -> ShareScreen(shell, actions)
                         MoreDetail.Health -> HealthScreen(onOpenRun = { onOpen(MoreDetail.Run) })
                         MoreDetail.Advanced -> MoreList(MoreItem.advancedItems, onOpen, footer = false)
+                        MoreDetail.Storage -> StorageScreen()
                         MoreDetail.Settings -> SettingsScreen(shell, actions)
                     }
                 }
@@ -260,6 +262,7 @@ private val MoreItem.title: Int
         MoreItem.Share -> R.string.diligent_more_share
         MoreItem.Health -> R.string.diligent_more_health
         MoreItem.Advanced -> R.string.diligent_more_advanced
+        MoreItem.Storage -> R.string.diligent_more_storage
         MoreItem.Settings -> R.string.diligent_more_settings
     }
 
@@ -274,6 +277,7 @@ private val MoreItem.subtitle: Int
         MoreItem.Share -> R.string.diligent_more_share_body
         MoreItem.Health -> R.string.diligent_more_health_body
         MoreItem.Advanced -> R.string.diligent_more_advanced_body
+        MoreItem.Storage -> R.string.diligent_more_storage_body
         MoreItem.Settings -> R.string.diligent_more_settings_body
     }
 
@@ -292,6 +296,7 @@ private val MoreItem.icon: ImageVector
         MoreItem.Share -> Icons.Outlined.Share
         MoreItem.Health -> Icons.Outlined.MonitorHeart
         MoreItem.Advanced -> Icons.Outlined.Tune
+        MoreItem.Storage -> Icons.Outlined.Storage
         MoreItem.Settings -> Icons.Outlined.Settings
     }
 

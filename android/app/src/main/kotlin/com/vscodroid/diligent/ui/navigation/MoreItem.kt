@@ -4,7 +4,7 @@ package com.vscodroid.diligent.ui.navigation
  * A screen the More tab opens in its place, with a back arrow to the list.
  * [Advanced] is the list of advanced entries that beginner mode moves there.
  */
-enum class MoreDetail { Run, Setup, Laptop, AI, Devices, Share, Health, Advanced, Settings }
+enum class MoreDetail { Run, Setup, Laptop, AI, Devices, Share, Health, Storage, Advanced, Settings }
 
 /**
  * The entries of the More tab, in the order the list shows them.
@@ -30,6 +30,7 @@ enum class MoreItem(val phase: Int, val detail: MoreDetail?, val advanced: Boole
     Devices(phase = 5, detail = MoreDetail.Devices, advanced = true),
     Share(phase = 4, detail = MoreDetail.Share, advanced = true),
     Health(phase = 2, detail = MoreDetail.Health, advanced = true),
+    Storage(phase = 6, detail = MoreDetail.Storage, advanced = true),
     Advanced(phase = 6, detail = MoreDetail.Advanced),
     Settings(phase = 1, detail = MoreDetail.Settings),
     ;

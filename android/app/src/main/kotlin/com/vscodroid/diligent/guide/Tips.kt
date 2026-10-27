@@ -22,6 +22,7 @@ enum class Tip(
     Devices("devices"),
     Share("share"),
     Health("health"),
+    Storage("storage"),
     Settings("settings"),
     Advanced("advanced"),
     ;
@@ -46,6 +47,7 @@ enum class Tip(
             MoreDetail.Devices -> Devices
             MoreDetail.Share -> Share
             MoreDetail.Health -> Health
+            MoreDetail.Storage -> Storage
             MoreDetail.Settings -> Settings
             MoreDetail.Advanced -> Advanced
         }

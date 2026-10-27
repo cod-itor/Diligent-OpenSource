@@ -56,8 +56,7 @@ private fun fixAction(
     onOpen: (MoreDetail) -> Unit,
 ): (() -> Unit)? = when (fix.action) {
     "openHealth" -> { { onOpen(MoreDetail.Health) } }
-    // Storage is a More screen of its own being added; the button appears once it exists.
-    "openStorage" -> null
+    "openStorage" -> { { onOpen(MoreDetail.Storage) } }
     "stopTask" -> state.running.firstOrNull { it != state.active }?.let { other -> { run.select(other); run.stop() } }
     "openFileAtLine" -> fix.file?.let { file ->
         val path = if (File(file).isAbsolute || state.projectDir == null) file else File(state.projectDir, file).path

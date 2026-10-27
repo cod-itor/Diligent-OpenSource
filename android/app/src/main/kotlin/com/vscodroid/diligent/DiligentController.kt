@@ -96,6 +96,13 @@ class DiligentController(
         if (view == null) result(null) else view.evaluateJavascript(script) { result(it) }
     }
 
+    /** Low-memory mode, on by default on a 4 GB phone. */
+    val lowMemory by lazy {
+        LowMemorySettings(activity.getSharedPreferences(ViewSettings.PREFS_NAME, Context.MODE_PRIVATE)) {
+            DeviceMemory.totalBytes(activity)
+        }
+    }
+
     /** Projects the editor opened, for the Projects tab. Shared with the tab through [RecentProjects.of]. */
     private val recentProjects by lazy { RecentProjects.of(activity) }
 
@@ -110,6 +117,7 @@ class DiligentController(
             suggestDesktop = views.suggestDesktopOnBigScreens
             beginnerMode = guide.beginnerMode
             dismissedTips = guide.dismissedTips
+            lowMemory = this@DiligentController.lowMemory.enabled
         }
     }
 
@@ -436,6 +444,19 @@ class DiligentController(
             guide.dismissedTips = closed
             shell.dismissedTips = closed
         }
+        override fun setLowMemory(on: Boolean) {
+            lowMemory.enabled = on
+            shell.lowMemory = on
+            editor.run(LowMemorySettings.COMMAND_APPLY, on)
+        }
+        override fun beforeRun(proceed: () -> Unit) {
+            val available = DeviceMemory.availableBytes(activity)
+            if (LowMemoryPolicy.warnBeforeRun(shell.lowMemory, available)) {
+                shell.memoryWarning = MemoryWarning(LowMemoryPolicy.megabytes(available), proceed)
+            } else {
+                proceed()
+            }
+        }
         override fun editorCommand(command: String, vararg args: Any?) = editor.run(command, *args)
         override val projectsDir: String get() = host.projectsDir
         override val run: RunControl get() = runner
@@ -458,6 +479,9 @@ class DiligentController(
 
         override fun editorReady() = activity.runOnUiThread {
             editor.editorReady()
+            // Every page load, in either view: the extension keeps the
+            // user's values from the first time and only fills in new keys.
+            editor.run(LowMemorySettings.COMMAND_APPLY, shell.lowMemory)
             // A new page starts in whatever layout its settings say; bring the
             // extension and the native pieces into step with this device's view.
             shell.view?.let { view ->
