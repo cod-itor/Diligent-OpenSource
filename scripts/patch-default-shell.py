@@ -111,7 +111,7 @@ must not report as clean. It only ever reads.
 
 Which directories go under it is a decision, not a default. A sweep that fails a
 correct build is worse than no sweep, so a directory qualifies only once every
-file in it is answered for. Three are:
+file in it is answered for. These are:
 
   * jniLibs, swept by the verifyBundledShellPaths Gradle task at packaging time,
     which is the moment a binary restored from a cache no download step re-ran
@@ -125,6 +125,9 @@ file in it is answered for. Three are:
     Ruby pack is. Every file in it is answered for: paths.h is rewritten, and
     no binary in it names the path (checked on libLLVM, libclang-cpp, the
     driver, lld and the llvm tools).
+  * the PHP asset pack, swept by download-php.sh once it has placed the pack.
+    php carries the path once, as the C constant behind exec() and proc_open(),
+    and is rewritten before the sweep; nothing else in the pack names it.
 
 The Python stdlib is deliberately not one of them. Three files under it name the
 path in a `#!` line rather than as a default they hand to execve, none of them

@@ -144,6 +144,22 @@ object ToolchainRegistry {
             downloadSize = 74_000_000,
             downloadUrl = "https://github.com/rmyndharis/VSCodroid/releases/latest/download/toolchain_cpp.zip",
         ),
+        // Diligent: the packs below are built by this repository's own release,
+        // not VSCodroid's, so their ZIPs are fetched from Diligent's releases.
+        ToolchainInfo(
+            packName = "toolchain_php",
+            displayName = "PHP",
+            shortLabel = "PHP",
+            descriptionRes = R.string.toolchain_php_description,
+            // 41,836 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (42,840,064 bytes in 4 KiB blocks, 27 files) after running
+            // scripts/download-php.sh against PHP 8.5.12. php itself is 24 MB of
+            // it and libcapstone 8.8 MB. 45,000,000 leaves 2.1 MB for a point
+            // release. The ZIP measured 9,409,284 bytes.
+            estimatedSize = 45_000_000,
+            downloadSize = 10_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_php.zip",
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

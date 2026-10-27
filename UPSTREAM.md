@@ -99,3 +99,9 @@ Do not reset or offset it without reading those migrations first;
 | `android/app/src/main/kotlin/com/vscodroid/service/NodeService.kt` | Three one-line calls into `diligent/TaskKeeper.kt`: `attach` in `onCreate`, `detach` in `onDestroy`, and `decorate` in `createNotification`, which lists the running tasks with a Stop each on the running card |
 | `NOTICE.md` | A ZXing row under Core Components, for the QR code on the Share screen; Bouncy Castle and kotlinx.serialization rows for diligent-link |
 | `scripts/build-termux-exec.sh` | Fetches Chromium's LICENSE from chromium.googlesource.com (base64, decoded, same pin): raw.githubusercontent.com keeps answering 429 for that mirror |
+| `android/app/src/main/kotlin/com/vscodroid/setup/ToolchainRegistry.kt` | Adds Diligent's own language packs after VSCodroid's three (PHP so far), each fetched from Diligent's releases rather than VSCodroid's. Each pack's card sentence is a `toolchain_<name>_description` string in every `values*/strings.xml` |
+| `android/settings.gradle.kts`, `android/app/build.gradle.kts`, `.gitignore` | Include and bundle the new `toolchain_php` asset pack, declare `scripts/download-php.sh` as a test input, and ignore the pack's downloaded payload |
+| `.github/workflows/release.yml` | "Download toolchain assets" also runs `scripts/download-php.sh` |
+| `scripts/package-toolchains.sh`, `scripts/patch-default-shell.py`, `scripts/check-termux-licenses.py`, `scripts/check-library-attribution.py` | Name the PHP pack: its download script, its swept directory, its soname map and its libraries' licences and notice directories |
+| `android/app/src/test/.../setup/ToolchainRegistryTest.kt` | Counts and finds the new packs, and pins their download URLs to Diligent's releases |
+| `NOTICE.md`, `docs/LEGAL_NOTICES.md` | Attribute the PHP pack's libraries, its source offers (libgcrypt, libgpg-error) and PHP and Composer themselves |

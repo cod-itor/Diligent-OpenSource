@@ -711,6 +711,7 @@ jobs:
           bash scripts/download-ruby.sh
           bash scripts/download-java.sh
           bash scripts/download-cpp.sh
+          bash scripts/download-php.sh
 
       # The unit suite ran on every pull request and on no tag, which put the
       # published build on the wrong side of it. Before the signing keystore is

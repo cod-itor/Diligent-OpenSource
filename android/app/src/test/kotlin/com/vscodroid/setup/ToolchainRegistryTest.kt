@@ -24,8 +24,8 @@ class ToolchainRegistryTest {
     inner class CatalogTest {
 
         @Test
-        fun `has exactly 3 toolchains`() {
-            assertEquals(3, ToolchainRegistry.available.size)
+        fun `has exactly 4 toolchains`() {
+            assertEquals(4, ToolchainRegistry.available.size)
         }
 
         @Test
@@ -243,6 +243,22 @@ class ToolchainRegistryTest {
         }
 
         /**
+         * Diligent's own packs are fetched from Diligent's releases. VSCodroid's
+         * releases carry only the three it builds, so a URL pointing there for a
+         * pack it never built fails every sideloaded install with a 404.
+         */
+        @Test
+        fun `contains PHP toolchain, fetched from Diligent's releases`() {
+            val php = ToolchainRegistry.available.find { it.shortLabel == "PHP" }
+            assertNotNull(php)
+            assertEquals("toolchain_php", php!!.packName)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_php.zip",
+                php.downloadUrl,
+            )
+        }
+
+        /**
          * The card is the one place the user is told what this toolchain needs.
          *
          * Its programs start only through the exec interceptor a terminal
@@ -277,7 +293,7 @@ class ToolchainRegistryTest {
     inner class FindTest {
 
         @ParameterizedTest(name = "find by full pack name: {0}")
-        @ValueSource(strings = ["toolchain_ruby", "toolchain_java", "toolchain_cpp"])
+        @ValueSource(strings = ["toolchain_ruby", "toolchain_java", "toolchain_cpp", "toolchain_php"])
         fun `finds by full pack name`(packName: String) {
             val result = ToolchainRegistry.find(packName)
             assertNotNull(result, "Should find toolchain by pack name: $packName")
@@ -285,7 +301,7 @@ class ToolchainRegistryTest {
         }
 
         @ParameterizedTest(name = "find by short name: {0} → toolchain_{0}")
-        @CsvSource("ruby,toolchain_ruby", "java,toolchain_java", "cpp,toolchain_cpp")
+        @CsvSource("ruby,toolchain_ruby", "java,toolchain_java", "cpp,toolchain_cpp", "php,toolchain_php")
         fun `finds by short name`(shortName: String, expectedPack: String) {
             val result = ToolchainRegistry.find(shortName)
             assertNotNull(result, "Should find toolchain by short name: $shortName")
