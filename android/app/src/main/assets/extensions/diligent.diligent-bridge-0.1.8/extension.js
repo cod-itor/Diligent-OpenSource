@@ -46,6 +46,8 @@ const ALLOWED_COMMANDS = new Set([
     'diligent.mobile.showTerminal',
     // Mobile view's action bar.
     'workbench.action.files.save',
+    // Sync: every open file written to disk before a project is sent.
+    'workbench.action.files.saveAll',
     'workbench.action.findInFiles',
     'actions.find',
     'workbench.action.showCommands',
@@ -80,6 +82,12 @@ const ALLOWED_COMMANDS = new Set([
  * saved before the first one is changed and restored on the way back to
  * Desktop view.
  *
+ * The editor on a phone is the code and its line numbers, nothing else: no
+ * title bar, tab strip, breadcrumbs, editor actions, minimap, sticky scroll,
+ * gutter icons or code lenses, no padding and thin scroll bars. The native
+ * bar above it names the file (MobileChrome.kt), so the tab strip is not
+ * needed for that.
+ *
  * `workbench.panel.opensMaximized` is what makes the Terminal tab a full
  * screen terminal: the panel opens maximized whenever it opens, so the tab
  * never has to toggle a state it cannot read.
@@ -87,15 +95,52 @@ const ALLOWED_COMMANDS = new Set([
 const MOBILE_SETTINGS = Object.freeze({
     'workbench.activityBar.location': 'hidden',
     'workbench.statusBar.visible': false,
-    'workbench.editor.showTabs': 'single',
+    // Nothing above the code: the title bar is empty and so hidden once the
+    // menu, command center and layout controls are off.
+    'window.menuBarVisibility': 'hidden',
+    'window.commandCenter': false,
+    'workbench.layoutControl.enabled': false,
+    'workbench.editor.showTabs': 'none',
+    'workbench.editor.editorActionsLocation': 'hidden',
     'breadcrumbs.enabled': false,
+    'editor.minimap.enabled': false,
+    'editor.stickyScroll.enabled': false,
+    'editor.glyphMargin': false,
+    'editor.folding': false,
+    'editor.codeLens': false,
+    'editor.scrollBeyondLastLine': false,
+    'editor.padding.top': 0,
+    'editor.padding.bottom': 0,
+    'editor.overviewRulerLanes': 0,
+    'editor.overviewRulerBorder': false,
+    'editor.scrollbar.verticalScrollbarSize': 6,
+    'editor.scrollbar.horizontalScrollbarSize': 6,
+    // The line numbers stay: they are how a phone user finds a line.
+    'editor.lineNumbers': 'on',
+    'editor.lineNumbersMinChars': 3,
     'editor.fontSize': 15,
+    'editor.lineHeight': 22,
     'workbench.panel.opensMaximized': 'always',
-    // The editor follows the phone's light or dark mode, so it matches
-    // Diligent's own screens around it instead of staying dark in a light UI.
+    // The editor follows the phone's light or dark mode, in Diligent's own
+    // themes (themes/), whose background is the native bars' colour, so the
+    // code and the bars around it read as one surface.
     'window.autoDetectColorScheme': true,
-    'workbench.preferredLightColorTheme': 'Default Light Modern',
-    'workbench.preferredDarkColorTheme': 'Default Dark Modern',
+    'workbench.preferredLightColorTheme': 'Diligent Mobile Light',
+    'workbench.preferredDarkColorTheme': 'Diligent Mobile Dark',
+});
+
+/**
+ * Values an earlier version of this list wrote, for keys whose value has
+ * changed since. A page load in Mobile view leaves an already saved key alone
+ * (the user may have changed it there), except when it still holds the value
+ * the earlier version wrote: then it takes the new one. Without this, a phone
+ * that was in Mobile view before the update would keep the old tab strip and
+ * themes until the next view switch.
+ */
+const EARLIER_MOBILE_VALUES = Object.freeze({
+    'workbench.editor.showTabs': ['single'],
+    'workbench.preferredLightColorTheme': ['Default Light Modern'],
+    'workbench.preferredDarkColorTheme': ['Default Dark Modern'],
 });
 
 /** Commands that clear the editor's side areas when Mobile view comes in. */
@@ -267,6 +312,14 @@ async function applyView(view, state, api) {
         for (const key of toSet) {
             await config.update(key, MOBILE_SETTINGS[key], target);
         }
+        for (const key of Object.keys(EARLIER_MOBILE_VALUES)) {
+            if (toSet.includes(key)) continue;
+            const inspected = config.inspect(key);
+            const current = inspected ? inspected.globalValue : undefined;
+            if (EARLIER_MOBILE_VALUES[key].some((earlier) => sameValue(current, earlier))) {
+                await config.update(key, MOBILE_SETTINGS[key], target);
+            }
+        }
         for (const command of MOBILE_CLOSE_COMMANDS) {
             await api.commands.executeCommand(command);
         }
@@ -423,6 +476,49 @@ async function announceReady() {
     return false;
 }
 
+/**
+ * What the native file name chip shows: the active text editor's file, as the
+ * JSON `diligentActiveFile` takes. `path` is null for an untitled file and
+ * every field is empty when no text editor is active.
+ * @param {{ document: { uri: { scheme: string, path: string }, isDirty: boolean } } | undefined} editor
+ * @returns {string}
+ */
+function activeFileJson(editor) {
+    if (!editor) return JSON.stringify({ path: null, name: null, dirty: false });
+    const { uri, isDirty } = editor.document;
+    const name = uri.path.slice(uri.path.lastIndexOf('/') + 1) || null;
+    return JSON.stringify({ path: uri.scheme === 'untitled' ? null : uri.path, name, dirty: Boolean(isDirty) });
+}
+
+/**
+ * Keeps Kotlin told which file is in front and whether it has unsaved
+ * changes. Every typed character fires a document change, so a message goes
+ * only when its text differs from the last one sent; `resend` sends again
+ * anyway, for a page that has just told Kotlin it is ready.
+ * @param {(method: string, args: unknown[]) => Promise<unknown>} call
+ * @param {() => any} activeEditor
+ */
+function activeFileReporter(call, activeEditor) {
+    /** @type {string | undefined} */
+    let last;
+    return {
+        report() {
+            const json = activeFileJson(activeEditor());
+            if (json === last) return;
+            last = json;
+            call('diligentActiveFile', [json]).catch((/** @type {unknown} */ err) => {
+                // Not delivered: the next change tries again rather than being dropped as a duplicate.
+                last = undefined;
+                console.warn('[Diligent] ' + String(err));
+            });
+        },
+        resend() {
+            last = undefined;
+            this.report();
+        },
+    };
+}
+
 /** @param {import('vscode').ExtensionContext} context */
 function activate(context) {
     const events = new BroadcastChannel(EVENTS_CHANNEL);
@@ -468,7 +564,19 @@ function activate(context) {
         ));
     }
 
-    announceReady();
+    const activeFile = activeFileReporter((method, args) => callBridge(method, args), () => vscode.window.activeTextEditor);
+    const report = () => activeFile.report();
+    context.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor(report),
+        // Only the active document can change the chip: its dirty dot.
+        vscode.workspace.onDidChangeTextDocument((e) => {
+            const editor = vscode.window.activeTextEditor;
+            if (editor && e.document === editor.document) report();
+        }),
+        vscode.workspace.onDidSaveTextDocument(report),
+    );
+
+    announceReady().then((ready) => { if (ready) activeFile.resend(); });
 }
 
 function deactivate() {}
@@ -480,6 +588,7 @@ module.exports = {
     ALLOWED_COMMANDS,
     BRIDGE_METHODS,
     MOBILE_SETTINGS,
+    EARLIER_MOBILE_VALUES,
     applyView,
     inOrder,
     switchToMobileView,
@@ -493,4 +602,6 @@ module.exports = {
     callBridge,
     bridgeMethodName,
     announceReady,
+    activeFileJson,
+    activeFileReporter,
 };

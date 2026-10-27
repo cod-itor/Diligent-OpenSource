@@ -2,7 +2,7 @@
   "name": "diligent-bridge",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "publisher": "diligent",
   "engines": {
     "vscode": "^1.96.0"
@@ -30,6 +30,20 @@
         "command": "diligent.switchToMobileView",
         "title": "%command.switchToMobileView%",
         "category": "Diligent"
+      }
+    ],
+    "themes": [
+      {
+        "id": "Diligent Mobile Dark",
+        "label": "%theme.mobileDark%",
+        "uiTheme": "vs-dark",
+        "path": "./themes/diligent-mobile-dark.json"
+      },
+      {
+        "id": "Diligent Mobile Light",
+        "label": "%theme.mobileLight%",
+        "uiTheme": "vs",
+        "path": "./themes/diligent-mobile-light.json"
       }
     ]
   }

@@ -1,0 +1,7 @@
+{
+  "displayName": "Diligent Bridge",
+  "description": "Connects Diligent's Mobile view to the editor",
+  "command.switchToMobileView": "Switch to Mobile view",
+  "theme.mobileDark": "Diligent Mobile Dark",
+  "theme.mobileLight": "Diligent Mobile Light"
+}

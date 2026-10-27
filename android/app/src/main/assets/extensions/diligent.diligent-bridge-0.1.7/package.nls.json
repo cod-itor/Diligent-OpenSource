@@ -1,5 +1,0 @@
-{
-  "displayName": "Diligent Bridge",
-  "description": "Connects Diligent's Mobile view to the editor",
-  "command.switchToMobileView": "Switch to Mobile view"
-}
