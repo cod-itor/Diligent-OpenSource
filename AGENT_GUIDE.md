@@ -340,7 +340,7 @@ The desktop app can start once Phase 5 is done, because it only needs `sync-core
 
 **Read first:** `setup/ToolchainManager.kt`, `setup/ToolchainRegistry.kt`, and the `.bashrc` creation in `FirstRunSetup.kt` (search `createBashrc`).
 
-1. **Recipes** are JSON in `assets/extensions/diligent.diligent-kit-0.1.0/recipes/<id>.json`: `id`, `title`, `summary`, `needs` (`toolchains`, `minFreeMB`, `internet`), `tested` (versions last tested) and ordered `steps`. Step types: `toolchain` (install a pack through the existing bridge method `installToolchain`), `run` (a shell command in the project folder), `write` (a file from a template), `profile` (write `.diligent/run.json`), `test` (start the profile, wait for the port or an expected output line, stop it).
+1. **Recipes** are JSON in `assets/extensions/diligent.diligent-kit-0.1.1/recipes/<id>.json`: `id`, `title`, `summary`, `needs` (`toolchains`, `minFreeMB`, `internet`), `tested` (versions last tested) and ordered `steps`. Step types: `toolchain` (install a pack through the existing bridge method `installToolchain`), `run` (a shell command in the project folder), `write` (a file from a template), `profile` (write `.diligent/run.json`), `test` (start the profile, wait for the port or an expected output line, stop it).
 2. **First recipes**
 
    | ID | Creates | Internet |
@@ -533,7 +533,7 @@ Items 2 and 3 can only be tested once the desktop app reaches its Phases 3 and 4
 
 1. **Guided start,** once after the view choice and from New project: what to make (website, React app, Python, "I'm new to coding"), a name, confirm. Runs the recipe, opens the project, shows a "Next step" card.
 2. **Beginner mode:** on when the user picks "I'm new to coding"; short tips on each screen; advanced items move under More, then Advanced.
-3. **Plain-language errors:** catalog `assets/extensions/diligent.diligent-kit-0.1.0/errors.json` (pattern, title, plain explanation, optional fix), applied to run logs, plus "Explain this error" for selected text:
+3. **Plain-language errors:** catalog `assets/extensions/diligent.diligent-kit-0.1.1/errors.json` (pattern, title, plain explanation, optional fix), applied to run logs, plus "Explain this error" for selected text:
 
    | Pattern | Plain explanation | Fix |
    | --- | --- | --- |

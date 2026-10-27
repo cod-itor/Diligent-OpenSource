@@ -156,7 +156,7 @@ private fun MoreContent(
                 TipBanner(Tip.of(detail), shell, actions)
                 Box(Modifier.weight(1f)) {
                     when (detail) {
-                        MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack)
+                        MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack, onOpen = onOpen)
                         MoreDetail.Setup -> SetupScreen(shell, actions)
                         MoreDetail.Laptop -> LaptopScreen()
                         MoreDetail.AI -> AiScreen(shell, actions)

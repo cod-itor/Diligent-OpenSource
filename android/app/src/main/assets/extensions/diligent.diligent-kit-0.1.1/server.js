@@ -10,8 +10,9 @@
  * `{"id", "event": <progress>}` lines before its end, the same progress the
  * app receives through `diligentKitProgress`.
  *
- * Ops: `ping`, `list`, `add {recipe, name?}`, `cancel {runId}`,
- * `remove {pack}`, `health`.
+ * Ops: `ping`, `list`, `add {recipe, name?}`, `prepare {recipe}`,
+ * `cancel {runId}`, `remove {pack}`, `health`. `prepare` sends progress
+ * events like `add`.
  *
  * The socket is created with umask 077 and then chmod 600, so only this
  * app's user can connect; a socket file left by a dead editor server is
@@ -66,6 +67,7 @@ class LineDecoder {
  * @typedef {{
  *   list: () => unknown,
  *   add: (args: any, onEvent: (e: unknown) => void) => Promise<unknown>,
+ *   prepare: (args: any, onEvent: (e: unknown) => void) => Promise<unknown>,
  *   cancel: (args: any) => unknown,
  *   remove: (args: any) => Promise<unknown>,
  *   health: () => Promise<unknown>,
@@ -87,6 +89,7 @@ async function handle(req, handlers, send) {
         if (op === 'ping') result = 'pong';
         else if (op === 'list') result = await handlers.list();
         else if (op === 'add') result = await handlers.add(args, (event) => send({ id, event }));
+        else if (op === 'prepare') result = await handlers.prepare(args, (event) => send({ id, event }));
         else if (op === 'cancel') result = await handlers.cancel(args);
         else if (op === 'remove') result = await handlers.remove(args);
         else if (op === 'health') result = await handlers.health();

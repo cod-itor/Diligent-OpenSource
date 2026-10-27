@@ -112,6 +112,8 @@ data class KitRun(
     val line: String? = null,
     val done: KitDone? = null,
     val timedOut: Boolean = false,
+    /** Prepare for offline rather than a new project: nothing to open at the end. */
+    val prepare: Boolean = false,
 ) {
     val finished: Boolean get() = done != null || timedOut
     val succeeded: Boolean get() = done?.ok == true

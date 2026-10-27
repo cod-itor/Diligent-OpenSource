@@ -5,15 +5,17 @@
 /**
  * kit: Diligent's setup command for the terminal.
  *
- *   kit list | kit add <recipe> [name] | kit remove <pack> | kit doctor | kit help
+ *   kit list | kit add <recipe> [name] | kit prepare <recipe> | kit remove <pack>
+ *   kit doctor | kit explain [file] | kit help
  *
  * Shipped by the diligent-kit extension to ~/.diligent/kit/kit.js and run by
  * the `kit()` function in .bashrc. It holds no recipes itself: it asks the
  * engine in the editor over ~/.diligent/kit.sock (newline-delimited JSON, see
  * the extension's server.js). `doctor` works without the engine, apart from
- * the app's health checks.
+ * the app's health checks, and `explain` never needs it.
  *
- * Standalone on purpose: one file, Node's own modules only.
+ * Standalone on purpose: Node's own modules only, plus errors.js and
+ * errors.json, which the extension ships beside it for `kit explain`.
  */
 
 const fs = require('fs');
@@ -32,11 +34,14 @@ const HELP = [
     'Usage:',
     '  kit list                  Show what kit can set up',
     '  kit add <recipe> [name]   Create a project from a recipe in your projects folder',
+    '  kit prepare <recipe>      Download what a recipe needs now, so kit add works offline later',
     '  kit remove <pack>         Remove a toolchain pack (ruby, java, cpp)',
     '  kit doctor                Check tools, packs, storage and the app\'s health',
+    '  kit explain [file]        Say in plain words what an error means (reads the file, or what is piped in)',
     '  kit help                  Show this help',
     '',
-    'Example: kit add react-vite my-app',
+    'Examples: kit add react-vite my-app',
+    '          npm run dev 2>&1 | kit explain',
 ].join('\n');
 
 const NO_ENGINE = 'The kit engine is not running. Open the editor in Diligent, wait a few seconds, and try again.';
@@ -53,14 +58,16 @@ function shellQuote(value) {
 
 /**
  * `kit list` output.
- * @param {Array<{id: string, title: string, summary: string, sizeMB: number, internet: string, toolchains: Array<{label: string}>}>} recipes
+ * @param {Array<{id: string, title: string, summary: string, sizeMB: number, internet: string, toolchains: Array<{label: string}>, offline?: boolean}>} recipes
  */
 function formatList(recipes) {
     const width = Math.max(...recipes.map((r) => r.id.length), 4);
     const lines = ['Recipes (kit add <recipe> [name]):', ''];
     for (const r of recipes) {
         const notes = ['about ' + r.sizeMB + ' MB',
-            r.internet === 'once' ? 'needs internet once' : r.internet === 'pack' ? 'internet for the pack download' : 'works offline'];
+            r.internet === 'no' ? 'works offline'
+                : r.offline ? 'ready offline'
+                    : r.internet === 'once' ? 'needs internet once (kit prepare ' + r.id + ' for offline)' : 'internet for the pack download'];
         if (r.toolchains.length) notes.push('installs ' + r.toolchains.map((t) => t.label).join(', '));
         lines.push('  ' + r.id.padEnd(width) + '  ' + r.title + ': ' + r.summary);
         lines.push('  ' + ' '.repeat(width) + '  (' + notes.join(', ') + ')');
@@ -198,6 +205,17 @@ function storage() {
     }
 }
 
+/** Everything on stdin, as text. @returns {Promise<string>} */
+function readStdin() {
+    return new Promise((resolve, reject) => {
+        let text = '';
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', (chunk) => { text += chunk; });
+        process.stdin.on('end', () => resolve(text));
+        process.stdin.on('error', reject);
+    });
+}
+
 /** @param {string} msg */
 function fail(msg) {
     process.stderr.write(msg + '\n');
@@ -218,8 +236,13 @@ async function main(argv) {
         console.log(formatList(reply.result));
         return 0;
     }
-    if (cmd === 'add') {
-        if (!rest[0]) return fail('Usage: kit add <recipe> [name]. Run "kit list" to see the recipes.');
+    if (cmd === 'add' || cmd === 'prepare') {
+        const prepare = cmd === 'prepare';
+        if (!rest[0]) {
+            return fail(prepare ? 'Usage: kit prepare <recipe>. Run "kit list" to see the recipes.'
+                : 'Usage: kit add <recipe> [name]. Run "kit list" to see the recipes.');
+        }
+        if (prepare && rest.length > 1) return fail('Usage: kit prepare <recipe>. It takes no project name.');
         if (rest.length > 2) return fail('A project name with spaces needs quotes: kit add ' + rest[0] + ' "my app"');
         /** @type {string | null} */
         let runId = null;
@@ -236,7 +259,7 @@ async function main(argv) {
         process.on('SIGINT', onSigint);
         let reply;
         try {
-            reply = await request('add', { recipe: rest[0], name: rest[1] || null }, (event, conn) => {
+            reply = await request(cmd, prepare ? { recipe: rest[0] } : { recipe: rest[0], name: rest[1] || null }, (event, conn) => {
                 runId = event.runId;
                 connection = conn;
                 for (const line of formatEvent(event)) console.log(line);
@@ -247,7 +270,7 @@ async function main(argv) {
             process.off('SIGINT', onSigint);
         }
         if (!reply.ok) return fail(String(reply.error));
-        const lines = formatResult(reply.result);
+        const lines = prepare ? [reply.result.message] : formatResult(reply.result);
         if (reply.result.ok) {
             console.log(lines.join('\n'));
             return 0;
@@ -283,6 +306,21 @@ async function main(argv) {
             health,
         }));
         return 0;
+    }
+    if (cmd === 'explain') {
+        if (rest.length > 1) return fail('Usage: kit explain [file], or pipe the output in: npm run dev 2>&1 | kit explain');
+        let text;
+        if (rest[0] && rest[0] !== '-') {
+            try { text = fs.readFileSync(rest[0], 'utf8'); } catch { return fail('Cannot read ' + rest[0] + '.'); }
+        } else if (process.stdin.isTTY) {
+            return fail('Usage: kit explain [file], or pipe the output in: npm run dev 2>&1 | kit explain');
+        } else {
+            text = await readStdin();
+        }
+        const errors = require(path.join(__dirname, 'errors.js'));
+        const found = errors.explain(text);
+        console.log(errors.formatExplanations(found));
+        return found.length ? 0 : 1;
     }
     return fail('Unknown command "' + cmd + '".\n\n' + HELP);
 }

@@ -2,6 +2,7 @@ package com.vscodroid.diligent.kit
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class KitRecipeTest {
@@ -33,6 +34,7 @@ class KitRecipeTest {
                 minFreeMB = 400,
                 internet = KitInternet.Once,
                 steps = listOf("Create the app", "Check it starts"),
+                tested = mapOf("node" to "22", "vite" to "8"),
             ),
             r,
         )
@@ -78,5 +80,22 @@ class KitRecipeTest {
         assertEquals("diligent.diligent-kit-0.10.0", KitRecipes.newestExtension(names))
         assertNull(KitRecipes.newestExtension(listOf("diligent.diligent-core-0.1.0")))
         assertNull(KitRecipes.newestExtension(emptyList()))
+    }
+
+    @Test
+    fun `ready offline follows the engine's rule`() {
+        val web = KitRecipes.parse("""{"id":"web-basic","title":"Web","needs":{"toolchains":[],"internet":"no"}}""")!!
+        val next = KitRecipes.parse("""{"id":"nextjs","title":"Next","tested":{"next":"16"},"needs":{"toolchains":[],"internet":"once"}}""")!!
+        val java = KitRecipes.parse("""{"id":"java","title":"Java","needs":{"toolchains":["toolchain_java"],"internet":"pack"}}""")!!
+        val all = listOf(web, next, java)
+        assertEquals(mapOf("next" to "16"), next.tested)
+
+        assertEquals(setOf("web-basic"), KitOffline.readyIds(all, null, null))
+        assertEquals(setOf("web-basic"), KitOffline.readyIds(all, "{broken", "[broken"))
+        val prepared = """{"recipes":{"nextjs":{"preparedAt":"x","tested":{"next":"16"}}}}"""
+        assertEquals(setOf("web-basic", "nextjs", "java"), KitOffline.readyIds(all, prepared, """[{"name":"java"}]"""))
+        // Prepared for an older version: prepare again.
+        val stale = """{"recipes":{"nextjs":{"preparedAt":"x","tested":{"next":"15"}}}}"""
+        assertTrue("nextjs" !in KitOffline.readyIds(all, stale, null))
     }
 }

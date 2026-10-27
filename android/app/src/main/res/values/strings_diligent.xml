@@ -421,6 +421,11 @@
     <string name="diligent_setup_failed_body">Something went wrong. Try again, or check Health in More.</string>
     <string name="diligent_setup_timeout">The setup engine did not answer. Wait until the editor has finished starting, then try again.</string>
     <string name="diligent_setup_try_again">Try again</string>
+    <string name="diligent_setup_ready_offline">Ready offline</string>
+    <string name="diligent_setup_prepare">Prepare for offline</string>
+    <string name="diligent_setup_preparing_title">Preparing %1$s for offline use</string>
+    <string name="diligent_setup_prepared_title">%1$s is ready offline</string>
+    <string name="diligent_setup_prepared_body">Everything it downloads is now saved on this phone. You can start this template later without internet.</string>
     <string name="diligent_projects_template">Start from a template</string>
     <string name="diligent_projects_template_body">A ready-made project that runs: a website, a React app, Python and more.</string>
     <string name="diligent_projects_empty_choice">Or start with an empty folder:</string>

@@ -55,8 +55,9 @@ function createService(o) {
      * @param {string | null | undefined} name
      * @param {(p: any) => void} [onEvent]
      * @param {(runId: string) => void} [onStart]
+     * @param {boolean} [prepare] `kit prepare`: fill the caches in a folder that is then deleted
      */
-    function run(recipeId, name, onEvent, onStart) {
+    function run(recipeId, name, onEvent, onStart, prepare = false) {
         const recipe = recipes.get(String(recipeId));
         if (!recipe) {
             return Promise.reject(new Error('There is no recipe "' + recipeId + '". Run "kit list" to see them.'));
@@ -67,7 +68,7 @@ function createService(o) {
         active = { runId, signal };
         if (onStart) onStart(runId);
         return engine.runRecipe({
-            recipe, name: name || null, runId, signal,
+            recipe, name: name || null, runId, signal, prepare,
             extensionDir: o.extensionDir, home: o.home, projectsDir: o.projectsDir,
             onProgress: (p) => { toApp(p); if (onEvent) onEvent(p); },
             installToolchain: (pack) => Promise.resolve(o.executeCommand(INSTALL_COMMAND, pack)),
@@ -78,22 +79,37 @@ function createService(o) {
     return {
         recipes,
         problems: loaded.problems,
-        list: () => engine.summaries([...recipes.values()]),
+        list: () => engine.summaries([...recipes.values()], o.home),
         /** @param {any} args @param {(e: unknown) => void} onEvent */
         add: (args, onEvent) => run(args.recipe, args.name, onEvent),
         /**
-         * For the app: starts a run and answers its id at once; progress goes
-         * to the app only.
-         * @param {string} recipeId @param {string} [name]
+         * `kit prepare`: a recipe that needs nothing from the internet is
+         * ready already, and is not run.
+         * @param {any} args @param {(e: unknown) => void} onEvent
          */
-        start(recipeId, name) {
+        prepare(args, onEvent) {
+            const recipe = recipes.get(String(args && args.recipe));
+            if (recipe && recipe.needs.internet === 'no') {
+                return Promise.resolve({ ok: true, projectPath: '', message: recipe.title + ' works offline already.', run: null });
+            }
+            return run(args && args.recipe, null, onEvent, undefined, true);
+        },
+        /**
+         * For the app: starts a run and answers its id at once; progress goes
+         * to the app only. `mode` "prepare" is `kit prepare` instead of
+         * `kit add`; its progress names the folder `<home>/.diligent/kit-prepare/<recipe>`.
+         * @param {string} recipeId @param {string} [name] @param {string} [mode]
+         */
+        start(recipeId, name, mode) {
+            const prepare = mode === 'prepare';
             return new Promise((resolve) => {
-                run(recipeId, name, undefined, resolve).catch((err) => {
+                run(recipeId, prepare ? null : name, undefined, resolve, prepare).catch((err) => {
                     // Refused before it began (unknown recipe, another run):
                     // the app hears it as a run that ended at once, since a
                     // command it sends through the bridge has no answer.
                     const runId = engine.newRunId();
-                    const project = require('path').join(o.projectsDir, name && !engine.nameProblem(name) ? name : String(recipeId));
+                    const project = prepare ? require('path').join(o.home, engine.PREPARE_DIR, String(recipeId))
+                        : require('path').join(o.projectsDir, name && !engine.nameProblem(name) ? name : String(recipeId));
                     toApp({
                         runId, recipe: String(recipeId), project,
                         step: { index: 0, total: 0, title: '', state: 'fail' }, line: null,
