@@ -268,6 +268,42 @@ async function main() {
     assert.strictEqual(userSettings.get('editor.fontSize'), 20, 'Desktop view rewrote a setting it never changed');
     assert.strictEqual(await bridge.applyView('tablet', globalState, vscodeStub), false);
 
+    // Low-memory mode: its keys set, the user's own watcher patterns kept, a
+    // page load's second apply saving nothing over the user's, and off
+    // restoring exactly what was there, including "never set".
+    {
+        const lowState = new Map();
+        const lowGlobal = { get: (k) => lowState.get(k), update: async (k, v) => { lowState.set(k, v); } };
+        userSettings.set('files.watcherExclude', { '**/dist/**': true });
+        userSettings.set('git.autorefresh', true);
+        assert.strictEqual(await bridge.applyLowMemory(true, lowGlobal, vscodeStub), true);
+        assert.deepStrictEqual(userSettings.get('files.watcherExclude'),
+            { '**/dist/**': true, '**/node_modules/**': true, '**/.git/objects/**': true });
+        assert.strictEqual(userSettings.get('git.autorefresh'), false);
+        assert.strictEqual(userSettings.get('extensions.autoCheckUpdates'), false);
+        assert.ok(userSettings.get('typescript.tsserver.maxTsServerMemory') < 3072, 'tsserver memory not lowered');
+        // A change while on survives the next page load.
+        userSettings.set('git.autorefresh', true);
+        await bridge.applyLowMemory(true, lowGlobal, vscodeStub);
+        assert.strictEqual(userSettings.get('git.autorefresh'), true, 'a page load undid the user\'s change');
+        await bridge.applyLowMemory(false, lowGlobal, vscodeStub);
+        assert.deepStrictEqual(userSettings.get('files.watcherExclude'), { '**/dist/**': true });
+        assert.strictEqual(userSettings.get('git.autorefresh'), true);
+        assert.ok(!userSettings.has('extensions.autoCheckUpdates'), 'a never set key is left set after off');
+        assert.ok(!userSettings.has('typescript.tsserver.maxTsServerMemory'));
+        // Off again changes nothing; junk is refused.
+        userSettings.set('git.autorefresh', false);
+        await bridge.applyLowMemory(false, lowGlobal, vscodeStub);
+        assert.strictEqual(userSettings.get('git.autorefresh'), false, 'off from off rewrote a setting');
+        assert.strictEqual(await bridge.applyLowMemory('yes', lowGlobal, vscodeStub), false);
+        userSettings.delete('files.watcherExclude');
+        userSettings.delete('git.autorefresh');
+        // Independent of Mobile view: its keys never overlap.
+        for (const key of Object.keys(bridge.LOW_MEMORY_SETTINGS)) {
+            assert.ok(!(key in bridge.MOBILE_SETTINGS), `${key} is in both Mobile view and low-memory mode`);
+        }
+    }
+
     // The Terminal tab: close the panel, then open the terminal (maximized by the setting).
     executed.length = 0;
     await bridge.showTerminal(vscodeStub);
@@ -372,7 +408,7 @@ async function main() {
     }
     assert.ok(bridge.ALLOWED_COMMANDS.has('workbench.action.files.saveAll'), 'sync cannot save all files');
 
-    for (const id of ['diligent.view.apply', 'diligent.mobile.showEditor', 'diligent.mobile.showTerminal']) {
+    for (const id of ['diligent.view.apply', 'diligent.lowMemory.apply', 'diligent.mobile.showEditor', 'diligent.mobile.showTerminal']) {
         assert.ok(registered.has(id), `${id} is allowed but was not registered`);
         assert.ok(bridge.ALLOWED_COMMANDS.has(id), `${id} is registered but Kotlin may not send it`);
     }

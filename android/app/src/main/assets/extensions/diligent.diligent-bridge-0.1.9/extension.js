@@ -26,6 +26,9 @@
  * Mobile view hides the editor's own bars and menus with settings and
  * commands, after saving the user's values, and Desktop view puts those
  * values back. Switching never reloads the page.
+ *
+ * Low-memory mode (`diligent.lowMemory.apply`) works the same way for its own
+ * keys: saved before the first change, restored when it is turned off.
  */
 
 const vscode = require('vscode');
@@ -42,6 +45,8 @@ const ALLOWED_COMMANDS = new Set([
     'vscode.open',
     // The view switch and the Editor and Terminal tabs, registered below.
     'diligent.view.apply',
+    // Low-memory mode on or off, registered below (Settings, and every page load).
+    'diligent.lowMemory.apply',
     'diligent.mobile.showEditor',
     'diligent.mobile.showTerminal',
     // Mobile view's action bar.
@@ -142,6 +147,30 @@ const EARLIER_MOBILE_VALUES = Object.freeze({
     'workbench.preferredLightColorTheme': ['Default Light Modern'],
     'workbench.preferredDarkColorTheme': ['Default Dark Modern'],
 });
+
+/**
+ * Low-memory mode's editor settings, for phones with 4 GB of memory or less.
+ * Saved and restored like [MOBILE_SETTINGS], under their own globalState keys,
+ * so the two modes switch independently.
+ *
+ * The file watcher stops following `node_modules` and Git's object store,
+ * the two folders with the most files; Git stops polling; extensions stop
+ * checking for updates; the TypeScript server gets 1 GB rather than its
+ * 3 GB default, so it is restarted before the phone kills the editor.
+ *
+ * `files.watcherExclude` is an object: the user's own patterns are kept and
+ * these two added (see lowMemoryValue).
+ */
+const LOW_MEMORY_SETTINGS = Object.freeze({
+    'files.watcherExclude': Object.freeze({ '**/node_modules/**': true, '**/.git/objects/**': true }),
+    'git.autorefresh': false,
+    'extensions.autoCheckUpdates': false,
+    'typescript.tsserver.maxTsServerMemory': 1024,
+});
+
+/** globalState keys: whether low-memory mode is applied, and the user's values it replaced. */
+const APPLIED_LOW_MEMORY_KEY = 'diligent.lowMemoryApplied';
+const SAVED_LOW_MEMORY_KEY = 'diligent.savedLowMemorySettings';
 
 /** Commands that clear the editor's side areas when Mobile view comes in. */
 const MOBILE_CLOSE_COMMANDS = [
@@ -338,6 +367,69 @@ async function applyView(view, state, api) {
         return true;
     }
     return false;
+}
+
+/**
+ * The value low-memory mode writes for [key] over the user's [current] one:
+ * for `files.watcherExclude`, the user's patterns with Diligent's two added;
+ * for the others, Diligent's value.
+ * @param {string} key
+ * @param {unknown} current
+ */
+function lowMemoryValue(key, current) {
+    const value = LOW_MEMORY_SETTINGS[key];
+    if (key === 'files.watcherExclude' && current && typeof current === 'object') {
+        return { .../** @type {object} */ (current), ...value };
+    }
+    return value;
+}
+
+/**
+ * Turns low-memory mode on ([on] true) or off, the way applyView switches
+ * Mobile view: on saves the user's (user level) values of its keys once, so
+ * the next page load's apply does not save its own values over them; off
+ * puts them back, removing a key the user had never set. Anything but a
+ * boolean is ignored.
+ *
+ * @param {unknown} on
+ * @param {{ get(key: string): any, update(key: string, value: any): Thenable<void> }} state globalState
+ * @param {typeof import('vscode')} api
+ */
+async function applyLowMemory(on, state, api) {
+    if (typeof on !== 'boolean') return false;
+    const config = api.workspace.getConfiguration();
+    const target = api.ConfigurationTarget.Global;
+    const applied = state.get(APPLIED_LOW_MEMORY_KEY) === true;
+    if (on) {
+        /** @type {Record<string, unknown>} */
+        const saved = applied ? { ...(state.get(SAVED_LOW_MEMORY_KEY) || {}) } : {};
+        const toSet = Object.keys(LOW_MEMORY_SETTINGS).filter((key) => !(key in saved));
+        /** @type {Record<string, unknown>} */
+        const values = {};
+        for (const key of toSet) {
+            const inspected = config.inspect(key);
+            const current = inspected ? inspected.globalValue : undefined;
+            values[key] = lowMemoryValue(key, current);
+            // As in applyView: a value already equal to this mode's is its own.
+            saved[key] = current === undefined || sameValue(current, values[key]) ? null : current;
+        }
+        await state.update(SAVED_LOW_MEMORY_KEY, saved);
+        await state.update(APPLIED_LOW_MEMORY_KEY, true);
+        for (const key of toSet) {
+            await config.update(key, values[key], target);
+        }
+        return true;
+    }
+    if (applied) {
+        const saved = state.get(SAVED_LOW_MEMORY_KEY) || {};
+        for (const key of Object.keys(LOW_MEMORY_SETTINGS)) {
+            const value = saved[key];
+            await config.update(key, value === null || value === undefined ? undefined : value, target);
+        }
+        await state.update(SAVED_LOW_MEMORY_KEY, undefined);
+    }
+    await state.update(APPLIED_LOW_MEMORY_KEY, false);
+    return true;
 }
 
 /** @param {unknown} a @param {unknown} b */
@@ -547,6 +639,8 @@ function activate(context) {
                 await applyView(view, context.globalState, vscode);
                 updateViewItem(viewItem, context.globalState.get(APPLIED_VIEW_KEY));
             })),
+        vscode.commands.registerCommand('diligent.lowMemory.apply',
+            logged((/** @type {unknown} */ on) => applyLowMemory(on, context.globalState, vscode))),
         vscode.commands.registerCommand('diligent.switchToMobileView',
             logged(() => switchToMobileView((method, args) => callBridge(method, args)))),
         vscode.commands.registerCommand('diligent.mobile.showEditor', logged(() => showEditor(vscode))),
@@ -589,7 +683,9 @@ module.exports = {
     BRIDGE_METHODS,
     MOBILE_SETTINGS,
     EARLIER_MOBILE_VALUES,
+    LOW_MEMORY_SETTINGS,
     applyView,
+    applyLowMemory,
     inOrder,
     switchToMobileView,
     updateViewItem,

@@ -152,6 +152,12 @@
     <string name="diligent_settings_section_editor">Editor</string>
     <string name="diligent_settings_editor">Editor settings</string>
     <string name="diligent_settings_editor_body">Font size, theme, tabs and more, in the editor\'s own settings</string>
+    <string name="diligent_settings_low_memory">Low-memory mode</string>
+    <string name="diligent_settings_low_memory_body">Lighter editor settings for phones with 4 GB of memory or less: fewer files watched, no Git polling or extension update checks, a smaller TypeScript server. Warns before a run when memory is low.</string>
+    <string name="diligent_low_memory_run_title">Memory is low</string>
+    <string name="diligent_low_memory_run_body">Only %1$d MB of memory is free. Android may stop the program, or the editor, to make room. Close other apps first, or run it anyway.</string>
+    <string name="diligent_low_memory_run_anyway">Run anyway</string>
+    <string name="diligent_low_memory_run_cancel">Cancel</string>
     <string name="diligent_settings_section_about">About</string>
     <string name="diligent_settings_app">Diligent</string>
     <string name="diligent_settings_version">Version %1$s</string>

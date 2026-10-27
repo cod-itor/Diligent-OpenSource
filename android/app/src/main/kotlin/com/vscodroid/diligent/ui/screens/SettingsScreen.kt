@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Tv
@@ -56,7 +57,7 @@ private const val OPEN_EDITOR_SETTINGS = "workbench.action.openSettings"
 
 /**
  * Settings (More, then Settings). Diligent's own settings only: the view, the
- * big screen suggestion, and About. Everything about the editor itself (font,
+ * big screen suggestion, low-memory mode, and About. Everything about the editor itself (font,
  * theme, keys) stays in VS Code's settings, which one row opens, so there is
  * never a second copy of a setting that could disagree with the first.
  *
@@ -115,6 +116,18 @@ fun SettingsScreen(shell: MobileShell, actions: MobileActions, modifier: Modifie
                     actions.openTab(MobileTab.Editor)
                 },
             ) { TrailingIcon(Icons.AutoMirrored.Outlined.OpenInNew) }
+            SettingRow(
+                title = stringResource(R.string.diligent_settings_low_memory),
+                body = stringResource(R.string.diligent_settings_low_memory_body),
+                icon = Icons.Outlined.Memory,
+                modifier = Modifier.toggleable(
+                    value = shell.lowMemory,
+                    role = Role.Switch,
+                    onValueChange = actions::setLowMemory,
+                ),
+            ) {
+                Switch(checked = shell.lowMemory, onCheckedChange = null)
+            }
 
             SectionDivider()
             SectionHeader(stringResource(R.string.diligent_settings_section_about))

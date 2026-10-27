@@ -25,6 +25,7 @@ import com.vscodroid.diligent.ui.components.DiligentTabBar
 import com.vscodroid.diligent.ui.components.DiligentTopBar
 import com.vscodroid.diligent.ui.components.EditorActionBar
 import com.vscodroid.diligent.ui.components.FileNameChipBar
+import com.vscodroid.diligent.ui.components.LowMemoryRunDialog
 import com.vscodroid.diligent.ui.components.MenuAction
 import com.vscodroid.diligent.ui.components.standardEditorActions
 import com.vscodroid.diligent.ui.components.suggestionActions
@@ -98,6 +99,7 @@ fun NativeScreens(shell: MobileShell, actions: MobileActions) {
     var filesMode by rememberSaveable { mutableStateOf(FilesMode.AllFiles) }
     if (shell.view == AppView.Mobile && shell.fileSwitcherOpen) FileSwitcherSheet(shell, actions)
     if (shell.view == AppView.Mobile) DevicePrompts(shell, actions)
+    shell.memoryWarning?.let { warning -> LowMemoryRunDialog(warning, onDismiss = { shell.memoryWarning = null }) }
     if (!shell.chrome.nativeScreen) return
     when (shell.tab) {
         MobileTab.Projects -> ProjectsScreen(shell, actions)
@@ -150,9 +152,11 @@ fun BottomChrome(shell: MobileShell, actions: MobileActions) {
                         if (actions.run.state.activeProfile != null) {
                             // The output shows where a program's output belongs:
                             // in a terminal of its own, on the Terminal tab.
-                            actions.run.showInTerminal { session, label ->
-                                actions.openTab(MobileTab.Terminal)
-                                actions.editorCommand(COMMAND_SHOW_RUN, session, label)
+                            actions.beforeRun {
+                                actions.run.showInTerminal { session, label ->
+                                    actions.openTab(MobileTab.Terminal)
+                                    actions.editorCommand(COMMAND_SHOW_RUN, session, label)
+                                }
                             }
                         } else {
                             shell.runRequested = true
