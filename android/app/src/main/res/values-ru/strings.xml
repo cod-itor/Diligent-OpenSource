@@ -372,6 +372,7 @@
     <string name="toolchain_perl_description">Perl с cpan, perldoc, prove</string>
     <string name="toolchain_kotlin_description">Компилятор Kotlin (kotlinc, kotlin). Работает на Java 21: установите и Java 21.</string>
     <string name="toolchain_rust_description">Rust (rustc, cargo). Компонует через C/C++, поэтому установите и C/C++. Нужен перехватчик exec терминала: не работает, если LD_PRELOAD установлен в null.</string>
+    <string name="toolchain_tcl_description">Tcl 8.6 (tclsh) с пакетами Itcl, Thread и TDBC.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

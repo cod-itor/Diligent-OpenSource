@@ -372,6 +372,7 @@
     <string name="toolchain_perl_description">Perl z cpan, perldoc, prove</string>
     <string name="toolchain_kotlin_description">Kompilator Kotlina (kotlinc, kotlin). Działa na Javie 21: zainstaluj też Java 21.</string>
     <string name="toolchain_rust_description">Rust (rustc, cargo). Linkuje za pomocą C/C++, więc zainstaluj też C/C++. Wymaga przechwytywania exec w terminalu: nie działa, gdy LD_PRELOAD jest ustawione na null.</string>
+    <string name="toolchain_tcl_description">Tcl 8.6 (tclsh) z pakietami Itcl, Thread i TDBC.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

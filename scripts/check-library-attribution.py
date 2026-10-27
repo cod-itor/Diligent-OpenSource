@@ -289,6 +289,7 @@ TOOLCHAIN_LIBRARIES = {
     "libicuio.so.78": ("ICU", "ICU"),
     # Diligent: the Perl pack.
     "libperl.so": ("Perl", "Artistic-1.0-Perl OR GPL-1.0-or-later"),
+    "libtcl8.6.so": ("Tcl", "TCL"),
 }
 
 # Where each component's own notice reaches the device, as a path under
@@ -385,6 +386,7 @@ NOTICE_DIRS = {
     "HTML Tidy": "usr/share/doc/tidy",
     "libzip": "usr/share/doc/libzip",
     "Perl": "usr/share/doc/perl",
+    "Tcl": "usr/share/doc/tcl",
 }
 
 # The smallest thing that can be a notice, in bytes.

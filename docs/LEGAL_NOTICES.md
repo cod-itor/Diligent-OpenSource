@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -753,6 +753,7 @@ nothing and report success.
 | libzip | BSD-3-Clause | PHP | https://github.com/termux/termux-packages (package: `libzip`) |
 | ICU | ICU | PHP (`libicuio.so.78` only; the rest of ICU is in the base app) | https://github.com/termux/termux-packages (package: `libicu`) |
 | Perl | Artistic-1.0-Perl OR GPL-1.0-or-later | Perl | https://github.com/termux/termux-packages (package: `perl`), built from https://www.cpan.org/src/ |
+| Tcl | TCL | Tcl | https://github.com/termux/termux-packages (package: `tcl`), built from https://www.tcl-lang.org |
 
 GMP, libgcrypt and libgpg-error are the copyleft libraries here, and Perl may be
 taken under the GPL as one of its two licences. Their written
@@ -852,6 +853,13 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: MIT or Apache License 2.0, at the recipient's choice; the third-party crates compiled into the tools carry their own permissive licences, listed in the files below
 - **Copyright**: Copyright (c) The Rust Project Developers
 - **Full license**: ships inside the pack at `usr/share/doc/rust` (`LICENSE-MIT`, `LICENSE-APACHE`, `COPYRIGHT.html`, `COPYRIGHT-library.html`, `LICENSE-THIRD-PARTY` and the `licenses` directory)
+
+### Tcl
+
+- **Project**: https://www.tcl-lang.org (Tcl 8.6 with the Itcl, Thread and TDBC packages it bundles, packaged by Termux)
+- **License**: the Tcl/Tk licence (TCL), a BSD-style permissive licence
+- **Copyright**: Copyright (c) the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties
+- **Full license**: ships inside the pack at `usr/share/doc/tcl/license.terms`, and https://www.tcl-lang.org/software/tcltk/license.html
 
 ---
 

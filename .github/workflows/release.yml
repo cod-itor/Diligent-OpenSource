@@ -716,6 +716,7 @@ jobs:
           bash scripts/download-perl.sh
           bash scripts/download-kotlin.sh
           bash scripts/download-rust.sh
+          bash scripts/download-tcl.sh
 
       # The unit suite ran on every pull request and on no tag, which put the
       # published build on the wrong side of it. Before the signing keystore is

@@ -17,6 +17,7 @@ set -euo pipefail
 #     ./scripts/download-perl.sh
 #     ./scripts/download-kotlin.sh
 #     ./scripts/download-rust.sh
+#     ./scripts/download-tcl.sh
 #
 # Usage:
 #   ./scripts/package-toolchains.sh              # Package all toolchains
@@ -32,6 +33,7 @@ set -euo pipefail
 #   toolchain-zips/toolchain_perl.zip  (~17 MB)
 #   toolchain-zips/toolchain_kotlin.zip(~90 MB)
 #   toolchain-zips/toolchain_rust.zip  (~97 MB)
+#   toolchain-zips/toolchain_tcl.zip   (~1.6 MB)
 #
 # The ZIPs are intended to be attached to GitHub Releases so that sideloaded
 # APK users (not from Play Store) can download toolchains manually. The app's

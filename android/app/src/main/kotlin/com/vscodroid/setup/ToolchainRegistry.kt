@@ -251,6 +251,20 @@ object ToolchainRegistry {
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_rust.zip",
             requires = listOf("toolchain_cpp"),
         ),
+        ToolchainInfo(
+            packName = "toolchain_tcl",
+            displayName = "Tcl",
+            shortLabel = "Tcl",
+            descriptionRes = R.string.toolchain_tcl_description,
+            // 5,004 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (5,124,096 bytes in 4 KiB blocks, 256 files) after running
+            // scripts/download-tcl.sh against tcl 8.6.16, with Itcl, Thread and
+            // TDBC. 6,000,000 leaves 0.9 MB for a point release. The ZIP
+            // measured 1,600,668 bytes.
+            estimatedSize = 6_000_000,
+            downloadSize = 2_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_tcl.zip",
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

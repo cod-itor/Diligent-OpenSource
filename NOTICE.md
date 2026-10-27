@@ -168,6 +168,7 @@ and the base APK for the table above.
 | [HTML Tidy](https://www.html-tidy.org) | HTMLTIDY | PHP |
 | [libzip](https://libzip.org) | BSD-3-Clause | PHP |
 | [Perl](https://www.perl.org) | Artistic-1.0-Perl OR GPL-1.0-or-later | Perl |
+| [Tcl](https://www.tcl-lang.org) | TCL | Tcl |
 
 GMP, libgcrypt and libgpg-error are copyleft; their source offers are in `docs/LEGAL_NOTICES.md` beside the rest,
 and the LGPL-3.0 text it requires ships in the base app, which is the only
@@ -196,6 +197,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | Perl | Artistic License or GPL v1+ | https://www.perl.org |
 | Kotlin | Apache 2.0 | https://kotlinlang.org |
 | Rust (rustc, cargo, rustdoc, rustfmt) | MIT or Apache 2.0 | https://www.rust-lang.org |
+| Tcl (with Itcl, Thread, TDBC) | TCL (BSD-style) | https://www.tcl-lang.org |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 
