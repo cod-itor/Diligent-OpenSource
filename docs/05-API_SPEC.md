@@ -896,6 +896,17 @@ fun diligentRemoveToolchain(authToken: String, name: String)
 // does nothing.
 
 @JavascriptInterface
+fun diligentActiveFile(authToken: String, json: String)
+// The file in front in the editor, sent by diligent-bridge when the active text
+// editor changes, when that file gains or loses unsaved changes, and once after
+// each `diligentEditorReady`. `json` is
+//   {"path":"<abs path>"|null,"name":"<file name>"|null,"dirty":true|false}
+// `path` is null for an untitled file; all fields are null or false when no text
+// editor is active. Mobile view's Editor tab shows `name` in its file name chip,
+// with a dot while `dirty`. Repeats are not sent. Parsed defensively: text that is
+// not a JSON object is ignored. Returns nothing; a refused token does nothing.
+
+@JavascriptInterface
 fun diligentNetworkType(authToken: String): String
 // The phone's active network: "wifi" (Wi-Fi or Ethernet, or an unknown transport
 // Android reports as not metered), "cellular" (mobile data, also under a VPN, and

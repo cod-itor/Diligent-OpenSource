@@ -443,6 +443,9 @@ class MainActivity : AppCompatActivity() {
                 .sortedByDescending { it.lastOpened }
                 .map { DeviceFolder(it.uri.toString(), it.displayName, it.lastOpened) }
             override fun openDeviceFolder(folder: DeviceFolder) = openRecentSafFolder(folder.uri.toUri())
+            override fun sendKey(key: String) {
+                extraKeyRow?.keyInjector?.injectKey(key)
+            }
         }) { webView }
     }
 
@@ -2574,7 +2577,9 @@ class MainActivity : AppCompatActivity() {
      * finger was put on and only then does the page give way.
      */
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        val handled = super.dispatchTouchEvent(ev)
+        // Diligent's press-and-drag cursor sees the touch first, and passes it
+        // on unchanged unless a hold on the code turned it into a cursor drag.
+        val handled = diligent.consumeTouch(ev) || super.dispatchTouchEvent(ev)
         if (ev.actionMasked == MotionEvent.ACTION_UP && HardwareTyping.isScreenTouch(ev.source)) {
             extraKeyRow?.hiddenForHardwareKeyboard = false
         }

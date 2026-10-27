@@ -3,6 +3,7 @@ package com.vscodroid.diligent
 import android.content.Context
 import android.content.Intent
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -38,6 +39,7 @@ import com.vscodroid.diligent.devices.DeviceLinks
 import com.vscodroid.diligent.health.HealthReport
 import com.vscodroid.diligent.kit.KitProgress
 import com.vscodroid.diligent.kit.KitSession
+import com.vscodroid.diligent.files.RecentFiles
 import com.vscodroid.diligent.projects.RecentProjects
 import com.vscodroid.diligent.preview.PreviewActivity
 import com.vscodroid.diligent.run.ProjectRunner
@@ -318,6 +320,26 @@ class DiligentController(
         }
     }
 
+    /**
+     * Press and hold on the code, then drag: the cursor moves like on a
+     * trackpad. Mobile view's Editor tab only, with no native screen over it.
+     */
+    private val cursorDrag by lazy {
+        CursorDragTouch(
+            activity = activity,
+            webView = webView,
+            enabled = { shell.view == AppView.Mobile && shell.tab == MobileTab.Editor && !shell.chrome.nativeScreen },
+            sendKey = host::sendKey,
+        )
+    }
+
+    /**
+     * Every touch of the window, from the activity's `dispatchTouchEvent`,
+     * before the views get it. True when a cursor drag owns it, and the
+     * activity must not deliver it.
+     */
+    fun consumeTouch(ev: MotionEvent): Boolean = cursorDrag.consume(ev)
+
     /** The soft keyboard came up or went down (from the extra key row's inset listener). */
     fun onImeVisibilityChanged(visible: Boolean) {
         shell.imeVisible = visible
@@ -354,6 +376,9 @@ class DiligentController(
         }
 
         override fun openFile(path: String) {
+            // The one place every way of opening a file passes: the all-files
+            // list and switcher, the Files tree, and Run's own files.
+            RecentFiles.of(activity).opened(shell.folder, path)
             editor.run("vscode.open", EditorPath(path))
             openTab(MobileTab.Editor)
         }
@@ -413,6 +438,13 @@ class DiligentController(
         override fun kitProgress(json: String) {
             val progress = KitProgress.parse(json) ?: return
             activity.runOnUiThread { kit.onProgress(progress) }
+        }
+
+        override fun activeFile(json: String) {
+            val result = ActiveFile.parse(json) ?: return
+            activity.runOnUiThread {
+                shell.activeFile = (result as? ActiveFile.Result.File)?.file
+            }
         }
 
         // Answered on the JavaBridge thread, which the relay waits on: the

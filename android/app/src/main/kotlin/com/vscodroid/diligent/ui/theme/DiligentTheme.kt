@@ -254,6 +254,8 @@ data class DiligentSizes(
     val iconSmall: Dp = 18.dp,
     val iconLarge: Dp = 32.dp,
     val topBar: Dp = 56.dp,
+    /** The file name chip's visible height; its touch target is still [touchTarget]. */
+    val chip: Dp = 32.dp,
     val tabBar: Dp = 64.dp,
     val actionBar: Dp = 56.dp,
     val statusDot: Dp = 8.dp,

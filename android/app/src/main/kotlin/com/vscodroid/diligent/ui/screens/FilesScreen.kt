@@ -23,6 +23,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -53,6 +56,7 @@ import com.vscodroid.diligent.files.FileResult
 import com.vscodroid.diligent.files.FileTree
 import com.vscodroid.diligent.files.ProjectFiles
 import com.vscodroid.diligent.files.TreeRow
+import com.vscodroid.diligent.ui.components.AllFilesList
 import com.vscodroid.diligent.ui.components.DeleteDialog
 import com.vscodroid.diligent.ui.components.FileRow
 import com.vscodroid.diligent.ui.components.FileSheet
@@ -68,7 +72,9 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 /**
- * Mobile view's Files tab: the open project as an expandable tree.
+ * Mobile view's Files tab: every file of the open project in one searchable
+ * list ([FilesMode.AllFiles], see [AllFilesList]), or the project as an
+ * expandable tree ([FilesMode.Folders]), which this comment is about.
  *
  * **A tree rather than a folder-at-a-time browser.** A browser gives each
  * level the whole width, but it hides where a file sits and turns "the other
@@ -90,7 +96,13 @@ import java.io.File
  * watcher as the editor's own saves: see [ProjectFiles].
  */
 @Composable
-fun FilesScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = Modifier) {
+fun FilesScreen(
+    shell: MobileShell,
+    actions: MobileActions,
+    modifier: Modifier = Modifier,
+    mode: FilesMode = FilesMode.AllFiles,
+    onMode: (FilesMode) -> Unit = {},
+) {
     val title = stringResource(R.string.diligent_screen_files)
     Surface(
         modifier = modifier.fillMaxSize().semantics { paneTitle = title },
@@ -100,8 +112,57 @@ fun FilesScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier =
         if (folder == null) {
             NoProject(onOpenProjects = { actions.openTab(MobileTab.Projects) })
         } else {
-            // A different project is a different tree: nothing carries over.
-            key(folder) { ProjectTree(folder, shell.projectName ?: File(folder).name, actions) }
+            Column(Modifier.fillMaxSize()) {
+                FilesModeSwitch(mode, onMode)
+                // A different project is a different list and tree: nothing carries over.
+                key(folder) {
+                    when (mode) {
+                        FilesMode.AllFiles -> AllFilesList(
+                            root = folder,
+                            onOpen = { actions.openFile(it.path) },
+                            modifier = Modifier.weight(1f),
+                        )
+                        FilesMode.Folders -> Box(Modifier.weight(1f)) {
+                            ProjectTree(folder, shell.projectName ?: File(folder).name, actions)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * How the Files tab shows the project: every file in one list with a search
+ * (the default, so any file is one tap away), or the folder tree, where
+ * files are made, renamed, moved and deleted.
+ */
+enum class FilesMode { AllFiles, Folders }
+
+@Composable
+private fun FilesModeSwitch(mode: FilesMode, onMode: (FilesMode) -> Unit) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = DiligentTheme.spacing.m, end = DiligentTheme.spacing.m, top = DiligentTheme.spacing.s),
+    ) {
+        val modes = FilesMode.entries
+        modes.forEachIndexed { index, each ->
+            SegmentedButton(
+                selected = mode == each,
+                onClick = { onMode(each) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
+                modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget),
+            ) {
+                Text(
+                    stringResource(
+                        when (each) {
+                            FilesMode.AllFiles -> R.string.diligent_files_mode_all
+                            FilesMode.Folders -> R.string.diligent_files_mode_folders
+                        },
+                    ),
+                )
+            }
         }
     }
 }

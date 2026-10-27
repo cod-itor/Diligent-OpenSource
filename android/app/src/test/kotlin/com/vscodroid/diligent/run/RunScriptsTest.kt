@@ -335,5 +335,64 @@ class RunScriptsTest {
             val scripts = RunScripts(home.path, hostBash.path, null)
             assertEquals(2, run(scripts.start("diligent-x-dev", File(tmp, "gone").path, RunProfile("dev", "true")), home, bin))
         }
+
+        /** Starts `bash <file>` the way the Run terminal does, with [input] typed into it. */
+        private fun terminal(file: String, home: File, input: String = ""): Process {
+            val process = ProcessBuilder(hostBash.path, file)
+                .redirectErrorStream(true)
+                .apply {
+                    environment().clear()
+                    environment()["PATH"] = "/usr/bin:/bin"
+                    environment()["HOME"] = home.path
+                    environment()["TERM"] = "dumb"
+                }
+                .start()
+            process.outputStream.use { it.write(input.toByteArray()) }
+            return process
+        }
+
+        @Test
+        fun `a script runs in the terminal, reads what is typed, and says how it ended`() {
+            assumeTrue(hostBash.canExecute(), "no bash on this machine")
+            val home = File(tmp, "home").apply { mkdirs() }
+            val dir = File(tmp, "it's a \$(project)").apply { mkdirs() }
+            val scripts = RunScripts(home.path, hostBash.path, null)
+            val session = "diligent-x-main"
+            val profile = RunProfile("main", "read -r name; echo \"hi \$name from \$(basename \"\$PWD\")\"; exit 3")
+            assertEquals(0, run(scripts.writeTerminalScript(session, scripts.inTerminal(dir.path, profile)), home, File(tmp, "bin")))
+
+            val process = terminal(scripts.terminalScriptPath(session), home, input = "Ada\n")
+            val out = process.inputStream.bufferedReader().readText()
+            assertTrue(process.waitFor(30, TimeUnit.SECONDS))
+            assertTrue(out.contains("hi Ada from it's a \$(project)"), out)
+            assertTrue(out.contains("Finished with exit code 3."), out)
+        }
+
+        @Test
+        fun `a server's terminal shows only what it printed`() {
+            assumeTrue(hostBash.canExecute(), "no bash on this machine")
+            val home = File(tmp, "home").apply { mkdirs() }
+            val scripts = RunScripts(home.path, hostBash.path, null)
+            val session = "diligent-x-dev"
+            File(scripts.logPath(session)).apply {
+                parentFile.mkdirs()
+                writeText("[diligent] \$ npm run dev\nready on http://localhost:3000\nGET / 200\n${RunScripts.EXIT_MARK}1\n")
+            }
+            assertEquals(0, run(scripts.writeTerminalScript(session, scripts.followLog(session, "npm run dev")), home, File(tmp, "bin")))
+
+            // It follows the log until stopped, as the terminal's Ctrl-C would:
+            // here, its children are ended after a moment.
+            val file = BundledShell.quote(scripts.terminalScriptPath(session))
+            val stopper = File(tmp, "follow.sh").apply {
+                writeText("bash $file 2>/dev/null & p=${'$'}!\nsleep 1.5\npkill -P ${'$'}p\nkill ${'$'}p 2>/dev/null\nwait\n")
+            }
+            val process = terminal(stopper.path, home)
+            val out = process.inputStream.bufferedReader().readText()
+            assertTrue(process.waitFor(30, TimeUnit.SECONDS))
+            assertTrue(out.contains("ready on http://localhost:3000\nGET / 200\n"), out)
+            assertTrue(out.contains("Stopped with exit code 1."), out)
+            assertFalse(out.contains(RunScripts.EXIT_MARK), out)
+            assertFalse(out.contains("[diligent] \$"), out)
+        }
     }
 }

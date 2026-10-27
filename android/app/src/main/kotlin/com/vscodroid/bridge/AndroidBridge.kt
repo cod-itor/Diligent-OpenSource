@@ -1638,6 +1638,18 @@ class AndroidBridge(
         return NetworkType.current(context)
     }
 
+    /**
+     * The file in front in the editor changed, or its unsaved state did:
+     * [json] is `{"path":"<abs>"|null,"name":"<file name>"|null,"dirty":bool}`
+     * as docs/05-API_SPEC.md describes. Mobile view's file name chip shows it.
+     * JSON it cannot read is ignored.
+     */
+    @JavascriptInterface
+    fun diligentActiveFile(authToken: String, json: String) {
+        if (!security.validateToken(authToken)) return
+        diligent?.activeFile(json)
+    }
+
     private fun getVersionName(): String {
         return try {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown"

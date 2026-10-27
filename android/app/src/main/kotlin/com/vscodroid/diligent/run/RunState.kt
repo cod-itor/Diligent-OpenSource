@@ -92,6 +92,15 @@ interface RunControl {
 
     /** Opens `run.json` in the editor. */
     fun openConfig()
+
+    /**
+     * The action bar's Run: gets the active profile's output ready for a
+     * terminal, then calls [show] on the main thread with the run's session
+     * name and the profile's name. A script (no port, on the phone) runs in
+     * that terminal itself; a dev server, or a run on a laptop, is started
+     * as [start] does and its log is followed there.
+     */
+    fun showInTerminal(show: (session: String, label: String) -> Unit) = Unit
 }
 
 /** Which profile Start and Stop act on. */

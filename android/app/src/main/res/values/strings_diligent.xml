@@ -23,6 +23,12 @@
     <string name="diligent_menu">Menu</string>
     <string name="diligent_no_project">No project open</string>
 
+    <!-- File name chip (Editor tab's top strip) -->
+    <string name="diligent_file_none">No file open</string>
+    <string name="diligent_file_unsaved">%1$s, unsaved changes</string>
+    <string name="diligent_file_show_all">Show all files</string>
+    <string name="diligent_file_menu">Project menu</string>
+
     <!-- Editor action bar -->
     <string name="diligent_action_run">Run</string>
     <string name="diligent_action_stop">Stop</string>
@@ -202,6 +208,25 @@
     <string name="diligent_files_problem_into_itself">A folder cannot go inside itself.</string>
     <string name="diligent_files_problem_already_there">It is already in that folder.</string>
     <string name="diligent_files_problem_failed">That did not work. Check that there is space and try again.</string>
+    <!-- Files tab: All files, every file of the project in one list -->
+    <string name="diligent_files_mode_all">All files</string>
+    <string name="diligent_files_mode_folders">Folders</string>
+    <string name="diligent_files_search">Search files</string>
+    <string name="diligent_files_search_clear">Clear search</string>
+    <string name="diligent_files_recent">Opened recently</string>
+    <string name="diligent_files_top_folder">Top folder of the project</string>
+    <string name="diligent_files_row_description">%1$s, in %2$s</string>
+    <string name="diligent_files_no_match_title">No file matches \"%1$s\"</string>
+    <string name="diligent_files_no_match_body">Check the spelling, or type part of the file name or its folder.</string>
+    <string name="diligent_files_no_files_body">There are no files here yet. Switch to Folders and tap New to add one.</string>
+    <string name="diligent_files_list_unreadable">The files of this project could not be read.</string>
+    <string name="diligent_files_switcher_title">Go to a file</string>
+    <string name="diligent_files_switcher_close">Close</string>
+    <string name="diligent_files_switcher_no_project_body">Open a project first. Then you can jump to any of its files from here.</string>
+    <plurals name="diligent_files_capped">
+        <item quantity="one">This project is very big, so only the first %1$d file is listed. Use Folders to reach the rest.</item>
+        <item quantity="other">This project is very big, so only the first %1$d files are listed. Use Folders to reach the rest.</item>
+    </plurals>
 
     <!-- Projects tab -->
     <string name="diligent_projects_new">New project</string>
