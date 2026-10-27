@@ -345,7 +345,7 @@ android {
     }
 
     // On-demand toolchain asset packs (Play Asset Delivery)
-    assetPacks += listOf(":toolchain_ruby", ":toolchain_java", ":toolchain_cpp", ":toolchain_php", ":toolchain_lua", ":toolchain_perl", ":toolchain_kotlin", ":toolchain_rust", ":toolchain_tcl", ":toolchain_groovy")
+    assetPacks += listOf(":toolchain_ruby", ":toolchain_java", ":toolchain_cpp", ":toolchain_php", ":toolchain_lua", ":toolchain_perl", ":toolchain_kotlin", ":toolchain_rust", ":toolchain_tcl", ":toolchain_groovy", ":toolchain_scala")
 
     bundle {
         language {
@@ -696,6 +696,7 @@ tasks.withType<Test> {
         rootProject.projectDir.parentFile.resolve("scripts/download-rust.sh"),
         rootProject.projectDir.parentFile.resolve("scripts/download-tcl.sh"),
         rootProject.projectDir.parentFile.resolve("scripts/download-groovy.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-scala.sh"),
     )
         .withPropertyName("toolchainDownloadScripts")
         .withPathSensitivity(PathSensitivity.RELATIVE)

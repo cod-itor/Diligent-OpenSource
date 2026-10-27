@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy, Scala) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -868,6 +868,13 @@ The following toolchains are available as optional downloads and have their own 
 - **Copyright**: Copyright (c) The Apache Software Foundation
 - **Full license**: ships inside the pack at `usr/opt/groovy/LICENSE` and `usr/opt/groovy/NOTICE`, with the bundled libraries' licences in `usr/opt/groovy/licenses`
 - **Source**: JUnit 4, which is under the Eclipse Public License 1.0, is available in source form at https://github.com/junit-team/junit4; Groovy's own at https://github.com/apache/groovy
+
+### Scala
+
+- **Project**: https://www.scala-lang.org (Scala 3 with scala-cli, packaged by Termux)
+- **License**: Apache License 2.0; the libraries in its bundled `maven2/` repository and inside `scala-cli.jar` carry their own permissive licences, recorded in each jar's `META-INF`
+- **Copyright**: Copyright (c) EPFL and Lightbend, Inc. (Scala); Copyright (c) VirtusLab (scala-cli)
+- **Full license**: ships inside the pack at `usr/share/doc/scala/copyright`, and https://www.scala-lang.org/license/
 
 ---
 

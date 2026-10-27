@@ -19,6 +19,7 @@ set -euo pipefail
 #     ./scripts/download-rust.sh
 #     ./scripts/download-tcl.sh
 #     ./scripts/download-groovy.sh
+#     ./scripts/download-scala.sh
 #
 # Usage:
 #   ./scripts/package-toolchains.sh              # Package all toolchains
@@ -36,6 +37,7 @@ set -euo pipefail
 #   toolchain-zips/toolchain_rust.zip  (~97 MB)
 #   toolchain-zips/toolchain_tcl.zip   (~1.6 MB)
 #   toolchain-zips/toolchain_groovy.zip(~39 MB)
+#   toolchain-zips/toolchain_scala.zip (~169 MB)
 #
 # The ZIPs are intended to be attached to GitHub Releases so that sideloaded
 # APK users (not from Play Store) can download toolchains manually. The app's

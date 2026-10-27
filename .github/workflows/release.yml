@@ -718,6 +718,7 @@ jobs:
           bash scripts/download-rust.sh
           bash scripts/download-tcl.sh
           bash scripts/download-groovy.sh
+          bash scripts/download-scala.sh
 
       # The unit suite ran on every pull request and on no tag, which put the
       # published build on the wrong side of it. Before the signing keystore is

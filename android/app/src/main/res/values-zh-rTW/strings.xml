@@ -365,6 +365,7 @@
     <string name="toolchain_rust_description">Rust（rustc、cargo）。使用 C/C++ 進行連結，請同時安裝 C/C++。需要終端機的 exec 攔截器，LD_PRELOAD 設為 null 時無法使用。</string>
     <string name="toolchain_tcl_description">Tcl 8.6（tclsh），附帶 Itcl、Thread 和 TDBC。</string>
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh)。在 Java 21 上執行，請同時安裝 Java 21。</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc)。在 Java 21 上執行，請同時安裝 Java 21。</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -281,6 +281,23 @@ object ToolchainRegistry {
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_groovy.zip",
             requires = listOf("toolchain_java"),
         ),
+        ToolchainInfo(
+            packName = "toolchain_scala",
+            displayName = "Scala",
+            shortLabel = "Scala",
+            descriptionRes = R.string.toolchain_scala_description,
+            // 184,220 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (188,641,280 bytes in 4 KiB blocks, 155 files) after running
+            // scripts/download-scala.sh against scala 3.10.0. scala-cli.jar, the
+            // launcher behind `scala`, is 126 MB of it; the compiler is in the
+            // bundled maven2/ repository. 193,000,000 leaves 4.4 MB for a point
+            // release. Jars are already compressed, so the ZIP is nearly as
+            // large: 176,795,380 bytes.
+            estimatedSize = 193_000_000,
+            downloadSize = 177_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_scala.zip",
+            requires = listOf("toolchain_java"),
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

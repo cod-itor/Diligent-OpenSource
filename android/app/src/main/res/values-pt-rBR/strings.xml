@@ -371,6 +371,7 @@
     <string name="toolchain_rust_description">Rust (rustc, cargo). Faz a ligação com C/C++, então instale também o C/C++. Precisa do interceptador de exec do terminal: não funciona com LD_PRELOAD definido como null.</string>
     <string name="toolchain_tcl_description">Tcl 8.6 (tclsh), com Itcl, Thread e TDBC.</string>
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Roda no Java 21: instale também o Java 21.</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Roda no Java 21: instale também o Java 21.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

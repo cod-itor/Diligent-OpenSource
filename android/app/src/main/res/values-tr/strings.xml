@@ -368,6 +368,7 @@
     <string name="toolchain_rust_description">Rust (rustc, cargo). Bağlama için C/C++ kullanır, bu yüzden C/C++\'ı da yükleyin. Terminalin exec yakalayıcısını gerektirir: LD_PRELOAD null olarak ayarlıysa çalışmaz.</string>
     <string name="toolchain_tcl_description">Tcl 8.6 (tclsh); Itcl, Thread ve TDBC ile.</string>
     <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->
