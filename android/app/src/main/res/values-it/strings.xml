@@ -193,6 +193,7 @@
     <string name="toolchain_failed_digest">Il download non corrisponde a quanto pubblicato nella release. Riprova.</string>
     <string name="toolchain_failed_corrupt">Il download è incompleto. Riprova.</string>
     <string name="toolchain_failed_play">Play distribuisce questa toolchain solo alle app che ha installato. Installa dal Play Store e riprova.</string>
+    <string name="toolchain_failed_needs_java">Questa toolchain funziona su Java 21. Installa prima Java 21, poi riprova.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -365,6 +366,7 @@
     <string name="toolchain_php_description">PHP con Composer</string>
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
     <string name="toolchain_perl_description">Perl con cpan, perldoc, prove</string>
+    <string name="toolchain_kotlin_description">Compilatore Kotlin (kotlinc, kotlin). Funziona su Java 21: installa anche Java 21.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

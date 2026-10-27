@@ -193,6 +193,7 @@
     <string name="toolchain_failed_digest">İndirilen dosya, sürümde yayımlananla eşleşmedi. Yeniden deneyin.</string>
     <string name="toolchain_failed_corrupt">İndirme tamamlanmadı. Yeniden deneyin.</string>
     <string name="toolchain_failed_play">Play, bu araç zincirini yalnızca kendi yüklediği uygulamalara sunar. Play Store\'dan yükleyip yeniden deneyin.</string>
+    <string name="toolchain_failed_needs_java">Bu araç zinciri Java 21 üzerinde çalışır. Önce Java 21\'i yükleyin, sonra yeniden deneyin.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -362,6 +363,7 @@
     <string name="toolchain_php_description">PHP (Composer)</string>
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
     <string name="toolchain_perl_description">Perl (cpan, perldoc, prove)</string>
+    <string name="toolchain_kotlin_description">Kotlin derleyicisi (kotlinc, kotlin). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

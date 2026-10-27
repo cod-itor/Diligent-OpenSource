@@ -194,6 +194,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | Composer | MIT | https://getcomposer.org |
 | Lua | MIT | https://www.lua.org |
 | Perl | Artistic License or GPL v1+ | https://www.perl.org |
+| Kotlin | Apache 2.0 | https://kotlinlang.org |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 

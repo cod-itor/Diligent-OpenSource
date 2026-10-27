@@ -67,6 +67,18 @@ object ToolchainRegistry {
         val downloadSize: Long,
         /** Fallback URL for sideloaded installs (no Play Store). Null = Play-only. */
         val downloadUrl: String? = null,
+        /**
+         * Diligent: the packs this one runs on, by pack name, which have to be
+         * installed before it. Kotlin's compiler is JVM jars started by `java`,
+         * so it names `toolchain_java`.
+         *
+         * [ToolchainManager.install] refuses a pack whose requirement is not
+         * installed, with a message naming what to install first, and
+         * [inInstallOrder] puts a requirement ahead of its dependant when both
+         * are picked together. Removing the requirement later is not prevented:
+         * the dependant stays installed and its commands fail until it is back.
+         */
+        val requires: List<String> = emptyList(),
     )
 
     /**
@@ -189,11 +201,62 @@ object ToolchainRegistry {
             downloadSize = 18_000_000,
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_perl.zip",
         ),
+        ToolchainInfo(
+            packName = "toolchain_kotlin",
+            displayName = "Kotlin",
+            shortLabel = "Kotlin",
+            descriptionRes = R.string.toolchain_kotlin_description,
+            // 95,380 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (97,669,120 bytes in 4 KiB blocks, 121 files) after running
+            // scripts/download-kotlin.sh against kotlin 2.4.21. All of it is the
+            // compiler's jars and their licences; there is no native code.
+            // 101,000,000 leaves 3.3 MB for a point release. Jars are already
+            // compressed, so the ZIP is nearly as large: 89,645,091 bytes.
+            //
+            // The Java pack is not counted here. It is a separate install with
+            // its own pre-flight, and `requires` makes it come first.
+            estimatedSize = 101_000_000,
+            downloadSize = 90_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_kotlin.zip",
+            requires = listOf("toolchain_java"),
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */
     fun find(nameOrPack: String): ToolchainInfo? =
         available.find { it.packName == nameOrPack || it.packName == "toolchain_$nameOrPack" }
+
+    /**
+     * Diligent: the first pack [nameOrPack] requires that is not in [installed]
+     * (short names, as `ToolchainManager.getInstalledToolchains` returns them),
+     * or null when nothing is missing.
+     */
+    fun missingRequirement(nameOrPack: String, installed: Collection<String>): ToolchainInfo? {
+        val have = installed.mapNotNull { find(it)?.packName }.toSet()
+        return find(nameOrPack)?.requires?.firstOrNull { it !in have }?.let { find(it) }
+    }
+
+    /**
+     * Diligent: [packs] in an order that installs each requirement before the
+     * pack that needs it, when both are in the list, and otherwise as given.
+     * The first-run queue installs one pack after another in list order, so a
+     * Kotlin picked before Java would otherwise reach [ToolchainManager.install]
+     * first and be refused.
+     */
+    fun inInstallOrder(packs: List<String>): List<String> {
+        val out = LinkedHashSet<String>()
+        // Guards a cycle, which no entry has: without it one would recurse for ever.
+        val visiting = mutableSetOf<String>()
+        fun add(pack: String) {
+            if (pack in out || !visiting.add(pack)) return
+            for (required in find(pack)?.requires.orEmpty()) {
+                packs.firstOrNull { find(it)?.packName == required }?.let(::add)
+            }
+            out.add(pack)
+        }
+        packs.forEach(::add)
+        return out.toList()
+    }
 
     // There was a `formatSize` here, dividing by 1,000,000 and writing "MB"
     // while every other byte figure the app showed divided by 1,048,576 and

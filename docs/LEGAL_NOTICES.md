@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -838,6 +838,13 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: the Artistic License or the GNU General Public License, version 1 or later, at the recipient's choice (Artistic-1.0-Perl OR GPL-1.0-or-later)
 - **Copyright**: Copyright (c) Larry Wall and others
 - **Full license**: ships inside the pack at `usr/share/doc/perl/copyright`, and https://dev.perl.org/licenses/
+
+### Kotlin
+
+- **Project**: https://kotlinlang.org (the Kotlin compiler, packaged by Termux)
+- **License**: Apache License 2.0
+- **Copyright**: Copyright (c) JetBrains s.r.o. and Kotlin Programming Language contributors
+- **Full license**: ships inside the pack at `usr/opt/kotlin/license/LICENSE.txt`, with the compiler's third-party notices beside it in `usr/opt/kotlin/license/third_party`
 
 ---
 

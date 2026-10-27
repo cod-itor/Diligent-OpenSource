@@ -193,6 +193,7 @@
     <string name="toolchain_failed_digest">Stažený soubor neodpovídá tomu, co bylo ve vydání zveřejněno. Zkuste to znovu.</string>
     <string name="toolchain_failed_corrupt">Stahování nebylo úplné. Zkuste to znovu.</string>
     <string name="toolchain_failed_play">Play doručuje tuto sadu nástrojů jen aplikacím, které sám nainstaloval. Nainstalujte aplikaci z Obchodu Play a zkuste to znovu.</string>
+    <string name="toolchain_failed_needs_java">Tato sada nástrojů běží na Javě 21. Nejprve nainstalujte Java 21 a pak to zkuste znovu.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -368,6 +369,7 @@
     <string name="toolchain_php_description">PHP s nástrojem Composer</string>
     <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
     <string name="toolchain_perl_description">Perl s nástroji cpan, perldoc, prove</string>
+    <string name="toolchain_kotlin_description">Kompilátor Kotlinu (kotlinc, kotlin). Běží na Javě 21: nainstalujte také Java 21.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->
