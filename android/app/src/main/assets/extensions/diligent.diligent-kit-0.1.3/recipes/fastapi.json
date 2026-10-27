@@ -1,0 +1,70 @@
+{
+  "id": "fastapi",
+  "title": "FastAPI web API",
+  "summary": "A Python web API with FastAPI and uvicorn, with interactive docs",
+  "language": "Python",
+  "sizeMB": 45,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 80,
+    "internet": "once"
+  },
+  "tested": {
+    "python": "3.14",
+    "fastapi": "0.162",
+    "pydantic": "2.12",
+    "uvicorn": "0.54"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write main.py",
+      "template": "fastapi/main.py",
+      "path": "main.py"
+    },
+    {
+      "type": "write",
+      "title": "Write requirements.txt",
+      "template": "fastapi/requirements.txt",
+      "path": "requirements.txt"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "fastapi/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Create the virtual environment",
+      "command": "python3 -m venv .venv",
+      "timeoutSec": 300
+    },
+    {
+      "type": "run",
+      "title": "Install FastAPI and uvicorn",
+      "command": ".venv/bin/python -m pip install --prefer-binary -r requirements.txt",
+      "timeoutSec": 1200
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "serve",
+          "command": ".venv/bin/python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+          "port": 8000
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that the API answers",
+      "profile": "serve",
+      "expect": {
+        "port": 8000
+      },
+      "timeoutSec": 120
+    }
+  ]
+}

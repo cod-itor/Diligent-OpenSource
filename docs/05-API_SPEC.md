@@ -823,7 +823,8 @@ fun diligentEditorReady(authToken: String)
 // The diligent-bridge extension in the page on screen is listening. Kotlin then
 // marks that page and sends the editor commands it held during the cold start
 // (EditorChannel.editorReady), then re-applies this device's view to the new
-// page (`diligent.view.apply`, and in Mobile view the current tab). Sent once
+// page (`diligent.view.apply`, and in Mobile view the current tab) and
+// low-memory mode, on or off (`diligent.lowMemory.apply`). Sent once
 // per page load, retried until the relay exists. Returns nothing; a refused
 // token does nothing. Editor commands Kotlin may send are the
 // `ALLOWED_COMMANDS` of the diligent-bridge extension, and
@@ -868,7 +869,10 @@ fun diligentKitProgress(authToken: String, json: String)
 // and project folder name) and then ignores other runs, such as a `kit add` in
 // the terminal. Parsed defensively: text that is not a JSON object with a
 // `runId` is ignored, and an incomplete `step` or `done` is dropped. Cancel
-// sends `diligent.kit.cancel(runId)` back to the editor. Returns nothing; a
+// sends `diligent.kit.cancel(runId)` back to the editor. Setup's Prepare for
+// offline sends `diligent.kit.add(recipe, recipe, "prepare")`: `kit prepare`,
+// whose messages have the same shape, with `project` the temporary folder
+// `~/.diligent/kit-prepare/<recipe>` (deleted when it ends). Returns nothing; a
 // refused token does nothing.
 
 @JavascriptInterface

@@ -679,6 +679,13 @@ class ToolchainManager(private val context: Context) {
             fail(packName, ToolchainFailure.INTERNAL)
             return
         }
+        // Diligent: refused before anything is fetched, because a pack whose
+        // runtime is missing installs cleanly and then fails on its first use.
+        ToolchainRegistry.missingRequirement(info.packName, getInstalledToolchains())?.let { missing ->
+            Logger.w(tag, "Not installing ${info.displayName}: it needs ${missing.displayName} first")
+            fail(info.packName, missingRequirementFailure(missing))
+            return
+        }
         Logger.i(tag, "Requesting install of ${info.displayName} (${info.packName})")
 
         if (shouldUseHttpFallback()) {
@@ -4813,8 +4820,26 @@ enum class ToolchainFailure(@param:StringRes val message: Int) {
     // Naming the build type is wrong for the second, which shouldUseHttpFallback
     // has already classified as a Play install.
     PLAY_REQUIRED(R.string.toolchain_failed_play),
+    // Diligent: a pack that runs on another, asked for before that one is
+    // installed. One entry per requirement, so the message can name it.
+    NEEDS_JAVA(R.string.toolchain_failed_needs_java),
+    NEEDS_CPP(R.string.toolchain_failed_needs_cpp),
+    NEEDS_ERLANG(R.string.toolchain_failed_needs_erlang),
     INTERNAL(R.string.toolchain_failed_internal),
 }
+
+/**
+ * Diligent: what [ToolchainManager.install] reports for a pack whose requirement
+ * [missing] is not installed. A requirement with no entry of its own here is
+ * reported as INTERNAL, which says to read the log, where the name is.
+ */
+internal fun missingRequirementFailure(missing: ToolchainRegistry.ToolchainInfo): ToolchainFailure =
+    when (missing.packName) {
+        "toolchain_java" -> ToolchainFailure.NEEDS_JAVA
+        "toolchain_cpp" -> ToolchainFailure.NEEDS_CPP
+        "toolchain_erlang" -> ToolchainFailure.NEEDS_ERLANG
+        else -> ToolchainFailure.INTERNAL
+    }
 
 /**
  * Why a Play fetch was refused before any state was ever delivered.

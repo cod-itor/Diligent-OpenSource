@@ -193,6 +193,9 @@
     <string name="toolchain_failed_digest">Pobrany plik nie zgadza się z tym, co opublikowano w wydaniu. Spróbuj ponownie.</string>
     <string name="toolchain_failed_corrupt">Pobieranie było niekompletne. Spróbuj ponownie.</string>
     <string name="toolchain_failed_play">Play dostarcza ten zestaw narzędzi tylko aplikacjom, które sam zainstalował. Zainstaluj aplikację ze Sklepu Play i spróbuj ponownie.</string>
+    <string name="toolchain_failed_needs_java">Ten zestaw narzędzi działa na Javie 21. Najpierw zainstaluj Java 21, a potem spróbuj ponownie.</string>
+    <string name="toolchain_failed_needs_cpp">Ten zestaw narzędzi linkuje za pomocą C/C++. Najpierw zainstaluj C/C++, a potem spróbuj ponownie.</string>
+    <string name="toolchain_failed_needs_erlang">Ten zestaw narzędzi działa na Erlangu/OTP. Najpierw zainstaluj Erlang/OTP, a potem spróbuj ponownie.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -365,6 +368,20 @@
     <string name="toolchain_ruby_description">Ruby z irb, gem, bundler</string>
     <string name="toolchain_java_description">OpenJDK 21 (javac, jar, jshell)</string>
     <string name="toolchain_cpp_description">C i C++ (clang, lld). Wymaga przechwytywania exec w terminalu: nie działa, gdy LD_PRELOAD jest ustawione na null.</string>
+    <string name="toolchain_php_description">PHP z Composerem</string>
+    <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl z cpan, perldoc, prove</string>
+    <string name="toolchain_kotlin_description">Kompilator Kotlina (kotlinc, kotlin). Działa na Javie 21: zainstaluj też Java 21.</string>
+    <string name="toolchain_rust_description">Rust (rustc, cargo). Linkuje za pomocą C/C++, więc zainstaluj też C/C++. Wymaga przechwytywania exec w terminalu: nie działa, gdy LD_PRELOAD jest ustawione na null.</string>
+    <string name="toolchain_tcl_description">Tcl 8.6 (tclsh) z pakietami Itcl, Thread i TDBC.</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Działa na Javie 21: zainstaluj też Java 21.</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Działa na Javie 21: zainstaluj też Java 21.</string>
+    <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), bez wx i ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Działa na Erlangu/OTP: zainstaluj też Erlang/OTP.</string>
+    <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp) z ASDF.</string>
+    <string name="toolchain_deno_description">Deno, środowisko uruchomieniowe JavaScript i TypeScript z własnym formaterem, linterem i narzędziem do testów.</string>
+    <string name="toolchain_gleam_description">Kompilator Gleama. Działa na Erlangu/OTP: zainstaluj też Erlang/OTP.</string>
+    <string name="toolchain_nasm_description">Asembler x86 NASM (nasm, ndisasm). Tworzy kod dla komputerów PC, nie dla tego telefonu.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

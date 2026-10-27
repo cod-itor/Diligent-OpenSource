@@ -300,7 +300,12 @@ termux_copy_notices() {
                 *) continue ;;
             esac
             mkdir -p "$dst"
-            if [ -L "$file" ]; then
+            # A directory of notices, which rust ships as licenses/ with the
+            # texts its vendored crates are under. Copied whole, links
+            # dereferenced, for the reason the rest of the family uses -L.
+            if [ -d "$file" ] && [ ! -L "$file" ]; then
+                cp -RL "$file" "$dst/$name"
+            elif [ -L "$file" ]; then
                 link="$(readlink "$file")"
                 target="$shared/$(basename "$link")"
                 if [ ! -f "$target" ]; then
@@ -321,7 +326,7 @@ termux_copy_notices() {
             echo "  $pkg: share/doc holds no notice file"
             continue
         fi
-        total_bytes=$((total_bytes + $(cat "$dst"/* | wc -c | tr -d ' ')))
+        total_bytes=$((total_bytes + $(find "$dst" -type f -exec cat {} + | wc -c | tr -d ' ')))
         echo "  $pkg: $copied file(s)"
     done
     echo "  share/doc total: $((total_bytes / 1024)) KiB"

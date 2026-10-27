@@ -1,6 +1,7 @@
 package com.vscodroid.diligent.ui.screens
 
 import android.os.StatFs
+import androidx.activity.compose.BackHandler
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,8 +53,11 @@ import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.MobileShell
 import com.vscodroid.diligent.kit.KitDone
 import com.vscodroid.diligent.kit.KitInternet
+import com.vscodroid.diligent.kit.KitOffline
 import com.vscodroid.diligent.kit.KitRecipe
+import com.vscodroid.diligent.kit.KitRecipeGroup
 import com.vscodroid.diligent.kit.KitRecipes
+import com.vscodroid.diligent.kit.Languages
 import com.vscodroid.diligent.kit.KitRun
 import com.vscodroid.diligent.kit.KitStepLine
 import com.vscodroid.diligent.kit.KitStepState
@@ -63,6 +67,7 @@ import com.vscodroid.diligent.ui.components.SheetButtons
 import com.vscodroid.diligent.ui.components.messageRes
 import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.theme.DiligentTheme
+import com.vscodroid.util.Environment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -73,10 +78,18 @@ import java.io.File
  * engine, a confirm sheet (what gets installed, the space it needs, the
  * project's name), live progress, and the result with Open project and Run.
  *
+ * A card is marked "Ready offline" when `kit add` works without the
+ * internet ([KitOffline]); the others offer Prepare for offline, which runs
+ * `kit prepare` through the same session and progress as a new project.
+ *
  * The run itself is [MobileActions.kit], kept by the controller, so leaving
  * this screen while packages install loses nothing: coming back shows it.
- * The recipes are read from the kit extension's assets; a build without the
- * extension shows a note instead of cards.
+ * The recipes are read from the kit extension's assets, grouped by language;
+ * a build without the extension shows a note instead of cards.
+ *
+ * Above them, Languages lists every language the app runs: the built-ins and
+ * each pack of ToolchainRegistry, with Install and Set up all, which install
+ * through [MobileActions.packs] one pack after another.
  */
 @Composable
 fun SetupScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = Modifier) {
@@ -87,6 +100,24 @@ fun SetupScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier =
     var chosenId by rememberSaveable { mutableStateOf<String?>(null) }
     var lastName by rememberSaveable { mutableStateOf<String?>(null) }
     val run = kit.run
+    var offline by remember { mutableStateOf(emptySet<String>()) }
+    // Read again when a run ends: a prepare (or a finished add) changes it.
+    LaunchedEffect(recipes, run?.finished) {
+        val list = recipes ?: return@LaunchedEffect
+        offline = withContext(Dispatchers.IO) { KitOffline.load(list, File(Environment.getHomeDir(context))) }
+    }
+
+    val packs = actions.packs
+    val queue = packs.queue
+    var showLanguages by rememberSaveable { mutableStateOf(false) }
+    var freeBytes by remember { mutableStateOf<Long?>(null) }
+    // Read again when a queue ends, and when a recipe run ends: its toolchain step installs packs too.
+    LaunchedEffect(queue?.finished, run?.finished, showLanguages) {
+        packs.refresh()
+        freeBytes = withContext(Dispatchers.IO) { freeSpace(File(Environment.getHomeDir(context))) }
+    }
+    val packList = remember { Languages.packs() }
+    BackHandler(enabled = showLanguages && run == null) { showLanguages = false }
 
     val open: (KitRun) -> String = { finished ->
         val path = finished.projectPath ?: File(actions.projectsDir, finished.projectName).path
@@ -99,7 +130,15 @@ fun SetupScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier =
     SetupContent(
         recipes = recipes,
         run = run,
+        offline = offline,
+        languages = LanguagesUi(packList, packs.installed, queue, freeBytes),
+        showLanguages = showLanguages,
+        onShowLanguages = { showLanguages = it },
+        onInstallPacks = packs::start,
+        onStopPacks = packs::cancel,
+        onDismissPacks = packs::dismiss,
         onPick = { chosenId = it.id },
+        onPrepare = { kit.prepare(it.id) },
         onCancel = kit::cancel,
         onOpen = { open(it) },
         onRun = {
@@ -109,9 +148,13 @@ fun SetupScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier =
             actions.openTab(MobileTab.More)
         },
         onTryAgain = { failed ->
-            lastName = failed.projectName
             kit.dismiss()
-            chosenId = failed.recipe
+            if (failed.prepare) {
+                kit.prepare(failed.recipe)
+            } else {
+                lastName = failed.projectName
+                chosenId = failed.recipe
+            }
         },
         onBack = kit::dismiss,
         modifier = modifier,
@@ -138,7 +181,15 @@ fun SetupScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier =
 internal fun SetupContent(
     recipes: List<KitRecipe>?,
     run: KitRun?,
+    offline: Set<String>,
+    languages: LanguagesUi,
+    showLanguages: Boolean,
+    onShowLanguages: (Boolean) -> Unit,
+    onInstallPacks: (List<String>) -> Unit,
+    onStopPacks: () -> Unit,
+    onDismissPacks: () -> Unit,
     onPick: (KitRecipe) -> Unit,
+    onPrepare: (KitRecipe) -> Unit,
     onCancel: () -> Unit,
     onOpen: (KitRun) -> Unit,
     onRun: (KitRun) -> Unit,
@@ -151,9 +202,13 @@ internal fun SetupContent(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(DiligentTheme.spacing.m),
             verticalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m),
         ) {
+            val title = run?.let { r -> recipes?.firstOrNull { it.id == r.recipe }?.title ?: r.recipe }.orEmpty()
             when {
-                run == null -> RecipeList(recipes, onPick)
-                !run.finished -> Progress(run, onCancel)
+                run == null && showLanguages ->
+                    LanguagesList(languages, onInstallPacks, onStopPacks, onDismissPacks, onBack = { onShowLanguages(false) })
+                run == null -> RecipeList(recipes, offline, languages, { onShowLanguages(true) }, onPick, onPrepare)
+                !run.finished -> Progress(run, title, onCancel)
+                run.succeeded && run.prepare -> PreparedReady(run, title, onBack)
                 run.succeeded -> Ready(run, onOpen, onRun, onBack)
                 else -> Failed(run, onTryAgain, onBack)
             }
@@ -179,19 +234,32 @@ private fun Body(text: String, modifier: Modifier = Modifier) {
 // -- The recipes --
 
 @Composable
-private fun RecipeList(recipes: List<KitRecipe>?, onPick: (KitRecipe) -> Unit) {
+private fun RecipeList(
+    recipes: List<KitRecipe>?,
+    offline: Set<String>,
+    languages: LanguagesUi,
+    onOpenLanguages: () -> Unit,
+    onPick: (KitRecipe) -> Unit,
+    onPrepare: (KitRecipe) -> Unit,
+) {
     Heading(stringResource(R.string.diligent_setup_title))
     Body(stringResource(R.string.diligent_setup_intro))
+    LanguagesCard(languages, onOpenLanguages)
     when {
         recipes == null -> Unit
         recipes.isEmpty() -> Body(stringResource(R.string.diligent_setup_none))
-        else -> recipes.forEach { RecipeCard(it, onClick = { onPick(it) }) }
+        else -> KitRecipes.groups(recipes).forEach { group: KitRecipeGroup ->
+            SectionTitle(group.language ?: stringResource(R.string.diligent_setup_group_other))
+            group.recipes.forEach {
+                RecipeCard(it, readyOffline = it.id in offline, onClick = { onPick(it) }, onPrepare = { onPrepare(it) })
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RecipeCard(recipe: KitRecipe, onClick: () -> Unit) {
+private fun RecipeCard(recipe: KitRecipe, readyOffline: Boolean, onClick: () -> Unit, onPrepare: () -> Unit) {
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().heightIn(min = DiligentTheme.sizes.touchTarget),
@@ -215,6 +283,12 @@ private fun RecipeCard(recipe: KitRecipe, onClick: () -> Unit) {
             ) {
                 recipe.sizeMB?.let { Badge(stringResource(R.string.diligent_setup_size, it)) }
                 Badge(stringResource(recipe.internet.label))
+                if (readyOffline && recipe.internet != KitInternet.No) Badge(stringResource(R.string.diligent_setup_ready_offline))
+            }
+            if (!readyOffline) {
+                TextButton(onClick = onPrepare, modifier = Modifier.heightIn(min = DiligentTheme.sizes.touchTarget)) {
+                    Text(stringResource(R.string.diligent_setup_prepare))
+                }
             }
         }
     }
@@ -387,8 +461,11 @@ private const val BYTES_PER_MB = 1024L * 1024
 // -- Progress --
 
 @Composable
-private fun Progress(run: KitRun, onCancel: () -> Unit) {
-    Heading(stringResource(R.string.diligent_setup_running_title, run.projectName))
+private fun Progress(run: KitRun, title: String, onCancel: () -> Unit) {
+    Heading(
+        if (run.prepare) stringResource(R.string.diligent_setup_preparing_title, title)
+        else stringResource(R.string.diligent_setup_running_title, run.projectName),
+    )
     if (run.steps.isEmpty()) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DiligentTheme.spacing.m)) {
             CircularProgressIndicator(Modifier.size(DiligentTheme.sizes.icon))
@@ -483,6 +560,22 @@ private fun Ready(run: KitRun, onOpen: (KitRun) -> Unit, onRun: (KitRun) -> Unit
     }
 }
 
+/** Prepare for offline worked: nothing to open, so only the way back. */
+@Composable
+private fun PreparedReady(run: KitRun, title: String, onBack: () -> Unit) {
+    Icon(
+        Icons.Outlined.CheckCircle,
+        contentDescription = null,
+        tint = DiligentTheme.colors.running,
+        modifier = Modifier.size(DiligentTheme.sizes.iconLarge),
+    )
+    Heading(stringResource(R.string.diligent_setup_prepared_title, title))
+    Body(stringResource(R.string.diligent_setup_prepared_body))
+    Button(onClick = onBack, modifier = Modifier.fillMaxWidth().heightIn(min = DiligentTheme.sizes.touchTarget)) {
+        Text(stringResource(R.string.diligent_setup_back))
+    }
+}
+
 @Composable
 private fun Failed(run: KitRun, onTryAgain: (KitRun) -> Unit, onBack: () -> Unit) {
     Icon(
@@ -511,9 +604,9 @@ private fun Failed(run: KitRun, onTryAgain: (KitRun) -> Unit, onBack: () -> Unit
 // -- Previews --
 
 private val previewRecipes = listOf(
-    KitRecipe("web-basic", "Web page", "HTML, CSS and JavaScript, served on the phone.", 1, emptyList(), 10, KitInternet.No, emptyList()),
-    KitRecipe("react-vite", "React app", "A React app with Vite, ready to run.", 85, emptyList(), 400, KitInternet.Once, listOf("Create the app", "Install packages", "Check it starts")),
-    KitRecipe("java", "Java", "Hello World with the Java pack.", 210, listOf("java"), 600, KitInternet.PackDownload, emptyList()),
+    KitRecipe("web-basic", "Web page", "HTML, CSS and JavaScript, served on the phone.", 1, emptyList(), 10, KitInternet.No, emptyList(), language = "HTML and CSS"),
+    KitRecipe("react-vite", "React app", "A React app with Vite, ready to run.", 85, emptyList(), 400, KitInternet.Once, listOf("Create the app", "Install packages", "Check it starts"), language = "JavaScript"),
+    KitRecipe("java", "Java", "Hello World with the Java pack.", 210, listOf("java"), 600, KitInternet.PackDownload, emptyList(), language = "Java"),
 )
 
 private val previewSteps = listOf(
@@ -536,7 +629,10 @@ private val previewFailed = KitRun(
 
 @Composable
 private fun PreviewSetup(run: KitRun?, recipes: List<KitRecipe>? = previewRecipes) = SetupContent(
-    recipes, run, onPick = {}, onCancel = {}, onOpen = {}, onRun = {}, onTryAgain = {}, onBack = {},
+    recipes, run, offline = setOf("web-basic", "react-vite"),
+    languages = LanguagesUi(Languages.packs(), setOf("toolchain_java"), null, 2_000_000_000L),
+    showLanguages = false, onShowLanguages = {}, onInstallPacks = {}, onStopPacks = {}, onDismissPacks = {},
+    onPick = {}, onPrepare = {}, onCancel = {}, onOpen = {}, onRun = {}, onTryAgain = {}, onBack = {},
 )
 
 @Composable

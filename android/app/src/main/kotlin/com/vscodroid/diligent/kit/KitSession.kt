@@ -37,6 +37,23 @@ class KitSession(
         if (busy) return
         run = KitRun(recipe = recipe, projectName = projectName)
         send(COMMAND_KIT_ADD, arrayOf(recipe, projectName))
+        waitForAnswer()
+    }
+
+    /**
+     * Prepare for offline: `kit prepare`, sent as `diligent.kit.add(recipe,
+     * recipe, "prepare")`. The engine runs the recipe in
+     * `~/.diligent/kit-prepare/<recipe>`, so its messages name a folder
+     * called after the recipe, which is what [KitRun.accepts] matches.
+     */
+    fun prepare(recipe: String) {
+        if (busy) return
+        run = KitRun(recipe = recipe, projectName = recipe, prepare = true)
+        send(COMMAND_KIT_ADD, arrayOf(recipe, recipe, MODE_PREPARE))
+        waitForAnswer()
+    }
+
+    private fun waitForAnswer() {
         waiting?.cancel()
         waiting = scope.launch {
             delay(answerTimeoutMs)
@@ -76,6 +93,9 @@ class KitSession(
         /** Commands of the kit engine, allowed by the diligent-bridge extension. */
         const val COMMAND_KIT_ADD = "diligent.kit.add"
         const val COMMAND_KIT_CANCEL = "diligent.kit.cancel"
+
+        /** The third argument of `diligent.kit.add` that makes it `kit prepare`. */
+        const val MODE_PREPARE = "prepare"
 
         /**
          * How long to wait for the engine's first message. The editor may

@@ -1,0 +1,54 @@
+{
+  "id": "python-sqlite",
+  "title": "Python with SQLite",
+  "summary": "Save and read data with Python's built-in sqlite3 database",
+  "language": "Python",
+  "sizeMB": 25,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 40,
+    "internet": "no"
+  },
+  "tested": {
+    "python": "3.14"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write main.py",
+      "template": "python-sqlite/main.py",
+      "path": "main.py"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "python-sqlite/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Create the virtual environment",
+      "command": "python3 -m venv .venv",
+      "timeoutSec": 300
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": ".venv/bin/python main.py"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it saves a note",
+      "profile": "main",
+      "expect": {
+        "output": "notes saved with SQLite"
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

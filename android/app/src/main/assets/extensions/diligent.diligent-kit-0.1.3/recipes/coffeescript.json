@@ -1,0 +1,60 @@
+{
+  "id": "coffeescript",
+  "title": "CoffeeScript program",
+  "summary": "CoffeeScript, compiled to JavaScript and run with Node.js",
+  "language": "CoffeeScript",
+  "sizeMB": 5,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 20,
+    "internet": "once"
+  },
+  "tested": {
+    "coffeescript": "2"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write package.json",
+      "template": "coffeescript/package.json",
+      "path": "package.json"
+    },
+    {
+      "type": "write",
+      "title": "Write main.coffee",
+      "template": "coffeescript/main.coffee",
+      "path": "main.coffee"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "coffeescript/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Install CoffeeScript",
+      "command": "npm install --no-fund --no-audit",
+      "timeoutSec": 600
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "start",
+          "command": "npm start"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it runs",
+      "profile": "start",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

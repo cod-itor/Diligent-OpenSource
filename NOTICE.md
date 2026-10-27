@@ -29,6 +29,8 @@ Versions are deliberately not listed unless pinned in this repository: most comp
 | @vscode/deviceid | MIT | https://github.com/microsoft/vscode-deviceid, bundled by the Code - OSS build |
 | @vscode/sandbox-runtime | Apache-2.0 | https://github.com/anthropic-experimental/sandbox-runtime, bundled by the Code - OSS build |
 | ZXing core 3.5.4 | Apache-2.0 | https://github.com/zxing/zxing, linked into the app for the Share screen's QR code |
+| Bouncy Castle (bcprov-jdk18on 1.85.2) | MIT (Bouncy Castle Licence) | https://www.bouncycastle.org, linked into the app for diligent-link: the device certificate and SRP-6a pairing |
+| kotlinx.serialization 1.9.0 | Apache-2.0 | https://github.com/Kotlin/kotlinx.serialization, linked into the app through diligent-link's sync-core |
 | @vscode/spdlog | MIT | https://github.com/microsoft/node-spdlog, bundled by the Code - OSS build. Its native addon does not ship: `scripts/build-native-addons.sh` deletes it and replaces `index.js` with a JavaScript logger from this repository |
 | kerberos (Node addon) | Apache-2.0 | https://github.com/mongodb-js/kerberos. The npm addon, not the MIT Kerberos 5 C libraries listed below |
 | @microsoft/mxc-sdk | MIT | https://www.npmjs.com/package/@microsoft/mxc-sdk, bundled by the Code - OSS build |
@@ -149,17 +151,26 @@ and the base APK for the table above.
 
 | Component | License | Shipped with |
 |---|---|---|
-| [GMP](https://gmplib.org) | LGPL-3.0 | Ruby |
+| [GMP](https://gmplib.org) | LGPL-3.0 | Ruby, PHP |
 | [libyaml](https://pyyaml.org/wiki/LibYAML) | MIT | Ruby |
 | [libruby](https://www.ruby-lang.org) | BSD-2-Clause | Ruby |
-| [libandroid-execinfo](https://github.com/termux/libandroid-execinfo) | BSD-2-Clause | Ruby |
+| [libandroid-execinfo](https://github.com/termux/libandroid-execinfo) | BSD-2-Clause | Ruby, Rust |
 | [libandroid-shmem](https://github.com/termux/libandroid-shmem) | BSD-3-Clause | Java |
 | [libandroid-spawn](https://github.com/termux/libandroid-spawn) | BSD-2-Clause | Java |
 | [LLVM](https://llvm.org) | Apache-2.0 WITH LLVM-exception, NCSA | C/C++ |
-| [libxml2](https://gitlab.gnome.org/GNOME/libxml2) | MIT | C/C++ |
+| [libxml2](https://gitlab.gnome.org/GNOME/libxml2) | MIT | C/C++, PHP |
 | [ndk-sysroot](https://github.com/termux/termux-packages/tree/master/packages/ndk-sysroot) | NCSA, with BSD, Apache-2.0, MIT and GPL-2.0 WITH Linux-syscall-note in the headers | C/C++ |
+| [Capstone](https://www.capstone-engine.org) | BSD-3-Clause | PHP |
+| [libxslt](https://gitlab.gnome.org/GNOME/libxslt) | MIT | PHP |
+| [libgcrypt](https://gnupg.org/software/libgcrypt/) | LGPL-2.1 | PHP |
+| [libgpg-error](https://gnupg.org/software/libgpg-error/) | LGPL-2.1 | PHP |
+| [Oniguruma](https://github.com/kkos/oniguruma) | BSD-2-Clause | PHP |
+| [HTML Tidy](https://www.html-tidy.org) | HTMLTIDY | PHP |
+| [libzip](https://libzip.org) | BSD-3-Clause | PHP |
+| [Perl](https://www.perl.org) | Artistic-1.0-Perl OR GPL-1.0-or-later | Perl |
+| [Tcl](https://www.tcl-lang.org) | TCL | Tcl |
 
-GMP is copyleft; its source offer is in `docs/LEGAL_NOTICES.md` beside the rest,
+GMP, libgcrypt and libgpg-error are copyleft; their source offers are in `docs/LEGAL_NOTICES.md` beside the rest,
 and the LGPL-3.0 text it requires ships in the base app, which is the only
 licences screen a device installing the Ruby pack has.
 
@@ -180,6 +191,21 @@ base app's `usr/share/doc/python/LICENSE`.
 | Ruby | BSD 2-Clause | https://www.ruby-lang.org |
 | OpenJDK | GPL v2 + Classpath | https://openjdk.org |
 | LLVM (clang, lld) | Apache 2.0 with LLVM Exceptions | https://llvm.org |
+| PHP | PHP License 3.01 | https://www.php.net |
+| Composer | MIT | https://getcomposer.org |
+| Lua | MIT | https://www.lua.org |
+| Perl | Artistic License or GPL v1+ | https://www.perl.org |
+| Kotlin | Apache 2.0 | https://kotlinlang.org |
+| Rust (rustc, cargo, rustdoc, rustfmt) | MIT or Apache 2.0 | https://www.rust-lang.org |
+| Tcl (with Itcl, Thread, TDBC) | TCL (BSD-style) | https://www.tcl-lang.org |
+| Apache Groovy | Apache 2.0 | https://groovy-lang.org |
+| Scala 3 (with scala-cli) | Apache 2.0 | https://www.scala-lang.org |
+| Erlang/OTP | Apache 2.0 | https://www.erlang.org |
+| Elixir | Apache 2.0 | https://elixir-lang.org |
+| SBCL (Steel Bank Common Lisp) | Public domain, with BSD-style and MIT parts | https://www.sbcl.org |
+| Deno | MIT | https://deno.com |
+| Gleam | Apache 2.0 | https://gleam.run |
+| NASM | BSD 2-Clause | https://www.nasm.us |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 

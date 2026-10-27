@@ -107,4 +107,43 @@ class GitSnapshotsTest {
         assertEquals("staged.txt", git("diff", "--cached", "--name-only"))
         assertFalse(File(dir, ".git/index").readText(Charsets.ISO_8859_1).contains("a.txt"))
     }
+
+    @Test
+    fun `the excess output is read back`() {
+        assertEquals(3 to 1200L, GitSnapshots.parseExcess(listOf("noise", "excess 3 1200")))
+        assertNull(GitSnapshots.parseExcess(listOf("excess x 1")))
+        assertNull(GitSnapshots.parseExcess(emptyList()))
+    }
+
+    @Test
+    fun `old snapshots are sized and trimmed to the newest few, files and branch untouched`() {
+        assumeTrue(hasGit())
+        bash("git init -q && git -c user.name=t -c user.email=t@t commit -q --allow-empty -m base")
+        val head = git("rev-parse", "HEAD")
+        for (i in 1..7) {
+            File(dir, "a.txt").writeText("version $i ".repeat(50))
+            val (code, out) = bash(GitSnapshots.takeScript("save $i"))
+            assertEquals(0, code, out)
+        }
+        val newest = git("log", "--format=%T %s", "-n", "3", GitSnapshots.REF)
+
+        val (code, out) = bash(GitSnapshots.excessScript(keep = 3))
+        assertEquals(0, code, out)
+        val excess = GitSnapshots.parseExcess(out.lines())
+        assertEquals(4, excess?.first, out)
+        assertTrue((excess?.second ?: 0) > 0, out)
+
+        val (code2, out2) = bash(GitSnapshots.trimScript(keep = 3))
+        assertEquals(0, code2, out2)
+        assertEquals("trimmed", out2.trim().lines().last())
+        assertEquals("3", git("rev-list", "--count", GitSnapshots.REF))
+        assertEquals(newest, git("log", "--format=%T %s", "-n", "3", GitSnapshots.REF), "the kept snapshots changed")
+        assertEquals(head, git("rev-parse", "HEAD"))
+        assertEquals("version 7 ".repeat(50), File(dir, "a.txt").readText())
+        assertEquals("excess 0 0", bash(GitSnapshots.excessScript(keep = 3)).second.trim())
+        // Nothing beyond keep: nothing changes.
+        val tip = git("rev-parse", GitSnapshots.REF)
+        assertEquals(0, bash(GitSnapshots.trimScript(keep = 3)).first)
+        assertEquals(tip, git("rev-parse", GitSnapshots.REF))
+    }
 }

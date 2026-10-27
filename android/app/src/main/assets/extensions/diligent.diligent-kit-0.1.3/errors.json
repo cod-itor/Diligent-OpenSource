@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "about": "Plain-language explanations of common errors, for run logs and Explain this error. An entry matches when any of its patterns matches (or the run ended with one of its exitCodes) and every pattern in with matches too. Patterns are regular expressions, applied line by line (multiline) and case-sensitive unless ignoreCase is true. {{1}} in a text is group 1 of the pattern that matched; {{file}} and {{line}} come from the first location pattern that matches (group 1 the file, group 2 the line), and explanationAt replaces explanation when there is one. A fix names an action the app or the editor carries out.",
+  "errors": [
+    {
+      "id": "port-in-use",
+      "patterns": ["EADDRINUSE", "[Aa]ddress already in use", "Port \\d+ is (?:already )?in use"],
+      "title": "That port is already taken",
+      "explanation": "Another program already uses this port, so this one cannot start on it. Stop the other task, or change the port in the run profile.",
+      "fixes": [{ "action": "stopTask", "label": "Stop the other task" }]
+    },
+    {
+      "id": "not-in-project",
+      "patterns": ["ENOENT"],
+      "with": ["package\\.json"],
+      "title": "Not inside a project folder",
+      "explanation": "There is no package.json here, so this is not a project folder. Open the project, then try again.",
+      "fixes": [{ "action": "openProject", "label": "Open the project" }]
+    },
+    {
+      "id": "node-missing",
+      "patterns": ["command not found: node\\b", "\\bnode: (?:command )?not found"],
+      "title": "Node.js is not installed",
+      "explanation": "That language is not installed, or the terminal cannot find it. Setting up the Node.js recipe checks that it works.",
+      "fixes": [{ "action": "runRecipe", "recipe": "node-api", "label": "Set up a Node.js project" }]
+    },
+    {
+      "id": "python-missing",
+      "patterns": ["command not found: python3?\\b", "\\bpython3?: (?:command )?not found"],
+      "title": "Python is not installed",
+      "explanation": "That language is not installed, or the terminal cannot find it. Setting up the Python recipe checks that it works.",
+      "fixes": [{ "action": "runRecipe", "recipe": "python-script", "label": "Set up a Python project" }]
+    },
+    {
+      "id": "no-internet",
+      "patterns": ["ENOTFOUND", "ECONNREFUSED", "EAI_AGAIN", "ETIMEDOUT", "Temporary failure in name resolution", "Failed to establish a new connection"],
+      "with": ["registry\\.npmjs\\.org|registry\\.yarnpkg\\.com|registry\\.npmmirror\\.com|pypi\\.org|files\\.pythonhosted\\.org|rubygems\\.org"],
+      "title": "No internet connection",
+      "explanation": "The package registry could not be reached, so there is probably no internet connection. Connect to the internet, or start from a template that is ready offline.",
+      "fixes": [{ "action": "openSetup", "label": "Use an offline template" }]
+    },
+    {
+      "id": "blocked-program",
+      "patterns": ["\\bEACCES\\b", "Permission denied"],
+      "with": ["node_modules|site-packages|\\.venv/|\\bspawn\\b"],
+      "title": "Android blocked a downloaded program",
+      "explanation": "A package tried to start a program it downloaded, and Android does not let apps run programs downloaded that way. Use a tool that works without one, such as Vite 8.",
+      "fixes": [{ "action": "runRecipe", "recipe": "react-vite", "label": "Start a Vite 8 app" }]
+    },
+    {
+      "id": "python-module-missing",
+      "patterns": ["ModuleNotFoundError: No module named '([^'.]+)"],
+      "title": "A Python package is missing",
+      "explanation": "The Python package {{1}} is not installed in this project. Install it in the project's environment: .venv/bin/python -m pip install {{1}}"
+    },
+    {
+      "id": "syntax-error",
+      "patterns": ["\\bSyntaxError\\b"],
+      "location": [
+        "File \"([^\"]+)\", line (\\d+)",
+        "SyntaxError: ([^\\s:]+\\.[A-Za-z0-9]+): .*\\((\\d+):\\d+\\)",
+        "((?:/|\\./)?[^\\s:()'\"]*[A-Za-z0-9_-]\\.[A-Za-z0-9]+):(\\d+)"
+      ],
+      "title": "A typing mistake in the code",
+      "explanation": "The code has a typing mistake, such as a missing bracket, quote or comma, so it cannot run.",
+      "explanationAt": "The code has a typing mistake, such as a missing bracket, quote or comma, in {{file}} at line {{line}}.",
+      "fixes": [{ "action": "openFileAtLine", "label": "Open the file at that line" }]
+    },
+    {
+      "id": "killed",
+      "patterns": ["\\bsignal 9\\b", "\\bSIGKILL\\b", "exit(?:ed with)? code 137\\b", "^Killed$"],
+      "exitCodes": [137],
+      "title": "Android stopped the program",
+      "explanation": "Android stopped the program, most often because the phone ran low on memory. Close other apps and try again. Health shows what uses memory.",
+      "fixes": [{ "action": "openHealth", "label": "Open Health" }]
+    },
+    {
+      "id": "no-space",
+      "patterns": ["ENOSPC", "No space left on device"],
+      "title": "The phone is out of storage",
+      "explanation": "There is no free space left, so files could not be written. Free up some space, then try again.",
+      "fixes": [{ "action": "openStorage", "label": "Open Storage" }]
+    },
+    {
+      "id": "out-of-memory",
+      "patterns": ["JavaScript heap out of memory", "Reached heap limit"],
+      "title": "Not enough memory",
+      "explanation": "The program needed more memory than the phone could give it. Turn on low-memory mode, or run this project on your laptop.",
+      "fixes": [
+        { "action": "lowMemory", "label": "Low-memory mode" },
+        { "action": "runOnLaptop", "label": "Run on laptop" }
+      ]
+    },
+    {
+      "id": "turbopack",
+      "patterns": ["turbopack.*(?:error|failed|panic)", "(?:error|failed|panic).*turbopack", "unexpected turbopack error"],
+      "ignoreCase": true,
+      "title": "Turbopack does not run on Android",
+      "explanation": "Newer Next.js builds with Turbopack by default, and Turbopack does not run on Android. Run the dev server with webpack instead: npm run dev -- --webpack"
+    },
+    {
+      "id": "git-identity",
+      "patterns": ["Please tell me who you are", "Author identity unknown"],
+      "title": "Git needs your name and email",
+      "explanation": "Git records who made each change, and it does not know your name and email yet. Set them once, and commits work.",
+      "fixes": [{ "action": "gitConfig", "label": "Set name and email" }]
+    }
+  ]
+}

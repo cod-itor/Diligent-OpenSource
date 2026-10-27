@@ -45,7 +45,8 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 /**
  * A recent project on the Projects tab: its name, what it is written in, and
  * when it was last opened. Tap opens it. The menu (the trailing button, or a
- * long press) takes it off the list without touching its files.
+ * long press) shares it as a zip ([onShare]), or takes it off the list
+ * without touching its files.
  *
  * The open project is drawn in the primary container colour with an "Open
  * now" tag, so someone coming back to this tab sees at once where they are.
@@ -59,6 +60,7 @@ fun ProjectCard(
     onOpen: () -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
+    onShare: (() -> Unit)? = null,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val removeLabel = stringResource(R.string.diligent_projects_remove_recent)
@@ -123,6 +125,15 @@ fun ProjectCard(
                     )
                 }
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    onShare?.let { share ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.diligent_projects_share_zip)) },
+                            onClick = {
+                                menuOpen = false
+                                share()
+                            },
+                        )
+                    }
                     DropdownMenuItem(
                         text = { Text(removeLabel) },
                         onClick = {

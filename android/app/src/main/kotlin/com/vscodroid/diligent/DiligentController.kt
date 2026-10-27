@@ -30,12 +30,20 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.lifecycleScope
 import com.vscodroid.R
+import com.vscodroid.diligent.devices.DeviceLink
+import com.vscodroid.diligent.devices.DeviceLinks
 import com.vscodroid.diligent.health.HealthReport
 import com.vscodroid.diligent.kit.KitProgress
 import com.vscodroid.diligent.kit.KitSession
+import com.vscodroid.diligent.kit.PackInstallQueue
+import com.vscodroid.diligent.kit.ToolchainPackInstaller
 import com.vscodroid.diligent.files.RecentFiles
+import com.vscodroid.diligent.guide.GuideSettings
+import com.vscodroid.diligent.guide.Tip
 import com.vscodroid.diligent.projects.RecentProjects
 import com.vscodroid.diligent.preview.PreviewActivity
 import com.vscodroid.diligent.run.ProjectRunner
@@ -90,12 +98,29 @@ class DiligentController(
         if (view == null) result(null) else view.evaluateJavascript(script) { result(it) }
     }
 
+    /** Low-memory mode, on by default on a 4 GB phone. */
+    val lowMemory by lazy {
+        LowMemorySettings(activity.getSharedPreferences(ViewSettings.PREFS_NAME, Context.MODE_PRIVATE)) {
+            DeviceMemory.totalBytes(activity)
+        }
+    }
+
     /** Projects the editor opened, for the Projects tab. Shared with the tab through [RecentProjects.of]. */
     private val recentProjects by lazy { RecentProjects.of(activity) }
 
+    /** Whether the guided start was offered after the first view choice; beginner mode and its tips. */
+    private val guide by lazy {
+        GuideSettings(activity.getSharedPreferences(ViewSettings.PREFS_NAME, Context.MODE_PRIVATE))
+    }
+
     /** Mobile view's state; the bars and screens draw from it. */
     val shell by lazy {
-        MobileShell(views.view.value).apply { suggestDesktop = views.suggestDesktopOnBigScreens }
+        MobileShell(views.view.value).apply {
+            suggestDesktop = views.suggestDesktopOnBigScreens
+            beginnerMode = guide.beginnerMode
+            dismissedTips = guide.dismissedTips
+            lowMemory = this@DiligentController.lowMemory.enabled
+        }
     }
 
     // -- Run (diligent/run) --
@@ -112,9 +137,17 @@ class DiligentController(
     }
     // -- end Run --
 
+    /** diligent-link (Phase 5): one per process, so it can stay reachable after this activity. */
+    val devices by lazy { DeviceLinks.of(activity) }
+
     /** The Setup screen's run (diligent/kit), kept here so it outlives the screen. */
     val kit by lazy {
         KitSession(activity.lifecycleScope, send = { command, args -> editor.run(command, *args) })
+    }
+
+    /** Setup's Languages list, kept here so a Set up all outlives the screen. */
+    val packs by lazy {
+        PackInstallQueue(ToolchainPackInstaller(activity) { activity }, post = { block -> activity.runOnUiThread(block) })
     }
 
     private var topBar: View? = null
@@ -129,11 +162,31 @@ class DiligentController(
      */
     fun onLayoutReady() {
         ShareKeeper.forgetStale(activity)
+        attachDevices()
         attachChrome()
         attachSuggestion()
         if (!views.hasChosen) showViewChooser()
         // After the first layout, when the window has its real size.
         activity.window.decorView.post { checkScreen() }
+    }
+
+    /**
+     * diligent-link listens while this activity is started (SPEC A.3), saves
+     * open editors through this page before a sync builds its manifest, and
+     * lets go of the page when the activity ends.
+     */
+    private fun attachDevices() {
+        DeviceLinks.saveAll = { editor.run(COMMAND_SAVE_ALL) }
+        activity.lifecycle.addObserver(
+            LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_START -> devices.setAppOpen(true)
+                    Lifecycle.Event.ON_STOP -> devices.setAppOpen(false)
+                    Lifecycle.Event.ON_DESTROY -> DeviceLinks.saveAll = null
+                    else -> Unit
+                }
+            },
+        )
     }
 
     /** The window changed: size, density, display or DeX. May suggest a view. */
@@ -262,6 +315,7 @@ class DiligentController(
                 BackHandler { activity.moveTaskToBack(true) }
                 ChooseViewScreen(onChoose = { view ->
                     switchView(view)
+                    offerGuidedStart(view)
                     behind.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
                     (chooser.parent as? ViewGroup)?.removeView(chooser)
                 })
@@ -271,6 +325,18 @@ class DiligentController(
             chooser,
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
         )
+    }
+
+    /**
+     * Once, right after the first view choice: the guided start over the
+     * Projects tab. Mobile view only, since Desktop view has no native
+     * screens to show it in; New project offers it there any time later.
+     */
+    private fun offerGuidedStart(view: AppView) {
+        if (view != AppView.Mobile || guide.offered) return
+        guide.offered = true
+        actions.openTab(MobileTab.Projects)
+        shell.guidedStartRequested = true
     }
 
     /**
@@ -372,13 +438,42 @@ class DiligentController(
             views.suggestDesktopOnBigScreens = on
             shell.suggestDesktop = on
         }
+        override fun setBeginnerMode(on: Boolean) {
+            guide.beginnerMode = on
+            shell.beginnerMode = on
+            if (on) {
+                guide.dismissedTips = emptySet()
+                shell.dismissedTips = emptySet()
+            }
+        }
+        override fun dismissTip(tip: Tip) {
+            val closed = shell.dismissedTips + tip
+            guide.dismissedTips = closed
+            shell.dismissedTips = closed
+        }
+        override fun setLowMemory(on: Boolean) {
+            lowMemory.enabled = on
+            shell.lowMemory = on
+            editor.run(LowMemorySettings.COMMAND_APPLY, on)
+        }
+        override fun beforeRun(proceed: () -> Unit) {
+            val available = DeviceMemory.availableBytes(activity)
+            if (LowMemoryPolicy.warnBeforeRun(shell.lowMemory, available)) {
+                shell.memoryWarning = MemoryWarning(LowMemoryPolicy.megabytes(available), proceed)
+            } else {
+                proceed()
+            }
+        }
         override fun editorCommand(command: String, vararg args: Any?) = editor.run(command, *args)
         override val projectsDir: String get() = host.projectsDir
         override val run: RunControl get() = runner
         override val kit: KitSession get() = this@DiligentController.kit
+        override val packs: PackInstallQueue get() = this@DiligentController.packs
 
         // The editor page is http://127.0.0.1:<port>/..., so the WebView's own
         // address names the port without asking the activity.
+        override val devices: DeviceLink get() = this@DiligentController.devices
+
         override fun editorPort(): Int? =
             webView()?.url?.toUri()?.takeIf { it.scheme == "http" && it.host == "127.0.0.1" }?.port?.takeIf { it > 0 }
     }
@@ -392,6 +487,9 @@ class DiligentController(
 
         override fun editorReady() = activity.runOnUiThread {
             editor.editorReady()
+            // Every page load, in either view: the extension keeps the
+            // user's values from the first time and only fills in new keys.
+            editor.run(LowMemorySettings.COMMAND_APPLY, shell.lowMemory)
             // A new page starts in whatever layout its settings say; bring the
             // extension and the native pieces into step with this device's view.
             shell.view?.let { view ->
@@ -425,7 +523,10 @@ class DiligentController(
     }
 
     /** The supervisor's tasks changed: the notification, the wake lock and Health follow. */
-    private fun onTasks(update: TaskUpdate) = TaskKeeper.update(activity, update)
+    private fun onTasks(update: TaskUpdate) {
+        TaskKeeper.update(activity, update)
+        devices.setTaskRunning(update.active.isNotEmpty()) // diligent-link stays reachable while a task runs
+    }
 
     /**
      * An intent reached the activity (launch or `onNewIntent`): a Stop tapped
@@ -488,5 +589,8 @@ class DiligentController(
         const val COMMAND_APPLY_VIEW = "diligent.view.apply"
         const val COMMAND_SHOW_EDITOR = "diligent.mobile.showEditor"
         const val COMMAND_SHOW_TERMINAL = "diligent.mobile.showTerminal"
+
+        /** Saves every open editor before a sync builds its manifest (Phase 5 Part D). */
+        const val COMMAND_SAVE_ALL = "workbench.action.files.saveAll"
     }
 }

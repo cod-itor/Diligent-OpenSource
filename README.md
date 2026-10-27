@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo/diligent.svg" alt="Diligent logo" width="120" height="120">
+</p>
+
 <h1 align="center">Diligent</h1>
 
 <p align="center">
@@ -25,7 +29,7 @@
 ---
 
 > [!NOTE]
-> Diligent is in early development and has no release yet. Phases 1 to 4 are built and pass
+> Diligent is in early development and has no release yet. Phases 1 to 6 are built and pass
 > their automated tests, but they have not been tried on a phone yet, so expect rough edges.
 > To try it, install the `debug-apk` artifact of the **Build** workflow, or build it from
 > source (see [Building from source](#building-from-source)).
@@ -97,9 +101,15 @@ Added by Diligent:
 
 **Setup center**
 
-- "What do you want to build?": nine ready templates (web page, React with Vite, Next.js,
-  Express API, Python, Python for data, Java, C/C++, Ruby) with live progress.
-- The same in the terminal: `kit list`, `kit add nextjs my-app`, `kit doctor`, `kit remove`.
+- "What do you want to build?": 36 ready templates, grouped by language, with live progress.
+  Web (plain page, React, Vue, Svelte, Preact, Solid, Lit, Next.js, Socket.io), TypeScript,
+  Node (CLI, Express API), Python (script, CLI, data, SQLite, Flask, FastAPI, Django), Bash,
+  Java, Kotlin, C, C/C++, Rust, Ruby, Sinatra, PHP, Lua, Perl, CoffeeScript, AssemblyScript.
+- **Languages** (Setup): Node.js, Python and Git are built in. Seventeen more download on
+  demand: Java, Kotlin, Groovy, Scala, C/C++, Rust, Ruby, PHP, Perl, Lua, Tcl, Erlang, Elixir,
+  Gleam, Common Lisp, Deno and NASM. **Set up all** installs every missing one in order,
+  after showing the total size.
+- The same in the terminal: `kit list`, `kit add nextjs my-app`, `kit prepare nextjs` (so it works offline later), `kit explain` (plain words for an error), `kit doctor`, `kit remove`.
 - Space, internet and tools are checked before anything starts, with a plain message saying
   what is missing.
 
@@ -115,8 +125,22 @@ Added by Diligent:
 - **Share to other devices** (More, then Share): open the editor or a preview on another device
   over Tailscale, with a link and a QR code.
 
-Coming next: pairing and sync with Diligent's desktop and iPhone companions, any-phone and
-offline improvements, and a beginner mode.
+**Devices, any phone and beginners**
+
+- **Devices** (More, then Devices): pair another device with a short code, then sync a project
+  both ways over your local network, with conflicts kept as copies.
+- **Guided start**: pick what to make, name it, and Diligent creates it and opens it with a
+  "Next step" card. "I'm new to coding" also turns on **beginner mode**, with short tips on
+  each screen and the advanced screens tucked under More, then Advanced.
+- **Plain-language errors**: a failed run explains common errors (port in use, missing
+  package, no internet, out of storage and more) with a button for the fix, and "Explain this
+  error" works on any selected text.
+- **Low-memory mode**, on by default on phones with 4 GB of memory or less, and a **Storage**
+  screen that shows what uses space and clears caches and old logs, always asking first.
+- **Offline**: `kit prepare` stores what a template needs so it can be created later without
+  internet. Projects can be shared and imported as zip files.
+
+Coming next: the release (a signed download on GitHub, then Google Play).
 
 ## Privacy and safety
 
@@ -145,8 +169,8 @@ phone.
 | 2 | Reliability | Built |
 | 3 | Setup center | Built |
 | 4 | Run on laptop, AI agents, AI suggestions, sharing | Built |
-| 5 | Devices, pairing and sync | Planned |
-| 6 | Any phone, offline and beginner mode | Planned |
+| 5 | Devices, pairing and sync | Built |
+| 6 | Any phone, offline and beginner mode | Built |
 | 7 | Release | Planned |
 
 ## Requirements

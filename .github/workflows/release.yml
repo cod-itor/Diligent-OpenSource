@@ -111,6 +111,8 @@ jobs:
           # stores it is deliberately not named here: it has moved between major
           # versions, and this setting is right whatever the location is.
           persist-credentials: false
+          # Diligent: android/diligent-sync-core (diligent-link's shared library) is a submodule the Gradle build includes.
+          submodules: true
 
       # A tag that does not name the version it builds makes every later question
       # about what a device is running unanswerable: the tag is the only durable
@@ -709,6 +711,20 @@ jobs:
           bash scripts/download-ruby.sh
           bash scripts/download-java.sh
           bash scripts/download-cpp.sh
+          bash scripts/download-php.sh
+          bash scripts/download-lua.sh
+          bash scripts/download-perl.sh
+          bash scripts/download-kotlin.sh
+          bash scripts/download-rust.sh
+          bash scripts/download-tcl.sh
+          bash scripts/download-groovy.sh
+          bash scripts/download-scala.sh
+          bash scripts/download-erlang.sh
+          bash scripts/download-elixir.sh
+          bash scripts/download-sbcl.sh
+          bash scripts/download-deno.sh
+          bash scripts/download-gleam.sh
+          bash scripts/download-nasm.sh
 
       # The unit suite ran on every pull request and on no tag, which put the
       # published build on the wrong side of it. Before the signing keystore is

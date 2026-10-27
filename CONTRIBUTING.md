@@ -129,10 +129,25 @@ python3 scripts/build-nls-bundles.py
 ./scripts/build-claude-shim.sh
 
 # 15. (Optional) On-demand toolchains. download-cpp.sh checks the base APK's usr/lib
-#     for the libraries its pack leaves out, so it runs after step 1
+#     for the libraries its pack leaves out, so it runs after step 1.
+#     download-rust.sh checks against the C/C++ pack, so it runs after that
 ./scripts/download-ruby.sh
 ./scripts/download-java.sh
 ./scripts/download-cpp.sh
+./scripts/download-php.sh
+./scripts/download-lua.sh
+./scripts/download-perl.sh
+./scripts/download-kotlin.sh
+./scripts/download-rust.sh
+./scripts/download-tcl.sh
+./scripts/download-groovy.sh
+./scripts/download-scala.sh
+./scripts/download-erlang.sh
+./scripts/download-elixir.sh
+./scripts/download-sbcl.sh
+./scripts/download-deno.sh
+./scripts/download-gleam.sh
+./scripts/download-nasm.sh
 ```
 
 Alternatively, run steps 0 to 14 and the APK build in one go:
@@ -233,6 +248,20 @@ VSCodroid/
 │   ├── download-ruby.sh              # Download Ruby toolchain
 │   ├── download-java.sh              # Download Java (OpenJDK 21) toolchain
 │   ├── download-cpp.sh               # Download the C/C++ (clang, lld) toolchain
+│   ├── download-php.sh               # Download PHP with Composer
+│   ├── download-lua.sh               # Download Lua 5.4
+│   ├── download-perl.sh              # Download Perl with cpan and perldoc
+│   ├── download-kotlin.sh            # Download the Kotlin compiler (runs on the Java pack)
+│   ├── download-rust.sh              # Download Rust (rustc, cargo; links with the C/C++ pack)
+│   ├── download-tcl.sh               # Download Tcl 8.6
+│   ├── download-groovy.sh            # Download Apache Groovy (runs on the Java pack)
+│   ├── download-scala.sh             # Download Scala 3 (runs on the Java pack)
+│   ├── download-erlang.sh            # Download Erlang/OTP
+│   ├── download-elixir.sh            # Download Elixir (runs on the Erlang pack)
+│   ├── download-sbcl.sh              # Download SBCL (Common Lisp)
+│   ├── download-deno.sh              # Download Deno (JavaScript and TypeScript)
+│   ├── download-gleam.sh             # Download Gleam (runs on the Erlang pack)
+│   ├── download-nasm.sh              # Download NASM (x86 assembler)
 │   ├── build-all.sh                  # Run all download/build scripts
 │   ├── deploy.sh                     # Build + install + launch on device
 │   ├── device-test.sh                # Run device tests
@@ -314,6 +343,20 @@ checkouts differed.
 | `download-ruby.sh` | Downloads Ruby + deps from Termux | `toolchain_ruby/src/main/assets/` |
 | `download-java.sh` | Downloads OpenJDK 21 + deps from Termux | `toolchain_java/src/main/assets/` |
 | `download-cpp.sh` | Downloads clang, lld, the llvm tools, the NDK sysroot and Python's headers from Termux, and keeps out everything the base APK already ships. The layout is Termux's own and has to stay: clang finds its sysroot, resource directory and `ld.lld` from where it runs. Writes the manifest with a Python program from what is on disk and fails if a file would be left by an uninstall, rewrites `paths.h` through `patch-default-shell.py`, and checks every ELF, that nothing is also in the base module, and that the pack holds no link. Run it after the base downloads: the ELF gate offers `assets/usr/lib` as the place a dependency may live | `toolchain_cpp/src/main/assets/` |
+| `download-php.sh` | Diligent: downloads PHP, Composer and their libraries from Termux, and rewrites php's default shell | `toolchain_php/src/main/assets/` |
+| `download-lua.sh` | Diligent: downloads Lua 5.4 (`lua`, `luac`) from Termux | `toolchain_lua/src/main/assets/` |
+| `download-perl.sh` | Diligent: downloads Perl from Termux, drops libandroid-utimes (4 KB aligned) and its DT_NEEDED entries, and rewrites the default shell in libperl.so, Config_heavy.pl and CORE/config.h | `toolchain_perl/src/main/assets/` |
+| `download-kotlin.sh` | Diligent: downloads the Kotlin compiler from Termux. JVM jars and bash scripts only; it runs on the Java pack | `toolchain_kotlin/src/main/assets/` |
+| `download-rust.sh` | Diligent: downloads rustc, cargo, rustdoc, rustfmt and the aarch64-linux-android standard library from Termux. Run it after `download-cpp.sh`: librustc_driver loads that pack's libLLVM.so, and the ELF gate offers its usr/lib | `toolchain_rust/src/main/assets/` |
+| `download-tcl.sh` | Diligent: downloads Tcl 8.6 and the packages it bundles (Itcl, Thread, TDBC) from Termux; the manifest sets `TCL_LIBRARY` and `TCLLIBPATH`, whose compiled-in values are Termux's | `toolchain_tcl/src/main/assets/` |
+| `download-groovy.sh` | Diligent: downloads Apache Groovy from Termux. JVM jars and shell scripts only; it runs on the Java pack. The grooid jars and groovyConsole are left out | `toolchain_groovy/src/main/assets/` |
+| `download-scala.sh` | Diligent: downloads Scala 3 and scala-cli from Termux. JVM jars and bash scripts only; it runs on the Java pack. Termux's link to scala-cli.jar in bin/ and the .bat files are left out | `toolchain_scala/src/main/assets/` |
+| `download-erlang.sh` | Diligent: downloads Erlang/OTP from Termux, leaves out each application's `src/`, the static archives, wx and ODBC (whose libraries the device does not have), and points the `#!` lines that name Termux's sh or env at /system/bin | `toolchain_erlang/src/main/assets/` |
+| `download-elixir.sh` | Diligent: downloads Elixir from Termux. BEAM bytecode and sh scripts only; it runs on the Erlang pack. The scripts' `#!` lines are pointed at /system/bin | `toolchain_elixir/src/main/assets/` |
+| `download-sbcl.sh` | Diligent: downloads SBCL, the runtime, its core and the contrib modules, from Termux; the manifest sets `SBCL_HOME`, which sbcl would otherwise look for beside the linker or under Termux's prefix | `toolchain_sbcl/src/main/assets/` |
+| `download-deno.sh` | Diligent: downloads Deno, one binary, from Termux | `toolchain_deno/src/main/assets/` |
+| `download-gleam.sh` | Diligent: downloads the Gleam compiler, one binary, from Termux; it runs the Erlang pack's tools | `toolchain_gleam/src/main/assets/` |
+| `download-nasm.sh` | Diligent: downloads NASM (`nasm`, `ndisasm`) from Termux | `toolchain_nasm/src/main/assets/` |
 | `check-build-steps.py` | Five checks, and the script prints one line per check so the count is readable from a run rather than from here. Three about shell scripts: the documented build sequence, `build-all.sh`, and the two build workflows all still name the same ones, the third pairs `build.yml` against `release.yml`, so a step dropped from the tag path alone is caught. Then every `scripts/test-*.js` runs in both `lint.yml` and `release.yml`, so a self-check cannot be added and then run by nothing; and every `scripts/check-*.py` is invoked by something, which is the answerable question for that family since several take arguments and run from a script or from Gradle. The self-check rule matches an invocation, not a mention, a script named only in a comment does not count. ⚠️ The shell rules match `bash scripts/*.sh` only, so a script a workflow runs with `python3`, or one called from inside another script, is still not covered, those are listed here by hand. The build-vs-release pairing is also one-directional: a script that runs only on the tag path can be dropped from it and nothing notices | exit status |
 | `write-build-manifest.py` | Records what a build resolved: the app's own version, versionCode and commit, the editor version and commit, the server tarball digest, the musl loader's version and checksum, and the version and checksum of every Termux package. The release workflow attaches it to the release, so a published artifact can be traced to the build that produced it without asking the Actions API for a run that will outlive neither. A record, not a lock: superseded packages are dropped upstream, so a pin would break the build on every routine update. `--compare` reports the differences against an earlier manifest and always exits 0 | `build-manifest.txt` |
 | `check-langserver-patterns.py` | Checks the process monitor can recognise the language servers being packaged. A pattern matching nothing is invisible twice: the server keeps running, keeps counting against the phantom-process budget, and the process tree shows it as 'other' rather than marking it idle | exit status |

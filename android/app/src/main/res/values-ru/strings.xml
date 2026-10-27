@@ -193,6 +193,9 @@
     <string name="toolchain_failed_digest">Загруженный файл не совпадает с опубликованным в выпуске. Повторите попытку.</string>
     <string name="toolchain_failed_corrupt">Загрузка осталась незавершённой. Повторите попытку.</string>
     <string name="toolchain_failed_play">Play доставляет этот набор инструментов только приложениям, которые установил сам. Установите приложение из Play Store и повторите попытку.</string>
+    <string name="toolchain_failed_needs_java">Этот набор инструментов работает на Java 21. Сначала установите Java 21, затем повторите попытку.</string>
+    <string name="toolchain_failed_needs_cpp">Этот набор инструментов компонует программы через C/C++. Сначала установите C/C++, затем повторите попытку.</string>
+    <string name="toolchain_failed_needs_erlang">Этот набор инструментов работает на Erlang/OTP. Сначала установите Erlang/OTP, затем повторите попытку.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -365,6 +368,20 @@
     <string name="toolchain_ruby_description">Ruby с irb, gem, bundler</string>
     <string name="toolchain_java_description">OpenJDK 21 (javac, jar, jshell)</string>
     <string name="toolchain_cpp_description">C и C++ (clang, lld). Нужен перехватчик exec терминала: не работает, если LD_PRELOAD установлен в null.</string>
+    <string name="toolchain_php_description">PHP с Composer</string>
+    <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl с cpan, perldoc, prove</string>
+    <string name="toolchain_kotlin_description">Компилятор Kotlin (kotlinc, kotlin). Работает на Java 21: установите и Java 21.</string>
+    <string name="toolchain_rust_description">Rust (rustc, cargo). Компонует через C/C++, поэтому установите и C/C++. Нужен перехватчик exec терминала: не работает, если LD_PRELOAD установлен в null.</string>
+    <string name="toolchain_tcl_description">Tcl 8.6 (tclsh) с пакетами Itcl, Thread и TDBC.</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Работает на Java 21: установите и Java 21.</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Работает на Java 21: установите и Java 21.</string>
+    <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), без wx и ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Работает на Erlang/OTP: установите и Erlang/OTP.</string>
+    <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp) с ASDF.</string>
+    <string name="toolchain_deno_description">Deno, среда выполнения JavaScript и TypeScript со встроенными форматировщиком, линтером и средством запуска тестов.</string>
+    <string name="toolchain_gleam_description">Компилятор Gleam. Работает на Erlang/OTP: установите и Erlang/OTP.</string>
+    <string name="toolchain_nasm_description">Ассемблер x86 NASM (nasm, ndisasm). Создаёт код для ПК, а не для этого телефона.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

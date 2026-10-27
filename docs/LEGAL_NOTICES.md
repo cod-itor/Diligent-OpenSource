@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua, Perl, Kotlin, Rust, Tcl, Groovy, Scala, Erlang/OTP, Elixir, Common Lisp, Deno, Gleam, NASM) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -671,7 +671,10 @@ VSCodroid bundles binaries licensed under the GNU General Public License (GPL). 
 - **gdbm** (GPL-3.0): Source available at https://github.com/termux/termux-packages (package: `gdbm`), linked by Python's `dbm` and `gdbm` modules
 - **xz / liblzma** (LGPL-2.1 / GPL-2.0 / GPL-3.0): Source available at https://github.com/termux/termux-packages (package: `liblzma`), linked by Python's `lzma` module
 - **Zstandard** (GPL-2.0 as packaged by Termux; dual-licensed BSD-3-Clause upstream): Source available at https://github.com/termux/termux-packages (package: `zstd`), linked by Python's `zstd` module
-- **GMP** (LGPL-3.0): Source available at https://github.com/termux/termux-packages (package: `libgmp`). Shipped inside the Ruby toolchain pack, not the base app, so it reaches only devices where Ruby was installed
+- **GMP** (LGPL-3.0): Source available at https://github.com/termux/termux-packages (package: `libgmp`). Shipped inside the Ruby and PHP toolchain packs, not the base app, so it reaches only devices where one of them was installed
+- **libgcrypt** (LGPL-2.1): Source available at https://github.com/termux/termux-packages (package: `libgcrypt`). Shipped inside the PHP toolchain pack, not the base app, linked by libxslt
+- **Perl** (GPL-1.0-or-later or the Artistic License, at the recipient's choice): Source available at https://github.com/termux/termux-packages (package: `perl`), built from https://www.cpan.org/src/. Shipped inside the Perl toolchain pack, not the base app
+- **libgpg-error** (LGPL-2.1): Source available at https://github.com/termux/termux-packages (package: `libgpg-error`). Shipped inside the PHP toolchain pack, not the base app, linked by libgcrypt
 - **OpenJDK 21** (GPL-2.0 with the Classpath Exception): Source available at https://github.com/termux/termux-packages (package: `openjdk-21`), built from https://github.com/openjdk/jdk21u. Shipped inside the Java toolchain pack, not the base app, so it reaches only devices where Java was installed. The Classpath Exception grants an additional permission and removes none of the obligations above.
 - **Linux kernel interface headers** (GPL-2.0 WITH Linux-syscall-note): the sanitized copies of the kernel's UAPI headers that the C/C++ toolchain pack installs as `ndk-sysroot`'s `usr/include/linux`, `asm-generic`, `drm`, `sound` and the other kernel header directories. They are plain header files and nothing is compiled from them into the pack, so the source is the files themselves. Android generates them from the kernel with the tool at https://android.googlesource.com/platform/bionic/+/refs/heads/main/libc/kernel/, and Termux repackages them (https://github.com/termux/termux-packages, package: `ndk-sysroot`). The Linux-syscall-note exception states that programs which use the kernel through its system call interface are not derived works of it, which is the only use these headers are installed for. Shipped inside the C/C++ toolchain pack, not the base app.
 - **zeromq.js** (MIT; the libzmq linked into it is LGPL-3.0-or-later with libzmq's static linking exception): Source available at https://github.com/zeromq/libzmq/archive/20de92ac0a2b2b9a1869782a429df68f93c3625e.tar.gz and https://registry.npmjs.org/zeromq/-/zeromq-6.0.0-beta.16.tgz; the build options and compile command are `scripts/build-native-addons.sh` in this repository, which pins both by sha256. Shipped in the base app.
@@ -704,8 +707,8 @@ The offer above is one obligation; a copy of the licence itself is the other. GP
 |---|---|---|
 | GPL-2.0 | `licenses/COPYING.GPLv2` | Git, `git-remote-curl`, Zstandard, xz / liblzma, Java (OpenJDK), termux-exec (its `Canonicalize.c`), the Linux kernel interface headers (C/C++ toolchain pack) |
 | GPL-3.0 | `licenses/COPYING.GPLv3` | Bash, GNU Make, readline, gdbm, libiconv, xz / liblzma |
-| LGPL-2.1 | `licenses/COPYING.LGPLv2.1` | libiconv, xz / liblzma |
-| LGPL-3.0 | `licenses/COPYING.LGPLv3` | GMP (Ruby toolchain pack), libzmq (inside zeromq.js) |
+| LGPL-2.1 | `licenses/COPYING.LGPLv2.1` | libiconv, xz / liblzma, libgcrypt and libgpg-error (PHP toolchain pack) |
+| LGPL-3.0 | `licenses/COPYING.LGPLv3` | GMP (Ruby and PHP toolchain packs), libzmq (inside zeromq.js) |
 
 The first three are the Free Software Foundation's texts as shipped in Termux's `liblzma` package, which is one of the packages this app redistributes. LGPL-3.0 is the FSF's own publication at https://www.gnu.org/licenses/lgpl-3.0.txt, because no Termux package here carries it; libzmq's copy, with its exception appended, also ships beside the zeromq.js addon. All four are verbatim, and `NoticesTest` pins the sha256 of each: a licence text that has been reflowed, re-wrapped or truncated is no longer the licence, so none of them may be edited.
 
@@ -732,19 +735,31 @@ nothing and report success.
 
 | Component | Licence | Shipped with | Source |
 |---|---|---|---|
-| GMP | LGPL-3.0 | Ruby | https://github.com/termux/termux-packages (package: `libgmp`) |
+| GMP | LGPL-3.0 | Ruby, PHP | https://github.com/termux/termux-packages (package: `libgmp`) |
 | libyaml | MIT | Ruby | https://pyyaml.org/wiki/LibYAML |
 | libruby | BSD-2-Clause | Ruby | https://www.ruby-lang.org |
-| libandroid-execinfo | BSD-2-Clause | Ruby | https://github.com/termux/libandroid-execinfo |
+| libandroid-execinfo | BSD-2-Clause | Ruby, Rust | https://github.com/termux/libandroid-execinfo |
 | libandroid-shmem | BSD-3-Clause | Java | https://github.com/termux/libandroid-shmem |
 | libandroid-spawn | BSD-2-Clause | Java | https://github.com/termux/libandroid-spawn |
 | LLVM | Apache-2.0 WITH LLVM-exception, NCSA | C/C++ | https://github.com/termux/termux-packages (package: `libllvm`), built from https://github.com/llvm/llvm-project |
-| libxml2 | MIT | C/C++ | https://github.com/termux/termux-packages (package: `libxml2`), built from https://gitlab.gnome.org/GNOME/libxml2 |
+| libxml2 | MIT | C/C++, PHP | https://github.com/termux/termux-packages (package: `libxml2`), built from https://gitlab.gnome.org/GNOME/libxml2 |
 | ndk-sysroot | NCSA as declared by Termux; see below | C/C++ | https://github.com/termux/termux-packages (package: `ndk-sysroot`) |
+| Capstone | BSD-3-Clause | PHP | https://github.com/termux/termux-packages (package: `capstone`), built from https://github.com/capstone-engine/capstone |
+| libxslt | MIT | PHP | https://github.com/termux/termux-packages (package: `libxslt`), built from https://gitlab.gnome.org/GNOME/libxslt |
+| libgcrypt | LGPL-2.1 | PHP | https://github.com/termux/termux-packages (package: `libgcrypt`) |
+| libgpg-error | LGPL-2.1 | PHP | https://github.com/termux/termux-packages (package: `libgpg-error`) |
+| Oniguruma | BSD-2-Clause | PHP | https://github.com/termux/termux-packages (package: `oniguruma`), built from https://github.com/kkos/oniguruma |
+| HTML Tidy | HTMLTIDY | PHP | https://github.com/termux/termux-packages (package: `tidy`), built from https://github.com/htacg/tidy-html5 |
+| libzip | BSD-3-Clause | PHP | https://github.com/termux/termux-packages (package: `libzip`) |
+| ICU | ICU | PHP (`libicuio.so.78` only; the rest of ICU is in the base app) | https://github.com/termux/termux-packages (package: `libicu`) |
+| Perl | Artistic-1.0-Perl OR GPL-1.0-or-later | Perl | https://github.com/termux/termux-packages (package: `perl`), built from https://www.cpan.org/src/ |
+| Tcl | TCL | Tcl | https://github.com/termux/termux-packages (package: `tcl`), built from https://www.tcl-lang.org |
 
-GMP is the only copyleft library here. Its written source offer sits with the
-others under **GPL Source Code Availability** above, and the LGPL-3.0 text it
-requires is bundled in the base app under **GPL and LGPL License Texts**.
+GMP, libgcrypt and libgpg-error are the copyleft libraries here, and Perl may be
+taken under the GPL as one of its two licences. Their written
+source offers sit with the others under **GPL Source Code Availability** above,
+and the LGPL texts they require are bundled in the base app under **GPL and LGPL
+License Texts**.
 
 LLVM is `libLLVM.so` and `libclang-cpp.so`. The clang driver, lld, the `llvm-*`
 tools and the compiler-rt builtins archive are built from the same source tree,
@@ -771,10 +786,9 @@ The pack also installs Python's C headers under `usr/include/python3.14` so pip
 can build an extension. They are PSF-2.0 and the licence text is the one the
 base app already carries at `usr/share/doc/python/LICENSE`.
 
-Every one of these nine ships its own upstream notice inside the pack, under
+Every one of these ships its own upstream notice inside the pack, under
 `usr/share/doc/<termux package>`, on the same terms as the base module's tree.
-`scripts/download-ruby.sh`, `scripts/download-java.sh` and
-`scripts/download-cpp.sh` refuse a pack holding a symbolic link anywhere in it:
+Every `scripts/download-<toolchain>.sh` refuses a pack holding a symbolic link anywhere in it:
 neither delivery path can carry one, and a dangling link where a licence should
 be is worse than an absent file.
 
@@ -805,6 +819,105 @@ The following toolchains are available as optional downloads and have their own 
 - **Copyright**: Copyright (c) LLVM Project contributors
 - **Full license**: `LICENSE.TXT`, which ships inside the pack at `usr/share/doc/libllvm/LICENSE.TXT`, and https://llvm.org/LICENSE.txt
 
+### PHP
+
+- **Project**: https://www.php.net (the command-line interpreter, packaged by Termux), with Composer (https://getcomposer.org)
+- **License**: PHP License v3.01 (PHP-3.01); Composer is MIT
+- **Copyright**: Copyright (c) The PHP Group; Composer: Copyright (c) Nils Adermann, Jordi Boggiano
+- **Full license**: ships inside the pack at `usr/share/doc/php/copyright` and `usr/share/doc/composer/copyright`, and https://www.php.net/license/3_01.txt
+
+### Lua
+
+- **Project**: https://www.lua.org (Lua 5.4, packaged by Termux as `lua54`)
+- **License**: MIT
+- **Copyright**: Copyright (c) Lua.org, PUC-Rio
+- **Full license**: ships inside the pack at `usr/share/doc/lua54/copyright`, and https://www.lua.org/license.html
+
+### Perl
+
+- **Project**: https://www.perl.org (Perl 5, packaged by Termux)
+- **License**: the Artistic License or the GNU General Public License, version 1 or later, at the recipient's choice (Artistic-1.0-Perl OR GPL-1.0-or-later)
+- **Copyright**: Copyright (c) Larry Wall and others
+- **Full license**: ships inside the pack at `usr/share/doc/perl/copyright`, and https://dev.perl.org/licenses/
+
+### Kotlin
+
+- **Project**: https://kotlinlang.org (the Kotlin compiler, packaged by Termux)
+- **License**: Apache License 2.0
+- **Copyright**: Copyright (c) JetBrains s.r.o. and Kotlin Programming Language contributors
+- **Full license**: ships inside the pack at `usr/opt/kotlin/license/LICENSE.txt`, with the compiler's third-party notices beside it in `usr/opt/kotlin/license/third_party`
+
+### Rust
+
+- **Project**: https://www.rust-lang.org (rustc, cargo, rustdoc and rustfmt, with the standard library for aarch64-linux-android, packaged by Termux)
+- **License**: MIT or Apache License 2.0, at the recipient's choice; the third-party crates compiled into the tools carry their own permissive licences, listed in the files below
+- **Copyright**: Copyright (c) The Rust Project Developers
+- **Full license**: ships inside the pack at `usr/share/doc/rust` (`LICENSE-MIT`, `LICENSE-APACHE`, `COPYRIGHT.html`, `COPYRIGHT-library.html`, `LICENSE-THIRD-PARTY` and the `licenses` directory)
+
+### Tcl
+
+- **Project**: https://www.tcl-lang.org (Tcl 8.6 with the Itcl, Thread and TDBC packages it bundles, packaged by Termux)
+- **License**: the Tcl/Tk licence (TCL), a BSD-style permissive licence
+- **Copyright**: Copyright (c) the Regents of the University of California, Sun Microsystems, Inc., Scriptics Corporation, ActiveState Corporation and other parties
+- **Full license**: ships inside the pack at `usr/share/doc/tcl/license.terms`, and https://www.tcl-lang.org/software/tcltk/license.html
+
+### Groovy
+
+- **Project**: https://groovy-lang.org (Apache Groovy, packaged by Termux)
+- **License**: Apache License 2.0; the libraries bundled in its `lib/` carry their own licences (BSD, MIT, Apache 2.0, and EPL-1.0 for JUnit 4), each listed in the files below
+- **Copyright**: Copyright (c) The Apache Software Foundation
+- **Full license**: ships inside the pack at `usr/opt/groovy/LICENSE` and `usr/opt/groovy/NOTICE`, with the bundled libraries' licences in `usr/opt/groovy/licenses`
+- **Source**: JUnit 4, which is under the Eclipse Public License 1.0, is available in source form at https://github.com/junit-team/junit4; Groovy's own at https://github.com/apache/groovy
+
+### Scala
+
+- **Project**: https://www.scala-lang.org (Scala 3 with scala-cli, packaged by Termux)
+- **License**: Apache License 2.0; the libraries in its bundled `maven2/` repository and inside `scala-cli.jar` carry their own permissive licences, recorded in each jar's `META-INF`
+- **Copyright**: Copyright (c) EPFL and Lightbend, Inc. (Scala); Copyright (c) VirtusLab (scala-cli)
+- **Full license**: ships inside the pack at `usr/share/doc/scala/copyright`, and https://www.scala-lang.org/license/
+
+### Erlang/OTP
+
+- **Project**: https://www.erlang.org (Erlang/OTP, packaged by Termux; the wx and ODBC applications are left out)
+- **License**: Apache License 2.0
+- **Copyright**: Copyright (c) Ericsson AB and the Erlang/OTP contributors
+- **Full license**: ships inside the pack at `usr/share/doc/erlang/copyright`, and https://github.com/erlang/otp/blob/master/LICENSE.txt
+
+### Elixir
+
+- **Project**: https://elixir-lang.org (Elixir with IEx and Mix, packaged by Termux)
+- **License**: Apache License 2.0
+- **Copyright**: Copyright (c) The Elixir Team and Plataformatec
+- **Full license**: ships inside the pack at `usr/opt/elixir/LICENSE` and `usr/share/doc/elixir/copyright`
+
+### SBCL
+
+- **Project**: https://www.sbcl.org (Steel Bank Common Lisp, packaged by Termux)
+- **License**: public domain, or the FreeBSD licence where public domain is not possible; the LOOP macro (MIT, Symbolics) and PCL (Xerox) carry BSD-style notices, and hopscotch.c's CityHash mix function is MIT
+- **Copyright**: notices of MIT, Symbolics, Xerox and Gerd Moellmann, retained as the licence asks
+- **Full license**: ships inside the pack at `usr/share/doc/sbcl/COPYING`
+
+### Deno
+
+- **Project**: https://deno.com (the Deno runtime, packaged by Termux; it includes the V8 engine, under BSD-3-Clause, and Rust crates under permissive licences)
+- **License**: MIT
+- **Copyright**: Copyright (c) the Deno authors
+- **Full license**: ships inside the pack at `usr/share/doc/deno/copyright`, and https://github.com/denoland/deno/blob/main/LICENSE.md
+
+### Gleam
+
+- **Project**: https://gleam.run (the Gleam compiler, packaged by Termux)
+- **License**: Apache License 2.0
+- **Copyright**: Copyright (c) Louis Pilfold and the Gleam contributors
+- **Full license**: ships inside the pack at `usr/share/doc/gleam/copyright`
+
+### NASM
+
+- **Project**: https://www.nasm.us (the Netwide Assembler, packaged by Termux)
+- **License**: BSD 2-Clause
+- **Copyright**: Copyright (c) the NASM Authors
+- **Full license**: ships inside the pack at `usr/share/doc/nasm/copyright`
+
 ---
 
 ## Trademark Notices
@@ -832,4 +945,4 @@ For questions about licenses, trademarks, or legal notices:
 
 ---
 
-_This document was last updated on October 23, 2026._
+_This document was last updated on October 27, 2026._

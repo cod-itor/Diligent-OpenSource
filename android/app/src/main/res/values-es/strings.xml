@@ -193,6 +193,9 @@
     <string name="toolchain_failed_digest">La descarga no coincide con lo publicado en esta versión. Vuelve a intentarlo.</string>
     <string name="toolchain_failed_corrupt">La descarga quedó incompleta. Vuelve a intentarlo.</string>
     <string name="toolchain_failed_play">Play entrega esta cadena de herramientas solo a las aplicaciones que instaló. Instala Diligent desde Play Store y vuelve a intentarlo.</string>
+    <string name="toolchain_failed_needs_java">Esta cadena de herramientas funciona con Java 21. Instala primero Java 21 y vuelve a intentarlo.</string>
+    <string name="toolchain_failed_needs_cpp">Esta cadena de herramientas enlaza con C/C++. Instala primero C/C++ y vuelve a intentarlo.</string>
+    <string name="toolchain_failed_needs_erlang">Esta cadena de herramientas funciona con Erlang/OTP. Instala primero Erlang/OTP y vuelve a intentarlo.</string>
     <!-- Shown when a second install of the same toolchain is declined because one is
          already running. Not a failure: the toolchain is on its way in, by the install
          that got there first, and the only thing the user needs is to stop tapping. -->
@@ -362,6 +365,20 @@
     <string name="toolchain_ruby_description">Ruby con irb, gem, bundler</string>
     <string name="toolchain_java_description">OpenJDK 21 (javac, jar, jshell)</string>
     <string name="toolchain_cpp_description">C y C++ (clang, lld). Necesita el interceptor de exec del terminal: no funciona con LD_PRELOAD establecido en null.</string>
+    <string name="toolchain_php_description">PHP con Composer</string>
+    <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
+    <string name="toolchain_perl_description">Perl con cpan, perldoc, prove</string>
+    <string name="toolchain_kotlin_description">Compilador de Kotlin (kotlinc, kotlin). Funciona con Java 21: instala también Java 21.</string>
+    <string name="toolchain_rust_description">Rust (rustc, cargo). Enlaza con C/C++, así que instala también C/C++. Necesita el interceptor de exec del terminal: no funciona con LD_PRELOAD establecido en null.</string>
+    <string name="toolchain_tcl_description">Tcl 8.6 (tclsh), con Itcl, Thread y TDBC.</string>
+    <string name="toolchain_groovy_description">Apache Groovy (groovy, groovyc, groovysh). Funciona con Java 21: instala también Java 21.</string>
+    <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Funciona con Java 21: instala también Java 21.</string>
+    <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), sin wx ni ODBC.</string>
+    <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Funciona con Erlang/OTP: instala también Erlang/OTP.</string>
+    <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp), con ASDF.</string>
+    <string name="toolchain_deno_description">Deno, un entorno de ejecución de JavaScript y TypeScript con su propio formateador, linter y ejecutor de pruebas.</string>
+    <string name="toolchain_gleam_description">Compilador de Gleam. Funciona con Erlang/OTP: instala también Erlang/OTP.</string>
+    <string name="toolchain_nasm_description">Ensamblador x86 NASM (nasm, ndisasm). Genera código para PC, no para este teléfono.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

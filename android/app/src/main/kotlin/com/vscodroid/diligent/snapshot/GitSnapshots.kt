@@ -24,7 +24,7 @@ import java.io.IOException
  * the last one answers that last commit instead of nothing: a caller recording
  * "the files as they were when this started" needs a commit either way.
  * Cutting the chain back to its newest 100 is left to the extension, which
- * does it on its next snapshot.
+ * does it on its next snapshot, or to the Storage screen ([trimScript]).
  *
  * Every value goes into the scripts through [quote]; the reason also reaches
  * Git as a positional parameter, never as script text.
@@ -106,6 +106,69 @@ object GitSnapshots {
         ).joinToString("\n")
     }
 
+    /** How many snapshots the core extension keeps (`KEEP` in snapshots.js), and the Storage screen trims to. */
+    const val KEEP = 100
+
+    private const val EXCESS_LINE = "excess "
+    private const val IDENTITY_ENV = "GIT_AUTHOR_NAME=Diligent GIT_AUTHOR_EMAIL=diligent@localhost " +
+        "GIT_COMMITTER_NAME=Diligent GIT_COMMITTER_EMAIL=diligent@localhost"
+
+    /**
+     * Prints `excess <count> <bytes>`: how many snapshots there are beyond the
+     * newest [keep], and about how many bytes on disk only they hold. Those are
+     * the objects reachable from the older snapshots and from nothing else:
+     * not from a branch, tag, remote, the stash or HEAD (`--all` without
+     * Diligent's own ref), and not from the newest [keep] snapshots' trees.
+     * `excess 0 0` when there is no snapshot ref or nothing beyond [keep].
+     */
+    fun excessScript(keep: Int = KEEP): String = listOf(
+        "git rev-parse --absolute-git-dir >/dev/null 2>&1 || { echo 'Not a Git repository'; exit $NOT_A_REPOSITORY; }",
+        "count=\$(git rev-list --count ${quote(REF)} 2>/dev/null) || count=0",
+        "if [ \"\$count\" -le $keep ]; then echo '${EXCESS_LINE}0 0'; exit 0; fi",
+        "trees=\$(git log --format=%T -n $keep ${quote(REF)} --) || exit 1",
+        // Word splitting of $trees is wanted: one argument per tree.
+        "bytes=\$(git rev-list --objects --disk-usage ${quote("$REF~$keep")} --not --exclude=${quote("refs/diligent/*")} --all \$trees) || bytes=0",
+        "printf '$EXCESS_LINE%s %s\\n' \"\$((count - $keep))\" \"\$bytes\"",
+    ).joinToString("\n")
+
+    /** The count and bytes an [excessScript] printed, or null. */
+    fun parseExcess(lines: List<String>): Pair<Int, Long>? {
+        val parts = lines.lastOrNull { it.startsWith(EXCESS_LINE) }?.removePrefix(EXCESS_LINE)?.trim()?.split(' ') ?: return null
+        val count = parts.getOrNull(0)?.toIntOrNull() ?: return null
+        val bytes = parts.getOrNull(1)?.toLongOrNull() ?: return null
+        return count to bytes
+    }
+
+    /**
+     * Cuts the chain back to its newest [keep] snapshots, as `prune` in
+     * snapshots.js does (with no slack): the newest [keep] are written again,
+     * oldest first, with their own dates and messages, the ref moves only if
+     * no other snapshot moved it meanwhile, and `git gc --prune=now` then
+     * removes the old commits and whatever only they held.
+     *
+     * `--prune=now` also removes any other object nothing reaches, which Git
+     * would remove on its own after two weeks; the reflog still protects
+     * recent branch history. The files and the user's branches are untouched.
+     */
+    fun trimScript(keep: Int = KEEP): String = listOf(
+        "git rev-parse --absolute-git-dir >/dev/null 2>&1 || { echo 'Not a Git repository'; exit $NOT_A_REPOSITORY; }",
+        "count=\$(git rev-list --count ${quote(REF)} 2>/dev/null) || count=0",
+        "if [ \"\$count\" -le $keep ]; then echo trimmed; exit 0; fi",
+        "old=\$(git rev-parse ${quote(REF)}) || exit 1",
+        "lines=\$(git log --reverse --format='%T%x09%at%x09%ct%x09%s' -n $keep ${quote(REF)} --) || exit 1",
+        "parent=''",
+        "while IFS=\$'\\t' read -r tree authored committed subject; do",
+        "  [ -n \"\$tree\" ] || continue",
+        "  if [ -n \"\$parent\" ]; then set -- -p \"\$parent\"; else set --; fi",
+        "  parent=\$($IDENTITY_ENV GIT_AUTHOR_DATE=\"@\$authored +0000\" GIT_COMMITTER_DATE=\"@\$committed +0000\" " +
+            "git commit-tree \"\$tree\" \"\$@\" -m \"\$subject\") || exit 1",
+        "done <<< \"\$lines\"",
+        "[ -n \"\$parent\" ] || exit 1",
+        "git update-ref ${quote(REF)} \"\$parent\" \"\$old\" || exit 1",
+        "git gc --prune=now --quiet || true",
+        "echo trimmed",
+    ).joinToString("\n")
+
     /** The commit a take script printed, or null. */
     fun parseTake(lines: List<String>): String? =
         lines.lastOrNull { it.startsWith(SNAPSHOT_LINE) }?.removePrefix(SNAPSHOT_LINE)?.trim()?.takeIf(::isCommit)
@@ -131,6 +194,22 @@ class SnapshotRunner(private val shell: BundledShell) {
         }
     } catch (e: IOException) {
         SnapshotResult.Failed(listOfNotNull(e.message))
+    }
+
+    /** Snapshots beyond the newest [GitSnapshots.KEEP] and the bytes only they hold, or null when unknown. */
+    suspend fun excess(projectDir: File): Pair<Int, Long>? = try {
+        val r = shell.run(GitSnapshots.excessScript(), projectDir)
+        if (r.succeeded) GitSnapshots.parseExcess(r.lastLines) else null
+    } catch (e: IOException) {
+        null
+    }
+
+    /** True when the chain was cut back to the newest [GitSnapshots.KEEP] (or was already that short). */
+    suspend fun trim(projectDir: File): Boolean = try {
+        val r = shell.run(GitSnapshots.trimScript(), projectDir)
+        r.succeeded && r.lastLines.lastOrNull() == "trimmed"
+    } catch (e: IOException) {
+        false
     }
 
     /** True when the files were put back as they were in [commit]. */

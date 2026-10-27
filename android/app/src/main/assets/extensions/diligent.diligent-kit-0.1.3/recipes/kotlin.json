@@ -1,0 +1,62 @@
+{
+  "id": "kotlin",
+  "title": "Kotlin program",
+  "summary": "Hello World in Kotlin, compiled with kotlinc and run with Java 21",
+  "language": "Kotlin",
+  "sizeMB": 310,
+  "needs": {
+    "toolchains": [
+      "toolchain_java",
+      "toolchain_kotlin"
+    ],
+    "minFreeMB": 20,
+    "internet": "pack"
+  },
+  "tested": {
+    "kotlin": "2",
+    "java": "21"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the Java 21 pack",
+      "pack": "toolchain_java"
+    },
+    {
+      "type": "toolchain",
+      "title": "Install the Kotlin pack",
+      "pack": "toolchain_kotlin"
+    },
+    {
+      "type": "write",
+      "title": "Write Main.kt",
+      "template": "kotlin/Main.kt",
+      "path": "Main.kt"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "kotlin/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "kotlinc Main.kt -include-runtime -d main.jar && java -jar main.jar"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it builds and runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 600
+    }
+  ]
+}

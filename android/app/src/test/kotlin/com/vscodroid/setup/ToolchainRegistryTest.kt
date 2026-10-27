@@ -24,8 +24,8 @@ class ToolchainRegistryTest {
     inner class CatalogTest {
 
         @Test
-        fun `has exactly 3 toolchains`() {
-            assertEquals(3, ToolchainRegistry.available.size)
+        fun `has exactly 17 toolchains`() {
+            assertEquals(17, ToolchainRegistry.available.size)
         }
 
         @Test
@@ -243,6 +243,186 @@ class ToolchainRegistryTest {
         }
 
         /**
+         * Diligent's own packs are fetched from Diligent's releases. VSCodroid's
+         * releases carry only the three it builds, so a URL pointing there for a
+         * pack it never built fails every sideloaded install with a 404.
+         */
+        @Test
+        fun `contains PHP toolchain, fetched from Diligent's releases`() {
+            val php = ToolchainRegistry.available.find { it.shortLabel == "PHP" }
+            assertNotNull(php)
+            assertEquals("toolchain_php", php!!.packName)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_php.zip",
+                php.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Lua toolchain, fetched from Diligent's releases`() {
+            val lua = ToolchainRegistry.available.find { it.shortLabel == "Lua 5.4" }
+            assertNotNull(lua)
+            assertEquals("toolchain_lua", lua!!.packName)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_lua.zip",
+                lua.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Perl toolchain, fetched from Diligent's releases`() {
+            val perl = ToolchainRegistry.available.find { it.shortLabel == "Perl" }
+            assertNotNull(perl)
+            assertEquals("toolchain_perl", perl!!.packName)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_perl.zip",
+                perl.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Kotlin toolchain, which runs on Java`() {
+            val kotlin = ToolchainRegistry.available.find { it.shortLabel == "Kotlin" }
+            assertNotNull(kotlin)
+            assertEquals("toolchain_kotlin", kotlin!!.packName)
+            assertEquals(listOf("toolchain_java"), kotlin.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_kotlin.zip",
+                kotlin.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Rust toolchain, which links with C and C++`() {
+            val rust = ToolchainRegistry.available.find { it.shortLabel == "Rust" }
+            assertNotNull(rust)
+            assertEquals("toolchain_rust", rust!!.packName)
+            assertEquals(listOf("toolchain_cpp"), rust.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_rust.zip",
+                rust.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Tcl toolchain`() {
+            val tcl = ToolchainRegistry.available.find { it.shortLabel == "Tcl" }
+            assertNotNull(tcl)
+            assertEquals("toolchain_tcl", tcl!!.packName)
+            assertEquals(emptyList<String>(), tcl.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_tcl.zip",
+                tcl.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Groovy toolchain`() {
+            val groovy = ToolchainRegistry.available.find { it.shortLabel == "Groovy" }
+            assertNotNull(groovy)
+            assertEquals("toolchain_groovy", groovy!!.packName)
+            assertEquals(listOf("toolchain_java"), groovy.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_groovy.zip",
+                groovy.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Scala toolchain`() {
+            val scala = ToolchainRegistry.available.find { it.shortLabel == "Scala" }
+            assertNotNull(scala)
+            assertEquals("toolchain_scala", scala!!.packName)
+            assertEquals(listOf("toolchain_java"), scala.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_scala.zip",
+                scala.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Erlang toolchain`() {
+            val erlang = ToolchainRegistry.available.find { it.shortLabel == "Erlang" }
+            assertNotNull(erlang)
+            assertEquals("toolchain_erlang", erlang!!.packName)
+            assertEquals(emptyList<String>(), erlang.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_erlang.zip",
+                erlang.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Elixir toolchain`() {
+            val elixir = ToolchainRegistry.available.find { it.shortLabel == "Elixir" }
+            assertNotNull(elixir)
+            assertEquals("toolchain_elixir", elixir!!.packName)
+            assertEquals(listOf("toolchain_erlang"), elixir.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_elixir.zip",
+                elixir.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains SBCL toolchain`() {
+            val sbcl = ToolchainRegistry.available.find { it.shortLabel == "SBCL" }
+            assertNotNull(sbcl)
+            assertEquals("toolchain_sbcl", sbcl!!.packName)
+            assertEquals(emptyList<String>(), sbcl.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_sbcl.zip",
+                sbcl.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Deno toolchain`() {
+            val deno = ToolchainRegistry.available.find { it.shortLabel == "Deno" }
+            assertNotNull(deno)
+            assertEquals("toolchain_deno", deno!!.packName)
+            assertEquals(emptyList<String>(), deno.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_deno.zip",
+                deno.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains Gleam toolchain`() {
+            val gleam = ToolchainRegistry.available.find { it.shortLabel == "Gleam" }
+            assertNotNull(gleam)
+            assertEquals("toolchain_gleam", gleam!!.packName)
+            assertEquals(listOf("toolchain_erlang"), gleam.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_gleam.zip",
+                gleam.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `contains NASM toolchain`() {
+            val nasm = ToolchainRegistry.available.find { it.shortLabel == "NASM" }
+            assertNotNull(nasm)
+            assertEquals("toolchain_nasm", nasm!!.packName)
+            assertEquals(emptyList<String>(), nasm.requires)
+            assertEquals(
+                "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_nasm.zip",
+                nasm.downloadUrl,
+            )
+        }
+
+        @Test
+        fun `every requirement is a pack the registry offers`() {
+            for (tc in ToolchainRegistry.available) {
+                for (required in tc.requires) {
+                    assertNotNull(ToolchainRegistry.find(required), "${tc.packName} requires unknown $required")
+                    assertNotEquals(tc.packName, required, "${tc.packName} requires itself")
+                }
+            }
+        }
+
+        /**
          * The card is the one place the user is told what this toolchain needs.
          *
          * Its programs start only through the exec interceptor a terminal
@@ -277,7 +457,7 @@ class ToolchainRegistryTest {
     inner class FindTest {
 
         @ParameterizedTest(name = "find by full pack name: {0}")
-        @ValueSource(strings = ["toolchain_ruby", "toolchain_java", "toolchain_cpp"])
+        @ValueSource(strings = ["toolchain_ruby", "toolchain_java", "toolchain_cpp", "toolchain_php", "toolchain_lua", "toolchain_perl", "toolchain_kotlin", "toolchain_rust", "toolchain_tcl", "toolchain_groovy", "toolchain_scala", "toolchain_erlang", "toolchain_elixir", "toolchain_sbcl", "toolchain_deno", "toolchain_gleam", "toolchain_nasm"])
         fun `finds by full pack name`(packName: String) {
             val result = ToolchainRegistry.find(packName)
             assertNotNull(result, "Should find toolchain by pack name: $packName")
@@ -285,7 +465,7 @@ class ToolchainRegistryTest {
         }
 
         @ParameterizedTest(name = "find by short name: {0} → toolchain_{0}")
-        @CsvSource("ruby,toolchain_ruby", "java,toolchain_java", "cpp,toolchain_cpp")
+        @CsvSource("ruby,toolchain_ruby", "java,toolchain_java", "cpp,toolchain_cpp", "php,toolchain_php", "lua,toolchain_lua", "perl,toolchain_perl", "kotlin,toolchain_kotlin", "rust,toolchain_rust", "tcl,toolchain_tcl", "groovy,toolchain_groovy", "scala,toolchain_scala", "erlang,toolchain_erlang", "elixir,toolchain_elixir", "sbcl,toolchain_sbcl", "deno,toolchain_deno", "gleam,toolchain_gleam", "nasm,toolchain_nasm")
         fun `finds by short name`(shortName: String, expectedPack: String) {
             val result = ToolchainRegistry.find(shortName)
             assertNotNull(result, "Should find toolchain by short name: $shortName")
@@ -293,7 +473,7 @@ class ToolchainRegistryTest {
         }
 
         @ParameterizedTest(name = "find returns null for unknown: {0}")
-        @ValueSource(strings = ["rust", "clang", "python", "toolchain_rust", ""])
+        @ValueSource(strings = ["swift", "clang", "python", "toolchain_swift", ""])
         fun `returns null for unknown toolchains`(name: String) {
             assertNull(ToolchainRegistry.find(name), "Should return null for unknown: $name")
         }

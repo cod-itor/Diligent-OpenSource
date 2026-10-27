@@ -25,6 +25,8 @@ import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,7 +53,10 @@ import com.vscodroid.diligent.AppView
 import com.vscodroid.diligent.MobileActions
 import com.vscodroid.diligent.MobileShell
 import com.vscodroid.diligent.ui.components.ComingSoonTag
+import com.vscodroid.diligent.guide.Tip
 import com.vscodroid.diligent.ui.components.ListRow
+import com.vscodroid.diligent.ui.components.TipBanner
+import com.vscodroid.diligent.ui.navigation.MobileTab
 import com.vscodroid.diligent.ui.components.SectionHeader
 import com.vscodroid.diligent.ui.navigation.MoreDetail
 import com.vscodroid.diligent.ui.navigation.MoreItem
@@ -59,7 +64,9 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 
 /**
  * Mobile view's More tab: a list of everything that is not one of the four
- * main tabs, and the screens it opens (Run, Setup, Laptop, AI, Share, Health, Settings) in its own place.
+ * main tabs, and the screens it opens (Run, Setup, Laptop, AI, Devices, Share, Health, Storage, Settings) in its own place.
+ * In beginner mode the advanced ones sit one level down, under Advanced
+ * ([MoreItem.listed]), and each screen starts with its tip.
  *
  * Which entry is open is the tab's own small back stack, one level deep:
  * the list, or one detail with a back arrow. It is saved across recreation
@@ -80,7 +87,17 @@ import com.vscodroid.diligent.ui.theme.DiligentTheme
 @Composable
 fun MoreScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = Modifier) {
     var detail by rememberSaveable { mutableStateOf<MoreDetail?>(null) }
-    BackHandler(enabled = detail != null) { detail = null }
+    // Opened from the Advanced list (beginner mode): back returns there, not to the top.
+    var fromAdvanced by rememberSaveable { mutableStateOf(false) }
+    val back = {
+        if (fromAdvanced && detail != MoreDetail.Advanced) {
+            detail = MoreDetail.Advanced
+        } else {
+            detail = null
+        }
+        fromAdvanced = false
+    }
+    BackHandler(enabled = detail != null, onBack = back)
     LaunchedEffect(shell.runRequested) {
         if (shell.runRequested) {
             detail = MoreDetail.Run
@@ -93,6 +110,12 @@ fun MoreScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = 
             shell.shareRequested = false
         }
     }
+    LaunchedEffect(shell.devicesRequested) {
+        if (shell.devicesRequested) {
+            detail = MoreDetail.Devices
+            shell.devicesRequested = false
+        }
+    }
     LaunchedEffect(shell.healthRequested) {
         if (shell.healthRequested) {
             detail = MoreDetail.Health
@@ -103,8 +126,11 @@ fun MoreScreen(shell: MobileShell, actions: MobileActions, modifier: Modifier = 
         shell = shell,
         actions = actions,
         detail = detail,
-        onOpen = { detail = it },
-        onBack = { detail = null },
+        onOpen = {
+            fromAdvanced = detail == MoreDetail.Advanced
+            detail = it
+        },
+        onBack = back,
         modifier = modifier,
     )
 }
@@ -121,18 +147,25 @@ private fun MoreContent(
 ) {
     Surface(modifier = modifier.fillMaxSize(), color = DiligentTheme.colors.background) {
         if (detail == null) {
-            MoreList(onOpen)
+            Column(Modifier.fillMaxSize()) {
+                TipBanner(Tip.of(MobileTab.More), shell, actions)
+                MoreList(MoreItem.listed(shell.beginnerMode), onOpen, Modifier.weight(1f), footer = true)
+            }
         } else {
             Column(Modifier.fillMaxSize()) {
                 DetailHeader(stringResource(MoreItem.of(detail).title), onBack)
+                TipBanner(Tip.of(detail), shell, actions)
                 Box(Modifier.weight(1f)) {
                     when (detail) {
-                        MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack)
+                        MoreDetail.Run -> RunScreen(shell, actions, onClose = onBack, onOpen = onOpen)
                         MoreDetail.Setup -> SetupScreen(shell, actions)
                         MoreDetail.Laptop -> LaptopScreen()
                         MoreDetail.AI -> AiScreen(shell, actions)
+                        MoreDetail.Devices -> DevicesScreen(shell, actions)
                         MoreDetail.Share -> ShareScreen(shell, actions)
                         MoreDetail.Health -> HealthScreen(onOpenRun = { onOpen(MoreDetail.Run) })
+                        MoreDetail.Advanced -> MoreList(MoreItem.advancedItems, onOpen, footer = false)
+                        MoreDetail.Storage -> StorageScreen()
                         MoreDetail.Settings -> SettingsScreen(shell, actions)
                     }
                 }
@@ -141,11 +174,12 @@ private fun MoreContent(
     }
 }
 
+/** [items] under their section headings; the top list also ends with the version [footer]. */
 @Composable
-private fun MoreList(onOpen: (MoreDetail) -> Unit) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+private fun MoreList(items: List<MoreItem>, onOpen: (MoreDetail) -> Unit, modifier: Modifier = Modifier, footer: Boolean) {
+    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         var section: Int? = null
-        for (item in MoreItem.ordered) {
+        for (item in items) {
             if (item.section != section) {
                 section = item.section
                 SectionHeader(stringResource(item.section))
@@ -170,13 +204,15 @@ private fun MoreList(onOpen: (MoreDetail) -> Unit) {
                 },
             )
         }
-        Text(
-            stringResource(R.string.diligent_more_footer, BuildConfig.VERSION_NAME),
-            modifier = Modifier.fillMaxWidth().padding(DiligentTheme.spacing.l),
-            style = DiligentTheme.type.material.bodySmall,
-            color = DiligentTheme.colors.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
+        if (footer) {
+            Text(
+                stringResource(R.string.diligent_more_footer, BuildConfig.VERSION_NAME),
+                modifier = Modifier.fillMaxWidth().padding(DiligentTheme.spacing.l),
+                style = DiligentTheme.type.material.bodySmall,
+                color = DiligentTheme.colors.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
@@ -225,6 +261,8 @@ private val MoreItem.title: Int
         MoreItem.Devices -> R.string.diligent_more_devices
         MoreItem.Share -> R.string.diligent_more_share
         MoreItem.Health -> R.string.diligent_more_health
+        MoreItem.Advanced -> R.string.diligent_more_advanced
+        MoreItem.Storage -> R.string.diligent_more_storage
         MoreItem.Settings -> R.string.diligent_more_settings
     }
 
@@ -238,6 +276,8 @@ private val MoreItem.subtitle: Int
         MoreItem.Devices -> R.string.diligent_more_devices_body
         MoreItem.Share -> R.string.diligent_more_share_body
         MoreItem.Health -> R.string.diligent_more_health_body
+        MoreItem.Advanced -> R.string.diligent_more_advanced_body
+        MoreItem.Storage -> R.string.diligent_more_storage_body
         MoreItem.Settings -> R.string.diligent_more_settings_body
     }
 
@@ -255,6 +295,8 @@ private val MoreItem.icon: ImageVector
         MoreItem.Devices -> Icons.Outlined.Devices
         MoreItem.Share -> Icons.Outlined.Share
         MoreItem.Health -> Icons.Outlined.MonitorHeart
+        MoreItem.Advanced -> Icons.Outlined.Tune
+        MoreItem.Storage -> Icons.Outlined.Storage
         MoreItem.Settings -> Icons.Outlined.Settings
     }
 
@@ -274,6 +316,18 @@ private fun MoreDarkPreview() = DiligentTheme(darkTheme = true) {
 @Composable
 private fun MoreLandscapePreview() = DiligentTheme(darkTheme = false) {
     MoreScreen(MobileShell(AppView.Mobile), PreviewActions)
+}
+
+@Preview(name = "More, beginner mode, dark", widthDp = 360, heightDp = 640)
+@Composable
+private fun MoreBeginnerDarkPreview() = DiligentTheme(darkTheme = true) {
+    MoreScreen(MobileShell(AppView.Mobile).apply { beginnerMode = true }, PreviewActions)
+}
+
+@Preview(name = "More, Advanced open, light", widthDp = 360, heightDp = 640)
+@Composable
+private fun MoreAdvancedLightPreview() = DiligentTheme(darkTheme = false) {
+    MoreContent(MobileShell(AppView.Mobile).apply { beginnerMode = true }, PreviewActions, MoreDetail.Advanced, onOpen = {}, onBack = {})
 }
 
 @Preview(name = "More, Settings open, dark", widthDp = 360, heightDp = 640)

@@ -109,6 +109,10 @@ Programs you compile, install or write yourself run on your device, inside this 
 
 If you use the bundled SSH client to connect to remote servers, those connections are initiated by you and go directly to the server you specify. VSCodroid does not proxy, monitor, or log SSH connections.
 
+### Your Other Devices (Diligent Devices and Sync)
+
+While the app is open, while a task you started runs, or always when you turn on "Stay reachable in the background", Diligent listens on your local network (and on Tailscale, when you use it) for your own paired devices, and announces this device's name and device ID there with DNS-SD so they can find it. Pairing needs a 6-digit code shown on the other device; every connection is encrypted with TLS 1.3, and after pairing only that device's pinned certificate is accepted. Project files go directly from one of your devices to the other, only when you tap Sync or turn on automatic sync for that project and device. Nothing passes through or is stored on any server. The device certificate, the list of paired devices and the last sync manifests stay in the app's private storage; the private key is sealed with a key in the Android Keystore.
+
 ### Internal Communication (Localhost Only)
 
 The VS Code editor UI communicates with the local server process over `localhost` (127.0.0.1). This traffic never leaves your device. The server listens on the loopback interface only, so nothing on your network can reach it, and almost every route requires a token held in the app’s private storage before it will answer a request.

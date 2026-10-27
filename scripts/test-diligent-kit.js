@@ -2,7 +2,8 @@
  * Self-check for Diligent's kit extension: every recipe file, the checks made
  * before step 1, step planning, project names, the `kit` command's output,
  * the socket protocol against a real Unix socket, and web-basic and
- * python-script run end to end in a temporary HOME when python3 is there.
+ * python-script run end to end in a temporary HOME when python3 is there,
+ * the offline kit (`kit prepare`), and every entry of errors.json.
  *
  *   node scripts/test-diligent-kit.js
  */
@@ -22,12 +23,17 @@ const engine = require(path.join(DIR, 'engine.js'));
 const server = require(path.join(DIR, 'server.js'));
 const { createService } = require(path.join(DIR, 'service.js'));
 const kit = require(path.join(DIR, 'kit.js'));
+const errors = require(path.join(DIR, 'errors.js'));
 
 const ROOT = path.resolve(__dirname, '..');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'diligent-kit-'));
 process.on('exit', () => fs.rmSync(tmp, { recursive: true, force: true }));
 
-const RECIPE_IDS = ['web-basic', 'react-vite', 'nextjs', 'node-api', 'python-script', 'python-data', 'java', 'c-cpp', 'ruby'];
+const OFFLINE_IDS = ['web-basic', 'python-script', 'node-cli', 'python-cli', 'python-sqlite', 'python-game', 'python-stats', 'bash-script'];
+const ONCE_IDS = ['react-vite', 'nextjs', 'node-api', 'python-data', 'vue-vite', 'svelte-vite', 'preact-vite', 'solid-vite', 'lit-vite',
+    'vite-ts', 'typescript', 'socketio-chat', 'coffeescript', 'assemblyscript', 'flask', 'fastapi', 'django', 'sinatra'];
+const PACK_IDS = ['java', 'c-cpp', 'c', 'ruby', 'php', 'php-web', 'lua', 'perl', 'kotlin', 'rust'];
+const RECIPE_IDS = [...OFFLINE_IDS, ...ONCE_IDS, ...PACK_IDS];
 
 // ---- recipes ---------------------------------------------------------------
 
@@ -38,15 +44,36 @@ function checkRecipes() {
     const byId = Object.fromEntries(recipes.map((r) => [r.id, r]));
 
     // The guide's table: which recipes go online.
-    for (const id of ['web-basic', 'python-script']) assert.strictEqual(byId[id].needs.internet, 'no', id);
-    for (const id of ['react-vite', 'nextjs', 'node-api', 'python-data']) assert.strictEqual(byId[id].needs.internet, 'once', id);
-    for (const id of ['java', 'c-cpp', 'ruby']) assert.strictEqual(byId[id].needs.internet, 'pack', id);
+    for (const id of OFFLINE_IDS) assert.strictEqual(byId[id].needs.internet, 'no', id);
+    for (const id of ONCE_IDS) assert.strictEqual(byId[id].needs.internet, 'once', id);
+    for (const id of PACK_IDS) assert.strictEqual(byId[id].needs.internet, 'pack', id);
+    for (const r of recipes) assert.ok(typeof r.language === 'string' && r.language.trim(), r.id + ': names its language');
+    // A toolchain step for every pack, in the order needs lists them: Java before Kotlin.
+    for (const r of recipes) {
+        const steps = r.steps.filter((/** @type {any} */ s) => s.type === 'toolchain').map((/** @type {any} */ s) => s.pack);
+        assert.deepStrictEqual(steps, r.needs.toolchains, r.id + ': one toolchain step per pack, in order');
+    }
+    assert.deepStrictEqual(byId.kotlin.needs.toolchains, ['toolchain_java', 'toolchain_kotlin']);
+    assert.deepStrictEqual(byId.sinatra.needs.toolchains, ['toolchain_ruby']);
     for (const r of recipes) for (const s of r.steps) assert.ok(typeof s.title === 'string' && s.title.trim(), r.id + ': every step has a title');
     assert.deepStrictEqual(byId.java.needs.toolchains, ['toolchain_java']);
     assert.deepStrictEqual(byId['c-cpp'].needs.toolchains, ['toolchain_cpp']);
     assert.deepStrictEqual(byId.ruby.needs.toolchains, ['toolchain_ruby']);
     const commands = (/** @type {any} */ r) => r.steps.map((/** @type {any} */ s) => s.command || (s.profiles || []).map((/** @type {any} */ p) => p.command).join(' ')).join('\n');
-    assert.ok(/vite@8/.test(commands(byId['react-vite'])), 'react-vite uses Vite 8');
+    // create-vite 9 is the one that makes Vite 8 projects; create-vite 8 still wrote Vite 7, which needs esbuild.
+    for (const id of ['react-vite', 'vue-vite', 'svelte-vite', 'preact-vite', 'solid-vite', 'lit-vite', 'vite-ts']) {
+        assert.ok(/npm create vite@9 /.test(commands(byId[id])), id + ' uses create-vite 9, which makes Vite 8 projects');
+    }
+    // Nothing that downloads a program Android will not run: esbuild (and so tsx),
+    // TypeScript 7's native compiler, Turbopack, uvicorn's compiled extras.
+    const templateText = (/** @type {any} */ r) => r.steps.filter((/** @type {any} */ s) => s.type === 'write')
+        .map((/** @type {any} */ s) => fs.readFileSync(path.join(DIR, 'templates', s.template), 'utf8')).join('\n');
+    for (const r of recipes) {
+        const all = commands(r) + '\n' + templateText(r);
+        assert.ok(!/esbuild|"tsx"|\btsx\b|--turbo|uvicorn\[standard\]|uvloop|httptools/.test(all), r.id + ': no program Android cannot run');
+    }
+    assert.match(templateText(byId.typescript), /"typescript": "~6\./, 'TypeScript 6: 7 is a native program');
+    assert.match(templateText(byId.fastapi), /pydantic>=[\d.]+,<2\.13/, 'pydantic that pydantic-core 2.41.5 serves');
     assert.ok(/--webpack/.test(commands(byId.nextjs)) && /--port 3000/.test(commands(byId.nextjs)), 'nextjs runs with webpack on 3000');
     assert.ok(/http\.server/.test(commands(byId['web-basic'])));
     assert.ok(/-m venv/.test(commands(byId['python-script'])));
@@ -56,7 +83,7 @@ function checkRecipes() {
     // The pack ids are the app's: ToolchainRegistry.kt lists the same set.
     const registry = fs.readFileSync(path.join(ROOT, 'android/app/src/main/kotlin/com/vscodroid/setup/ToolchainRegistry.kt'), 'utf8');
     const packs = [...registry.matchAll(/packName = "(toolchain_\w+)"/g)].map((m) => m[1]).sort();
-    assert.deepStrictEqual(Object.keys(engine.PACKS).sort(), packs);
+    assert.deepStrictEqual(Object.keys(engine.PACKS).sort(), packs, 'the kit knows exactly the registry\'s packs');
     for (const m of registry.matchAll(/packName = "(toolchain_\w+)",[\s\S]*?estimatedSize = ([\d_]+)/g)) {
         const bytes = Number(m[2].replace(/_/g, ''));
         assert.ok(engine.PACKS[m[1]].sizeMB * 1e6 >= bytes, m[1] + ' size is not understated');
@@ -317,7 +344,7 @@ async function checkServiceAndFailures() {
         runOptions: { checkInternet: async () => false, free: () => 100000, timeouts: { pollMs: 20, toolchainMs: 5000 } },
     });
     assert.deepStrictEqual(service.problems, []);
-    assert.strictEqual(service.list().length, 9);
+    assert.strictEqual(service.list().length, RECIPE_IDS.length);
     assert.deepStrictEqual(await service.health(), { checks: [{ id: 'x', title: 'X', state: 'pass', detail: '' }] });
     const silent = createService({ extensionDir: DIR, home, projectsDir, executeCommand: async () => { throw new Error('no bridge'); } });
     assert.strictEqual(await silent.health(), null);
@@ -393,6 +420,226 @@ async function checkServiceAndFailures() {
     assert.match(cancelled.message, /cancelled/);
     assert.ok(Date.now() - started < 10_000, 'cancel ended the command');
     assert.strictEqual(slow.activeRunId, null);
+}
+
+// ---- offline kit ------------------------------------------------------------------
+
+async function checkOffline(byId) {
+    const home = path.join(tmp, 'offline-home');
+    fs.mkdirSync(home, { recursive: true });
+    const none = new Set();
+
+    // Ready offline: no internet needed, packs installed, or prepared for the tested versions.
+    assert.deepStrictEqual(engine.preparedRecipes(home), {});
+    assert.ok(engine.readyOffline(byId['web-basic'], {}, none));
+    assert.ok(engine.readyOffline(byId['python-script'], {}, none));
+    assert.ok(!engine.readyOffline(byId.nextjs, {}, none));
+    assert.ok(!engine.readyOffline(byId.java, {}, none));
+    assert.ok(engine.readyOffline(byId.java, {}, new Set(['toolchain_java'])));
+    engine.markPrepared(home, byId.nextjs, new Date(0));
+    const prepared = engine.preparedRecipes(home);
+    assert.deepStrictEqual(prepared.nextjs, { preparedAt: '1970-01-01T00:00:00.000Z', tested: byId.nextjs.tested });
+    assert.ok(engine.readyOffline(byId.nextjs, prepared, none));
+    assert.ok(!engine.readyOffline({ ...byId.nextjs, tested: { next: '99' } }, prepared, none), 'a newer tested version needs preparing again');
+    const flags = Object.fromEntries(engine.summaries(Object.values(byId), home).map((r) => [r.id, r.offline]));
+    assert.deepStrictEqual(flags, Object.fromEntries(RECIPE_IDS.map((id) => [id, OFFLINE_IDS.includes(id) || id === 'nextjs'])));
+    fs.writeFileSync(path.join(home, engine.OFFLINE_FILE), '{broken');
+    assert.deepStrictEqual(engine.preparedRecipes(home), {});
+    assert.match(kit.formatList(engine.summaries([byId.nextjs, byId['react-vite']], home)), /kit prepare react-vite for offline/);
+
+    // A prepared recipe starts without the internet.
+    assert.deepStrictEqual(engine.missingNeeds(byId.nextjs, { freeMB: 5000, internet: false, installed: none, prepared: true }), []);
+
+    // The caches: npm prefers its cache, and uses only it offline; pip its wheel folder.
+    const wheels = path.join(tmp, 'wheels');
+    assert.deepStrictEqual(engine.cacheEnv({ prepared: false, internet: false, wheels }), {});
+    assert.deepStrictEqual(engine.cacheEnv({ prepared: true, internet: true, wheels }), { npm_config_prefer_offline: 'true' });
+    fs.mkdirSync(wheels, { recursive: true });
+    assert.deepStrictEqual(engine.cacheEnv({ prepared: true, internet: false, wheels }), {
+        npm_config_prefer_offline: 'true', npm_config_offline: 'true', PIP_FIND_LINKS: wheels, PIP_NO_INDEX: '1',
+    });
+    assert.ok(engine.usesPip(byId['python-data']) && !engine.usesPip(byId.nextjs));
+    assert.strictEqual(engine.pipDownload('.venv/bin/python -m pip install --prefer-binary numpy', '/w x'),
+        ".venv/bin/python -m pip download --dest '/w x' --prefer-binary numpy");
+
+    // Prepare for real, with a recipe that records the environment it ran with.
+    const ext = path.join(tmp, 'offline-ext');
+    fs.mkdirSync(path.join(ext, 'recipes'), { recursive: true });
+    fs.mkdirSync(path.join(ext, 'templates'), { recursive: true });
+    const mark = path.join(tmp, 'offline-mark.txt');
+    fs.writeFileSync(path.join(ext, 'recipes', 'cachey.json'), JSON.stringify({
+        id: 'cachey', title: 'Cachey', summary: 's', sizeMB: 0, tested: { x: '1' },
+        needs: { toolchains: [], minFreeMB: 0, internet: 'once' },
+        steps: [
+            { type: 'run', title: 'Install', command: 'echo pip install thing; echo "$PWD p=${npm_config_prefer_offline:-} o=${npm_config_offline:-} f=${PIP_FIND_LINKS:+set} n=${PIP_NO_INDEX:-}" >> ' + engine.shellQuote(mark) },
+            { type: 'profile', title: 'p', profiles: [{ name: 'x', command: 'echo done' }] },
+            { type: 'test', title: 't', profile: 'x', expect: { output: 'done' } },
+        ],
+    }));
+    const projectsDir = path.join(home, 'projects');
+    let online = true;
+    const service = createService({
+        extensionDir: ext, home, projectsDir, executeCommand: async () => undefined,
+        runOptions: { checkInternet: async () => online, free: () => 100000 },
+    });
+    const lines = [];
+    const prep = await service.prepare({ recipe: 'cachey' }, (e) => { if (e.line) lines.push(e.line); });
+    assert.strictEqual(prep.ok, true, prep.message);
+    assert.match(prep.message, /ready offline/);
+    assert.ok(lines.includes('pip download --dest ' + path.join(home, engine.WHEELS_DIR, 'cachey') + ' thing'), lines.join('\n'));
+    assert.ok(lines.includes('Skipped while preparing.'), 'the test step is skipped');
+    assert.ok(!fs.existsSync(path.join(home, engine.PREPARE_DIR, 'cachey')), 'the folder is deleted');
+    assert.ok(fs.existsSync(path.join(home, engine.WHEELS_DIR, 'cachey')), 'the wheel folder stays');
+    assert.ok(engine.preparedRecipes(home).cachey, 'recorded');
+    assert.deepStrictEqual(service.list().map((r) => r.offline), [true]);
+    let ran = fs.readFileSync(mark, 'utf8').trim().split('\n');
+    assert.strictEqual(ran.length, 2, 'download, then install');
+    assert.match(ran[1], /kit-prepare\/cachey p= o= f=set n=$/);
+
+    // Then kit add works with the internet gone, from the cache only.
+    online = false;
+    const added = await service.add({ recipe: 'cachey', name: 'off' }, () => {});
+    assert.strictEqual(added.ok, true, added.message);
+    ran = fs.readFileSync(mark, 'utf8').trim().split('\n');
+    assert.match(ran[2], /projects\/off p=true o=true f=set n=1$/);
+
+    // Unprepared, the same recipe stops before step 1.
+    const fresh = createService({
+        extensionDir: ext, home: path.join(tmp, 'offline-fresh'), projectsDir, executeCommand: async () => undefined,
+        runOptions: { checkInternet: async () => false, free: () => 100000 },
+    });
+    assert.match((await fresh.add({ recipe: 'cachey', name: 'nope' }, () => {})).message, /No internet connection/);
+    // Preparing offline fails the same way, and leaves no folder.
+    const failedPrep = await fresh.prepare({ recipe: 'cachey' }, () => {});
+    assert.strictEqual(failedPrep.ok, false);
+    assert.ok(!fs.existsSync(path.join(tmp, 'offline-fresh', engine.PREPARE_DIR, 'cachey')));
+
+    // A recipe that needs nothing is not run; the app's start names the prepare folder.
+    const real = createService({ extensionDir: DIR, home, projectsDir, executeCommand: async () => undefined });
+    assert.match((await real.prepare({ recipe: 'web-basic' }, () => {})).message, /works offline already/);
+    const sent = [];
+    const appSide = createService({
+        extensionDir: ext, home, projectsDir,
+        executeCommand: async (cmd, json) => { if (cmd === 'diligent.bridge.kitProgress') sent.push(JSON.parse(json)); },
+        runOptions: { checkInternet: async () => true, free: () => 100000 },
+    });
+    const runId = await appSide.start('cachey', 'ignored', 'prepare');
+    while (!sent.some((p) => p.runId === runId && p.done)) await new Promise((r) => setTimeout(r, 20));
+    const last = sent[sent.length - 1];
+    assert.strictEqual(last.project, path.join(home, engine.PREPARE_DIR, 'cachey'));
+    assert.strictEqual(last.done.ok, true);
+}
+
+// ---- plain-language errors -------------------------------------------------------
+
+/** The fix actions the app or the editor knows how to carry out. */
+const FIX_ACTIONS = ['openHealth', 'openStorage', 'stopTask', 'openFileAtLine', 'runRecipe', 'gitConfig',
+    'runOnLaptop', 'lowMemory', 'openProject', 'openSetup'];
+
+/**
+ * One case or more per catalog entry: a real-looking log, the entry it must
+ * give first, and what the explanation must hold. checkErrors fails when an
+ * entry of errors.json has no case here.
+ */
+const ERROR_CASES = [
+    { id: 'port-in-use', text: 'node:events:497\n      throw er;\nError: listen EADDRINUSE: address already in use 127.0.0.1:3000\n    at Server.setupListenHandle' },
+    { id: 'port-in-use', text: 'OSError: [Errno 98] Address already in use' },
+    { id: 'port-in-use', text: 'Error: Port 5173 is already in use' },
+    { id: 'not-in-project', text: 'npm error code ENOENT\nnpm error syscall open\nnpm error path /data/home/package.json\nnpm error errno -2\nnpm error enoent Could not read package.json' },
+    { id: 'node-missing', text: 'bash: node: command not found' },
+    { id: 'node-missing', text: 'zsh: command not found: node' },
+    { id: 'python-missing', text: 'bash: python3: command not found' },
+    { id: 'python-missing', text: 'sh: 1: python: not found' },
+    { id: 'no-internet', text: 'npm error code ENOTFOUND\nnpm error syscall getaddrinfo\nnpm error errno ENOTFOUND\nnpm error network request to https://registry.npmjs.org/vite failed, reason: getaddrinfo ENOTFOUND registry.npmjs.org' },
+    { id: 'no-internet', text: "WARNING: Retrying after connection broken by 'NewConnectionError: Failed to establish a new connection: [Errno 7] No address associated with hostname': /simple/numpy/ (pypi.org)" },
+    { id: 'no-internet', text: 'npm error code ECONNREFUSED\nnpm error errno ECONNREFUSED\nnpm error FetchError: request to https://registry.npmjs.org/react failed, reason: connect ECONNREFUSED 104.16.0.35:443' },
+    { id: 'blocked-program', text: 'sh: 1: /data/home/projects/app/node_modules/.bin/esbuild: Permission denied' },
+    { id: 'blocked-program', text: 'Error: spawn /data/home/projects/app/node_modules/@esbuild/android-arm64/bin/esbuild EACCES' },
+    { id: 'python-module-missing', text: 'Traceback (most recent call last):\n  File "/p/analysis.py", line 1, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named \'pandas\'', has: [/pandas is not installed/, /pip install pandas$/] },
+    { id: 'python-module-missing', text: "ModuleNotFoundError: No module named 'yaml.loader'", has: [/The Python package yaml is not installed/] },
+    { id: 'syntax-error', text: '  File "/data/home/projects/hello/main.py", line 3\n    print("hi"\n         ^\nSyntaxError: \'(\' was never closed', file: '/data/home/projects/hello/main.py', line: 3 },
+    { id: 'syntax-error', text: '/data/home/projects/api/index.js:7\n  app.get("/", (req, res) => {\n                              ^\n\nSyntaxError: Unexpected end of input\n    at wrapSafe (node:internal/modules/cjs/loader:1469:18)', file: '/data/home/projects/api/index.js', line: 7 },
+    { id: 'syntax-error', text: '[plugin:vite:react-babel] SyntaxError: /data/home/projects/app/src/App.jsx: Unexpected token (12:4)', file: '/data/home/projects/app/src/App.jsx', line: 12 },
+    { id: 'syntax-error', text: 'SyntaxError: Unexpected token }', file: undefined },
+    { id: 'killed', text: 'Killed' },
+    { id: 'killed', text: 'npm error signal SIGKILL\nnpm error command failed' },
+    { id: 'killed', text: 'the dev server exited', exitCode: 137 },
+    { id: 'no-space', text: "npm error code ENOSPC\nnpm error syscall write\nnpm error errno -28\nnpm error nospc Invalid response body while trying to fetch: ENOSPC: no space left on device, write" },
+    { id: 'no-space', text: 'OSError: [Errno 28] No space left on device' },
+    { id: 'out-of-memory', text: '<--- Last few GCs --->\nFATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory' },
+    { id: 'turbopack', text: '   ▲ Next.js 16.0.0 (Turbopack)\nFATAL: An unexpected Turbopack error occurred. Please report the content of /tmp/next-panic.log' },
+    { id: 'turbopack', text: 'Error: turbopack-node failed to start: binding not found' },
+    { id: 'git-identity', text: "Author identity unknown\n\n*** Please tell me who you are.\n\nRun\n\n  git config --global user.email \"you@example.com\"" },
+];
+
+function checkErrors() {
+    const catalog = errors.loadCatalog(DIR);
+    const ids = catalog.errors.map((e) => e.id);
+    assert.strictEqual(new Set(ids).size, ids.length, 'ids are unique');
+    for (const e of catalog.errors) {
+        assert.ok(/^[a-z0-9-]+$/.test(e.id), e.id);
+        for (const key of ['title', 'explanation']) assert.ok(typeof e[key] === 'string' && e[key].trim(), e.id + ' has a ' + key);
+        assert.ok(Array.isArray(e.patterns) && e.patterns.length, e.id + ' has patterns');
+        for (const p of [...e.patterns, ...(e.with || []), ...(e.location || [])]) assert.doesNotThrow(() => new RegExp(p, 'm'), e.id + ': ' + p);
+        for (const f of e.fixes || []) {
+            assert.ok(FIX_ACTIONS.includes(f.action), e.id + ': unknown action ' + f.action);
+            assert.ok(typeof f.label === 'string' && f.label.trim(), e.id + ': fix label');
+            if (f.action === 'runRecipe') assert.ok(fs.existsSync(path.join(DIR, 'recipes', f.recipe + '.json')), e.id + ': recipe ' + f.recipe);
+        }
+    }
+    // The guide's table, row by row, has an entry.
+    assert.deepStrictEqual(ids, ['port-in-use', 'not-in-project', 'node-missing', 'python-missing', 'no-internet', 'blocked-program',
+        'python-module-missing', 'syntax-error', 'killed', 'no-space', 'out-of-memory', 'turbopack', 'git-identity']);
+    // Every entry has a test.
+    assert.deepStrictEqual([...new Set(ERROR_CASES.map((c) => c.id))].sort(), [...ids].sort(), 'every catalog entry has a case');
+
+    for (const c of ERROR_CASES) {
+        const found = errors.explain(c.text, { exitCode: c.exitCode, catalog });
+        assert.ok(found.length, c.id + ' found in: ' + c.text);
+        assert.strictEqual(found[0].id, c.id, c.text);
+        assert.ok(!/\{\{/.test(found[0].explanation), c.id + ': placeholders filled');
+        for (const re of c.has || []) assert.match(found[0].explanation, re);
+        if ('file' in c) {
+            assert.strictEqual(found[0].file, c.file, c.text);
+            if (c.file) {
+                assert.strictEqual(found[0].line, c.line);
+                assert.ok(found[0].explanation.includes(c.file + ' at line ' + c.line));
+                assert.deepStrictEqual(found[0].fixes, [{ action: 'openFileAtLine', label: 'Open the file at that line', file: c.file, line: c.line }]);
+            } else {
+                assert.deepStrictEqual(found[0].fixes, [], 'no location, no Open the file');
+            }
+        }
+    }
+
+    // Combined conditions need both parts.
+    const none = (/** @type {string} */ text, /** @type {number} */ exitCode) => errors.explain(text, { exitCode, catalog });
+    assert.deepStrictEqual(none("Error: ENOENT: no such file or directory, open '/p/data.csv'").map((f) => f.id), []);
+    assert.deepStrictEqual(none('Error: connect ECONNREFUSED 127.0.0.1:5432').map((f) => f.id), [], 'a local database is not the internet');
+    assert.deepStrictEqual(none('git@github.com: Permission denied (publickey).').map((f) => f.id), []);
+    assert.deepStrictEqual(none('   ▲ Next.js 16.0.0 (Turbopack)\n ✓ Ready in 2.1s').map((f) => f.id), [], 'the banner alone is not an error');
+    assert.deepStrictEqual(none('the dev server exited', 1).map((f) => f.id), []);
+    assert.deepStrictEqual(none('All good.').map((f) => f.id), []);
+    // Several at once come in catalog order; the text tail is what is read.
+    assert.deepStrictEqual(none('Error: listen EADDRINUSE :::3000\nFATAL ERROR: JavaScript heap out of memory').map((f) => f.id), ['port-in-use', 'out-of-memory']);
+    assert.deepStrictEqual(none('EADDRINUSE\n' + 'x'.repeat(errors.MAX_TEXT)).map((f) => f.id), []);
+    assert.deepStrictEqual(none('Killed\r\n').map((f) => f.id), ['killed'], 'Windows line ends');
+    const oom = none('JavaScript heap out of memory')[0];
+    assert.deepStrictEqual(oom.fixes.map((f) => f.action), ['lowMemory', 'runOnLaptop']);
+
+    const text = errors.formatExplanations(none('bash: node: command not found'));
+    assert.match(text, /^Node\.js is not installed\n {2}That language/);
+    assert.match(text, /Fix: Set up a Node\.js project \(kit add node-api\)/);
+    assert.match(errors.formatExplanations([]), /No known error/);
+
+    // The editor command is declared and shown on a selection.
+    const manifest = JSON.parse(fs.readFileSync(path.join(DIR, 'package.json'), 'utf8'));
+    const nls = JSON.parse(fs.readFileSync(path.join(DIR, 'package.nls.json'), 'utf8'));
+    assert.deepStrictEqual(manifest.contributes.commands, [{ command: 'diligent.kit.explain', title: '%command.explain%', category: 'Diligent' }]);
+    assert.strictEqual(nls['command.explain'], 'Explain this error');
+    assert.deepStrictEqual(manifest.contributes.menus['editor/context'].map((m) => [m.command, m.when]), [['diligent.kit.explain', 'editorHasSelection']]);
+    const extension = fs.readFileSync(path.join(DIR, 'extension.js'), 'utf8');
+    assert.match(extension, /registerCommand\('diligent\.kit\.explain'/);
+    for (const f of ['kit.js', 'errors.js', 'errors.json']) assert.ok(extension.includes("'" + f + "'"), 'ships ' + f + ' beside kit.js');
 }
 
 // ---- end to end ------------------------------------------------------------------
@@ -478,6 +725,23 @@ function checkCliProcess() {
     const doctor = execFileSync(process.execPath, [cli, 'doctor'], { env, encoding: 'utf8' });
     assert.match(doctor, /health checks unavailable/);
     assert.match(doctor, /Storage/);
+
+    // kit explain: from a file and from a pipe, with no engine running.
+    const log = path.join(tmp, 'run.log');
+    fs.writeFileSync(log, 'npm error code ENOSPC\n');
+    const fromFile = execFileSync(process.execPath, [cli, 'explain', log], { env, encoding: 'utf8' });
+    assert.match(fromFile, /The phone is out of storage/);
+    assert.match(fromFile, /Fix: Open Storage/);
+    const piped = execFileSync(process.execPath, [cli, 'explain'], { env, encoding: 'utf8', input: 'Author identity unknown\n' });
+    assert.match(piped, /Git needs your name and email/);
+    let unknown = null;
+    try {
+        execFileSync(process.execPath, [cli, 'explain'], { env, encoding: 'utf8', input: 'fine\n', stdio: ['pipe', 'pipe', 'pipe'] });
+    } catch (err) {
+        unknown = err;
+    }
+    assert.ok(unknown && unknown.status === 1 && /No known error/.test(unknown.stdout));
+    assert.match(help, /kit explain/);
 }
 
 // ---- .bashrc -------------------------------------------------------------------------
@@ -496,7 +760,9 @@ function checkBashrc() {
     checkCliOutput(byId);
     await checkProtocol();
     await checkServiceAndFailures();
+    await checkOffline(byId);
     await checkEndToEnd();
+    checkErrors();
     checkCliProcess();
     checkBashrc();
     console.log('ok: diligent-kit recipes, needs, planning, names, CLI, socket and end-to-end runs');

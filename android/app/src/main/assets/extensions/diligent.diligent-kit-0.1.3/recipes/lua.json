@@ -1,0 +1,49 @@
+{
+  "id": "lua",
+  "title": "Lua program",
+  "summary": "Hello World in Lua, a small and fast scripting language",
+  "language": "Lua",
+  "sizeMB": 5,
+  "needs": {
+    "toolchains": [
+      "toolchain_lua"
+    ],
+    "minFreeMB": 5,
+    "internet": "pack"
+  },
+  "tested": {
+    "lua": "5.4"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the Lua pack",
+      "pack": "toolchain_lua"
+    },
+    {
+      "type": "write",
+      "title": "Write main.lua",
+      "template": "lua/main.lua",
+      "path": "main.lua"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "lua main.lua"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

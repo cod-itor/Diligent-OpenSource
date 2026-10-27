@@ -1,0 +1,58 @@
+{
+  "id": "python-game",
+  "title": "Text game in Python",
+  "summary": "Guess the number: a game you play in the terminal",
+  "language": "Python",
+  "sizeMB": 25,
+  "needs": {
+    "toolchains": [],
+    "minFreeMB": 40,
+    "internet": "no"
+  },
+  "tested": {
+    "python": "3.14"
+  },
+  "steps": [
+    {
+      "type": "write",
+      "title": "Write game.py",
+      "template": "python-game/game.py",
+      "path": "game.py"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "python-game/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "run",
+      "title": "Create the virtual environment",
+      "command": "python3 -m venv .venv",
+      "timeoutSec": 300
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profiles",
+      "profiles": [
+        {
+          "name": "play",
+          "command": ".venv/bin/python game.py"
+        },
+        {
+          "name": "demo",
+          "command": ".venv/bin/python game.py --demo"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that a round plays itself",
+      "profile": "demo",
+      "expect": {
+        "output": "^Got it in "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

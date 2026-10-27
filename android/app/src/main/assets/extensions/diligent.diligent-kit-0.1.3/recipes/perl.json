@@ -1,0 +1,49 @@
+{
+  "id": "perl",
+  "title": "Perl program",
+  "summary": "Hello World in Perl, with a word count",
+  "language": "Perl",
+  "sizeMB": 70,
+  "needs": {
+    "toolchains": [
+      "toolchain_perl"
+    ],
+    "minFreeMB": 5,
+    "internet": "pack"
+  },
+  "tested": {
+    "perl": "5.40"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the Perl pack",
+      "pack": "toolchain_perl"
+    },
+    {
+      "type": "write",
+      "title": "Write main.pl",
+      "template": "perl/main.pl",
+      "path": "main.pl"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "perl main.pl"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 60
+    }
+  ]
+}

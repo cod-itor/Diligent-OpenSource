@@ -1,0 +1,55 @@
+{
+  "id": "c",
+  "title": "C program",
+  "summary": "Hello World in C, built with clang",
+  "language": "C",
+  "sizeMB": 265,
+  "needs": {
+    "toolchains": [
+      "toolchain_cpp"
+    ],
+    "minFreeMB": 5,
+    "internet": "pack"
+  },
+  "tested": {
+    "clang": "21"
+  },
+  "steps": [
+    {
+      "type": "toolchain",
+      "title": "Install the C/C++ pack",
+      "pack": "toolchain_cpp"
+    },
+    {
+      "type": "write",
+      "title": "Write main.c",
+      "template": "c/main.c",
+      "path": "main.c"
+    },
+    {
+      "type": "write",
+      "title": "Write .gitignore",
+      "template": "c/gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "type": "profile",
+      "title": "Add the run profile",
+      "profiles": [
+        {
+          "name": "main",
+          "command": "clang -std=c17 -O1 -Wall -o hello main.c && ./hello"
+        }
+      ]
+    },
+    {
+      "type": "test",
+      "title": "Check that it builds and runs",
+      "profile": "main",
+      "expect": {
+        "output": "^Hello from "
+      },
+      "timeoutSec": 180
+    }
+  ]
+}

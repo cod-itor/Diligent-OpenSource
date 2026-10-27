@@ -1,0 +1,3 @@
+[submodule "android/diligent-sync-core"]
+	path = android/diligent-sync-core
+	url = https://github.com/cod-itor/Diligent-Apps.git
