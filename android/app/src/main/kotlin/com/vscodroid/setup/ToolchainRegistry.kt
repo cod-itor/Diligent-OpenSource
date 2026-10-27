@@ -160,6 +160,20 @@ object ToolchainRegistry {
             downloadSize = 10_000_000,
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_php.zip",
         ),
+        ToolchainInfo(
+            packName = "toolchain_lua",
+            displayName = "Lua 5.4",
+            shortLabel = "Lua 5.4",
+            descriptionRes = R.string.toolchain_lua_description,
+            // 400 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (409,600 bytes in 4 KiB blocks, 4 files) after running
+            // scripts/download-lua.sh against lua54 5.4.9: two statically linked
+            // binaries and one notice. 1,000,000 is more than double it, which
+            // costs nothing at this size. The ZIP measured 192,808 bytes.
+            estimatedSize = 1_000_000,
+            downloadSize = 200_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_lua.zip",
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

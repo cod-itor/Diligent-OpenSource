@@ -360,6 +360,7 @@
     <string name="toolchain_java_description">OpenJDK 21 (javac, jar, jshell)</string>
     <string name="toolchain_cpp_description">C ve C++ (clang, lld). Terminalin exec yakalayıcısını gerektirir: LD_PRELOAD null olarak ayarlıysa çalışmaz.</string>
     <string name="toolchain_php_description">PHP (Composer)</string>
+    <string name="toolchain_lua_description">Lua 5.4 (lua, luac)</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

@@ -653,7 +653,7 @@ VSCodroid is built using the Android SDK and NDK provided by Google.
 
 ## Google Play Asset Delivery
 
-On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
+On Play Store installs, on-demand toolchain packs (Ruby, Java, C/C++, PHP, Lua) are delivered via Google Play Asset Delivery, a feature of Google Play. On installs that did not come from the Play Store, the same packs are downloaded as ZIPs from this project's GitHub Releases (https://github.com/rmyndharis/VSCodroid/releases), which the terms below do not govern.
 
 - **Terms**: https://play.google.com/about/developer-distribution-agreement.html
 
@@ -821,6 +821,13 @@ The following toolchains are available as optional downloads and have their own 
 - **License**: PHP License v3.01 (PHP-3.01); Composer is MIT
 - **Copyright**: Copyright (c) The PHP Group; Composer: Copyright (c) Nils Adermann, Jordi Boggiano
 - **Full license**: ships inside the pack at `usr/share/doc/php/copyright` and `usr/share/doc/composer/copyright`, and https://www.php.net/license/3_01.txt
+
+### Lua
+
+- **Project**: https://www.lua.org (Lua 5.4, packaged by Termux as `lua54`)
+- **License**: MIT
+- **Copyright**: Copyright (c) Lua.org, PUC-Rio
+- **Full license**: ships inside the pack at `usr/share/doc/lua54/copyright`, and https://www.lua.org/license.html
 
 ---
 

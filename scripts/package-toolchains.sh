@@ -13,6 +13,7 @@ set -euo pipefail
 #     ./scripts/download-java.sh
 #     ./scripts/download-cpp.sh
 #     ./scripts/download-php.sh
+#     ./scripts/download-lua.sh
 #
 # Usage:
 #   ./scripts/package-toolchains.sh              # Package all toolchains
@@ -24,6 +25,7 @@ set -euo pipefail
 #   toolchain-zips/toolchain_java.zip  (~64 MB)
 #   toolchain-zips/toolchain_cpp.zip   (~74 MB)
 #   toolchain-zips/toolchain_php.zip   (~10 MB)
+#   toolchain-zips/toolchain_lua.zip   (~0.2 MB)
 #
 # The ZIPs are intended to be attached to GitHub Releases so that sideloaded
 # APK users (not from Play Store) can download toolchains manually. The app's

@@ -690,7 +690,12 @@ def toolchain_notices():
             if path.is_symlink() or not path.is_file():
                 continue
             name = path.name.lower()
-            if name.startswith(("license", "licence", "copying", "notice")) or \
+            # `copyright` too: it is the name a Termux package gives its notice
+            # (Debian's convention), and the one file termux_copy_notices
+            # places for a package that ships nothing else. Diligent's Lua pack
+            # carries exactly that one, and read without it the pack reported
+            # no notice while carrying Lua's.
+            if name.startswith(("license", "licence", "copying", "notice", "copyright")) or \
                     name.endswith((".md", ".txt")) and "licen" in name:
                 found = True
                 break

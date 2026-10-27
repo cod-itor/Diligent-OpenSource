@@ -345,7 +345,7 @@ android {
     }
 
     // On-demand toolchain asset packs (Play Asset Delivery)
-    assetPacks += listOf(":toolchain_ruby", ":toolchain_java", ":toolchain_cpp", ":toolchain_php")
+    assetPacks += listOf(":toolchain_ruby", ":toolchain_java", ":toolchain_cpp", ":toolchain_php", ":toolchain_lua")
 
     bundle {
         language {
@@ -690,6 +690,7 @@ tasks.withType<Test> {
         rootProject.projectDir.parentFile.resolve("scripts/download-java.sh"),
         rootProject.projectDir.parentFile.resolve("scripts/download-cpp.sh"),
         rootProject.projectDir.parentFile.resolve("scripts/download-php.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-lua.sh"),
     )
         .withPropertyName("toolchainDownloadScripts")
         .withPathSensitivity(PathSensitivity.RELATIVE)

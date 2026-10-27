@@ -191,6 +191,7 @@ base app's `usr/share/doc/python/LICENSE`.
 | LLVM (clang, lld) | Apache 2.0 with LLVM Exceptions | https://llvm.org |
 | PHP | PHP License 3.01 | https://www.php.net |
 | Composer | MIT | https://getcomposer.org |
+| Lua | MIT | https://www.lua.org |
 
 OpenJDK's own licence and third-party notice files ship inside the Java pack at `usr/lib/jvm/java-21-openjdk/legal`; Ruby's per-gem licence files likewise ship inside the Ruby pack. LLVM's `LICENSE.TXT` ships inside the C/C++ pack at `usr/share/doc/libllvm`.
 
