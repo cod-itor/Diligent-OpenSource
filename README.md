@@ -99,7 +99,7 @@ Added by Diligent:
 
 - "What do you want to build?": nine ready templates (web page, React with Vite, Next.js,
   Express API, Python, Python for data, Java, C/C++, Ruby) with live progress.
-- The same in the terminal: `kit list`, `kit add nextjs my-app`, `kit doctor`, `kit remove`.
+- The same in the terminal: `kit list`, `kit add nextjs my-app`, `kit prepare nextjs` (so it works offline later), `kit explain` (plain words for an error), `kit doctor`, `kit remove`.
 - Space, internet and tools are checked before anything starts, with a plain message saying
   what is missing.
 

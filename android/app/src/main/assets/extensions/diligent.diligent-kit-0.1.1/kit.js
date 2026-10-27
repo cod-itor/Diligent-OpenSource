@@ -6,15 +6,16 @@
  * kit: Diligent's setup command for the terminal.
  *
  *   kit list | kit add <recipe> [name] | kit prepare <recipe> | kit remove <pack>
- *   kit doctor | kit help
+ *   kit doctor | kit explain [file] | kit help
  *
  * Shipped by the diligent-kit extension to ~/.diligent/kit/kit.js and run by
  * the `kit()` function in .bashrc. It holds no recipes itself: it asks the
  * engine in the editor over ~/.diligent/kit.sock (newline-delimited JSON, see
  * the extension's server.js). `doctor` works without the engine, apart from
- * the app's health checks.
+ * the app's health checks, and `explain` never needs it.
  *
- * Standalone on purpose: one file, Node's own modules only.
+ * Standalone on purpose: Node's own modules only, plus errors.js and
+ * errors.json, which the extension ships beside it for `kit explain`.
  */
 
 const fs = require('fs');
@@ -36,9 +37,11 @@ const HELP = [
     '  kit prepare <recipe>      Download what a recipe needs now, so kit add works offline later',
     '  kit remove <pack>         Remove a toolchain pack (ruby, java, cpp)',
     '  kit doctor                Check tools, packs, storage and the app\'s health',
+    '  kit explain [file]        Say in plain words what an error means (reads the file, or what is piped in)',
     '  kit help                  Show this help',
     '',
-    'Example: kit add react-vite my-app',
+    'Examples: kit add react-vite my-app',
+    '          npm run dev 2>&1 | kit explain',
 ].join('\n');
 
 const NO_ENGINE = 'The kit engine is not running. Open the editor in Diligent, wait a few seconds, and try again.';
@@ -202,6 +205,17 @@ function storage() {
     }
 }
 
+/** Everything on stdin, as text. @returns {Promise<string>} */
+function readStdin() {
+    return new Promise((resolve, reject) => {
+        let text = '';
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', (chunk) => { text += chunk; });
+        process.stdin.on('end', () => resolve(text));
+        process.stdin.on('error', reject);
+    });
+}
+
 /** @param {string} msg */
 function fail(msg) {
     process.stderr.write(msg + '\n');
@@ -292,6 +306,21 @@ async function main(argv) {
             health,
         }));
         return 0;
+    }
+    if (cmd === 'explain') {
+        if (rest.length > 1) return fail('Usage: kit explain [file], or pipe the output in: npm run dev 2>&1 | kit explain');
+        let text;
+        if (rest[0] && rest[0] !== '-') {
+            try { text = fs.readFileSync(rest[0], 'utf8'); } catch { return fail('Cannot read ' + rest[0] + '.'); }
+        } else if (process.stdin.isTTY) {
+            return fail('Usage: kit explain [file], or pipe the output in: npm run dev 2>&1 | kit explain');
+        } else {
+            text = await readStdin();
+        }
+        const errors = require(path.join(__dirname, 'errors.js'));
+        const found = errors.explain(text);
+        console.log(errors.formatExplanations(found));
+        return found.length ? 0 : 1;
     }
     return fail('Unknown command "' + cmd + '".\n\n' + HELP);
 }
