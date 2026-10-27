@@ -3,6 +3,7 @@ package com.vscodroid.diligent
 import android.content.Context
 import android.content.Intent
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -290,6 +291,26 @@ class DiligentController(
             else -> Unit
         }
     }
+
+    /**
+     * Press and hold on the code, then drag: the cursor moves like on a
+     * trackpad. Mobile view's Editor tab only, with no native screen over it.
+     */
+    private val cursorDrag by lazy {
+        CursorDragTouch(
+            activity = activity,
+            webView = webView,
+            enabled = { shell.view == AppView.Mobile && shell.tab == MobileTab.Editor && !shell.chrome.nativeScreen },
+            sendKey = host::sendKey,
+        )
+    }
+
+    /**
+     * Every touch of the window, from the activity's `dispatchTouchEvent`,
+     * before the views get it. True when a cursor drag owns it, and the
+     * activity must not deliver it.
+     */
+    fun consumeTouch(ev: MotionEvent): Boolean = cursorDrag.consume(ev)
 
     /** The soft keyboard came up or went down (from the extra key row's inset listener). */
     fun onImeVisibilityChanged(visible: Boolean) {

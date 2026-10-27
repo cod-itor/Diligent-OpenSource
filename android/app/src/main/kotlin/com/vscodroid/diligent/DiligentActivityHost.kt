@@ -29,6 +29,12 @@ interface DiligentActivityHost {
 
     /** Opens a folder from [recentDeviceFolders]. */
     fun openDeviceFolder(folder: DeviceFolder)
+
+    /**
+     * Presses [key] (a DOM key name such as `ArrowLeft`) in the editor page,
+     * through the extra key row's key injector, the path its trackpad uses.
+     */
+    fun sendKey(key: String)
 }
 
 /** A folder on shared storage the user picked through the system picker. */
