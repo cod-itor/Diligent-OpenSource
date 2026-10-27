@@ -375,6 +375,7 @@
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Roda no Java 21: instale também o Java 21.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), sem wx e ODBC.</string>
     <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Roda no Erlang/OTP: instale também o Erlang/OTP.</string>
+    <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp), com ASDF.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

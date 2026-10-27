@@ -87,6 +87,8 @@ yarn-error.log*
 /android/toolchain_erlang/src/main/assets/toolchain_erlang.json
 /android/toolchain_elixir/src/main/assets/usr/
 /android/toolchain_elixir/src/main/assets/toolchain_elixir.json
+/android/toolchain_sbcl/src/main/assets/usr/
+/android/toolchain_sbcl/src/main/assets/toolchain_sbcl.json
 
 # ===== Toolchain Asset Pack build intermediates =====
 /android/toolchain_ruby/build/
@@ -102,6 +104,7 @@ yarn-error.log*
 /android/toolchain_scala/build/
 /android/toolchain_erlang/build/
 /android/toolchain_elixir/build/
+/android/toolchain_sbcl/build/
 
 # ===== Bundletool (local AAB testing only) =====
 bundletool.jar

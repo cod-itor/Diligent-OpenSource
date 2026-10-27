@@ -372,6 +372,7 @@
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Java 21 üzerinde çalışır: Java 21\'i de yükleyin.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript); wx ve ODBC hariç.</string>
     <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Erlang/OTP üzerinde çalışır: Erlang/OTP\'yi de yükleyin.</string>
+    <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp), ASDF ile.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->

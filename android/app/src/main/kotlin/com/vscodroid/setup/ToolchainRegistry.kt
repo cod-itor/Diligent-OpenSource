@@ -334,6 +334,20 @@ object ToolchainRegistry {
             downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_elixir.zip",
             requires = listOf("toolchain_erlang"),
         ),
+        ToolchainInfo(
+            packName = "toolchain_sbcl",
+            displayName = "Common Lisp (SBCL)",
+            shortLabel = "SBCL",
+            descriptionRes = R.string.toolchain_sbcl_description,
+            // 43,252 KiB measured with `du -sk` over the pack's `usr/` tree
+            // (44,290,048 bytes in 4 KiB blocks, 47 files) after running
+            // scripts/download-sbcl.sh against sbcl 2.6.9. sbcl.core, the Lisp
+            // image, is 34 MB of it. 46,000,000 leaves 1.7 MB for a point
+            // release. The ZIP measured 13,409,578 bytes.
+            estimatedSize = 46_000_000,
+            downloadSize = 14_000_000,
+            downloadUrl = "https://github.com/cod-itor/Diligent-OpenSource/releases/latest/download/toolchain_sbcl.zip",
+        ),
     )
 
     /** Look up toolchain info by pack name (e.g. "toolchain_ruby") or short name (e.g. "ruby"). */

@@ -144,6 +144,7 @@ python3 scripts/build-nls-bundles.py
 ./scripts/download-scala.sh
 ./scripts/download-erlang.sh
 ./scripts/download-elixir.sh
+./scripts/download-sbcl.sh
 ```
 
 Alternatively, run steps 0 to 14 and the APK build in one go:
@@ -254,6 +255,7 @@ VSCodroid/
 │   ├── download-scala.sh             # Download Scala 3 (runs on the Java pack)
 │   ├── download-erlang.sh            # Download Erlang/OTP
 │   ├── download-elixir.sh            # Download Elixir (runs on the Erlang pack)
+│   ├── download-sbcl.sh              # Download SBCL (Common Lisp)
 │   ├── build-all.sh                  # Run all download/build scripts
 │   ├── deploy.sh                     # Build + install + launch on device
 │   ├── device-test.sh                # Run device tests
@@ -345,6 +347,7 @@ checkouts differed.
 | `download-scala.sh` | Diligent: downloads Scala 3 and scala-cli from Termux. JVM jars and bash scripts only; it runs on the Java pack. Termux's link to scala-cli.jar in bin/ and the .bat files are left out | `toolchain_scala/src/main/assets/` |
 | `download-erlang.sh` | Diligent: downloads Erlang/OTP from Termux, leaves out each application's `src/`, the static archives, wx and ODBC (whose libraries the device does not have), and points the `#!` lines that name Termux's sh or env at /system/bin | `toolchain_erlang/src/main/assets/` |
 | `download-elixir.sh` | Diligent: downloads Elixir from Termux. BEAM bytecode and sh scripts only; it runs on the Erlang pack. The scripts' `#!` lines are pointed at /system/bin | `toolchain_elixir/src/main/assets/` |
+| `download-sbcl.sh` | Diligent: downloads SBCL, the runtime, its core and the contrib modules, from Termux; the manifest sets `SBCL_HOME`, which sbcl would otherwise look for beside the linker or under Termux's prefix | `toolchain_sbcl/src/main/assets/` |
 | `check-build-steps.py` | Five checks, and the script prints one line per check so the count is readable from a run rather than from here. Three about shell scripts: the documented build sequence, `build-all.sh`, and the two build workflows all still name the same ones, the third pairs `build.yml` against `release.yml`, so a step dropped from the tag path alone is caught. Then every `scripts/test-*.js` runs in both `lint.yml` and `release.yml`, so a self-check cannot be added and then run by nothing; and every `scripts/check-*.py` is invoked by something, which is the answerable question for that family since several take arguments and run from a script or from Gradle. The self-check rule matches an invocation, not a mention, a script named only in a comment does not count. ⚠️ The shell rules match `bash scripts/*.sh` only, so a script a workflow runs with `python3`, or one called from inside another script, is still not covered, those are listed here by hand. The build-vs-release pairing is also one-directional: a script that runs only on the tag path can be dropped from it and nothing notices | exit status |
 | `write-build-manifest.py` | Records what a build resolved: the app's own version, versionCode and commit, the editor version and commit, the server tarball digest, the musl loader's version and checksum, and the version and checksum of every Termux package. The release workflow attaches it to the release, so a published artifact can be traced to the build that produced it without asking the Actions API for a run that will outlive neither. A record, not a lock: superseded packages are dropped upstream, so a pin would break the build on every routine update. `--compare` reports the differences against an earlier manifest and always exits 0 | `build-manifest.txt` |
 | `check-langserver-patterns.py` | Checks the process monitor can recognise the language servers being packaged. A pattern matching nothing is invisible twice: the server keeps running, keeps counting against the phantom-process budget, and the process tree shows it as 'other' rather than marking it idle | exit status |

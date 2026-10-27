@@ -345,7 +345,7 @@ android {
     }
 
     // On-demand toolchain asset packs (Play Asset Delivery)
-    assetPacks += listOf(":toolchain_ruby", ":toolchain_java", ":toolchain_cpp", ":toolchain_php", ":toolchain_lua", ":toolchain_perl", ":toolchain_kotlin", ":toolchain_rust", ":toolchain_tcl", ":toolchain_groovy", ":toolchain_scala", ":toolchain_erlang", ":toolchain_elixir")
+    assetPacks += listOf(":toolchain_ruby", ":toolchain_java", ":toolchain_cpp", ":toolchain_php", ":toolchain_lua", ":toolchain_perl", ":toolchain_kotlin", ":toolchain_rust", ":toolchain_tcl", ":toolchain_groovy", ":toolchain_scala", ":toolchain_erlang", ":toolchain_elixir", ":toolchain_sbcl")
 
     bundle {
         language {
@@ -699,6 +699,7 @@ tasks.withType<Test> {
         rootProject.projectDir.parentFile.resolve("scripts/download-scala.sh"),
         rootProject.projectDir.parentFile.resolve("scripts/download-erlang.sh"),
         rootProject.projectDir.parentFile.resolve("scripts/download-elixir.sh"),
+        rootProject.projectDir.parentFile.resolve("scripts/download-sbcl.sh"),
     )
         .withPropertyName("toolchainDownloadScripts")
         .withPathSensitivity(PathSensitivity.RELATIVE)

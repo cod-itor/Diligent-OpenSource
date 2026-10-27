@@ -378,6 +378,7 @@
     <string name="toolchain_scala_description">Scala 3 (scala, scalac, scaladoc). Работает на Java 21: установите и Java 21.</string>
     <string name="toolchain_erlang_description">Erlang/OTP (erl, erlc, escript), без wx и ODBC.</string>
     <string name="toolchain_elixir_description">Elixir (elixir, iex, mix). Работает на Erlang/OTP: установите и Erlang/OTP.</string>
+    <string name="toolchain_sbcl_description">Common Lisp: SBCL (Steel Bank Common Lisp) с ASDF.</string>
 
     <!-- The checkmark on a selected toolchain card. It is an ImageView with no
          text, so this is the whole of what a screen reader has to announce it. -->
